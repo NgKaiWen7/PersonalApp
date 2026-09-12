@@ -1,6 +1,7 @@
-import { Todo } from "./Todo";
-import { Workout } from "./Workout";
+import { Todo } from "./TODOPages/Todo";
+import { Workout } from "./WorkoutPages/Workout";
 import "./Header.css";
+import "./App.css";
 
 export function Header() {
   return (
@@ -14,7 +15,6 @@ export default function App() {
   return (
     <div className="app-container">
       <Header />
-
       <main className="content">
         <Todo />
         <Workout />

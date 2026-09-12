@@ -5,11 +5,11 @@
 
 .app-header h1 {
   margin: 0;
-  font-size: 2rem;
+  font-size: 5rem;
 }
 
 .app-header p {
   margin: 4px 0 0;
   color: grey;
-  font-size: 0.9rem;
+  font-size: 2rem;
 }

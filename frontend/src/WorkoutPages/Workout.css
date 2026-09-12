@@ -6,7 +6,17 @@
   font-size: 5rem;
   margin: 0 0 12px 0;
 }
-
+.workout-header {
+  display: flex;
+  align-items: center; /* Aligns the text and button vertically */
+  gap: 10px;           /* Puts a 10px space between the title and the button */
+}
+/* Optional: Style your button to make it look clean */
+.edit-btn {
+  padding: 4px 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
 .workout-days {
   display: flex;
   gap: 10px;
