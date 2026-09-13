@@ -1,22 +1,30 @@
-FROM python:3.12-slim
+# Stage 1: Build the Go binary
+FROM golang:1.24-alpine AS builder
 
 WORKDIR /app
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+# Cache dependencies
+COPY go.mod go.sum* ./
+RUN go mod download
 
-# Install uv
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+# Copy source files and compile
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o server ./main.go
 
-# Copy dependency files first for Docker layer caching
-COPY pyproject.toml uv.lock ./
+# Stage 2: Minimal runtime image
+FROM alpine:3.21
 
-# Install dependencies into the container
-RUN uv sync --frozen --no-dev
+# Install CA certificates for HTTPS outbound requests and tzdata if needed
+RUN apk --no-cache add ca-certificates tzdata
 
-# Copy application
-COPY app ./app
+WORKDIR /app
+
+# Copy the binary from the build stage
+COPY --from=builder /app/server .
+
+# Create the data directory referenced in your volumes
+RUN mkdir -p /data
 
 EXPOSE 8000
 
-CMD ["uv", "run", "--no-dev", "python", "-m", "app"]
+CMD ["./server"]
