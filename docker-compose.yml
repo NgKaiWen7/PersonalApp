@@ -1,16 +1,15 @@
 services:
-  # backend:
-  #   build:
-  #     context: ./backend
-  #   restart: unless-stopped
-  #   volumes:
-  #     - ./data:/data
-  #   ports:
-  #     - "8000:8000"
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-
+  backend:
+    image: golang:1.25
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: go run .
   frontend:
     image: node:22-bookworm
     restart: unless-stopped

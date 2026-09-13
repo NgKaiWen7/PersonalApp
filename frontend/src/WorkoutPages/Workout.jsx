@@ -1,5 +1,4 @@
 import "./Workout.css";
-import editIcon from '../assets/editbutton.png';
 import { useNavigate } from "react-router-dom";
 
 export function WorkoutDay({ title }) {
@@ -24,10 +23,10 @@ export function Workout() {
       <div className="workout-header">
       <h2 className="workout-title">Workout</h2>
       <button
-          className="edit-btn"
-          onClick={() => navigate("/workout/edit")}
+        className="edit-btn"
+        onClick={() => navigate("/workout/edit")}
       >
-          <img src={editIcon} alt="Edit" />
+        Edit
       </button>
       </div>
       <div className="workout-days">

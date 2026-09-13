@@ -1,7 +1,10 @@
-import { useEffect, useState, useRef, useImperativeHandle } from "react";
+import { useEffect, useState, useRef, useImperativeHandle , useCallback} from "react";
 import { useNavigate } from "react-router-dom";
 import "./TodoEdit.css";
 import {  fetchTodos, saveTodos, generateClientKey } from "./TodoData.jsx";
+const DAYS_BACK_DEFAULT = 7;
+const DAYS_FORWARD_DEFAULT = 7;
+const LOAD_MORE_CHUNK = 7; // how many extra days to fetch each time we scroll near the bottom
 
 
 
@@ -64,7 +67,13 @@ function DaySection({ date, todos, appendTodo, removeTodo }) {
   const todoRefs = useRef({});
 
   async function saveDay() {
-    await saveTodos(todos.map((todo) => todoRefs.current[todo.clientKey].getTodo()));
+    const dayTodos = todos.map((todo) => todoRefs.current[todo.clientKey].getTodo());
+    await saveTodos([
+      {
+        date: date,
+        todos: dayTodos,
+      },
+    ]);
   }
 
   function deleteTodo(todo) {
@@ -115,67 +124,71 @@ function DaySection({ date, todos, appendTodo, removeTodo }) {
   );
 }
 
-// 1. Accept a variable/prop to determine how many days to show
-function TodoDays({ daysToShow }) {
+function toMidnight(date) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function addDays(date, n) {
+  const d = toMidnight(date);
+  d.setDate(d.getDate() + n);
+  return d;
+}
+
+function TodoDays({ centerDate }) {
+  const today = toMidnight(centerDate ? new Date(centerDate) : new Date());
+
   const [days, setDays] = useState([]);
 
+  // Initial load: 7 days back to 7 days forward
   useEffect(() => {
-    fetchTodos().then((allDays) => {
-      // 2. If daysToShow is 1, filter only today's data
-      if (daysToShow === 1) {
-        // Get today's date in YYYY-MM-DD format (adjust if your backend uses a different format like DD/MM/YYYY)
-        const todayStr = new Date().toISOString().split("T")[0];
+    let startDate, endDate;
 
-        const todayData = allDays.filter((day) => day.date === todayStr);
-        setDays(todayData);
-      }
-      // Optional: If they pass another number (like 3), take only that many days
-      else if (daysToShow > 1) {
-        setDays(allDays.slice(0, daysToShow));
-      }
-      // Otherwise, show all fetched days
-      else {
-        setDays(allDays);
-      }
-    });
-  }, [daysToShow]); // Re-run if daysToShow changes
+    if (centerDate) {
+      // Only load the single specified day.
+      startDate = today;
+      endDate = today;
+    } else {
+      startDate = addDays(today, -DAYS_BACK_DEFAULT);
+      endDate = addDays(today, DAYS_FORWARD_DEFAULT);
+    }
+    fetchTodos(startDate, endDate)
+      .then(setDays)
+      .catch((err) => console.error(err));
+  }, []); // re-run only if the "center" the parent passed in changes
 
-  // 3. Fixed state mutation in appendTodo
+  console.log(days);
+
   function appendTodo(date, todo) {
     setDays((prevDays) =>
-      prevDays.map((day) => {
-        if (day.date === date) {
-          // Return a new object with the new todo appended, rather than using .push()
-          return { ...day, todos: [...day.todos, todo] };
-        }
-        return day;
-      }),
+      prevDays.map((day) =>
+        day.date === date ? { ...day, todos: [...day.todos, todo] } : day
+      )
     );
   }
+
   function removeTodo(date, todoToRemove) {
     setDays((prevDays) =>
       prevDays.map((day) => {
         if (day.date === date) {
-          // Find the matching key
-          const keyToRemove = todoToRemove.clientKey;
-
-          // Return a new day object with the item filtered out
           return {
             ...day,
-            todos: day.todos.filter((t) => t.clientKey !== keyToRemove),
+            todos: day.todos.filter((t) => t.clientKey !== todoToRemove.clientKey),
           };
         }
         return day;
-      }),
+      })
     );
   }
+
   return (
     <div className="todo-days">
       {days.map((day) => (
         <DaySection
-          key={day.date} // This key is perfect!
+          key={day.date}
           date={day.date}
-          todos={day.todos}
+          todos={day.tasks}
           appendTodo={(todo) => appendTodo(day.date, todo)}
           removeTodo={(todo) => removeTodo(day.date, todo)}
         />
@@ -185,5 +198,3 @@ function TodoDays({ daysToShow }) {
 }
 
 export default TodoDays;
-
-export { TodoDays };

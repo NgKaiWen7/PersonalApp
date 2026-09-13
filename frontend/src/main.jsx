@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import App from "./App";
 import WorkoutEdit from "./WorkoutPages/WorkoutEdit";
-import { TodoDays } from "./TODOPages/TodoEdit.jsx";
+import TodoDays from "./TODOPages/TodoEdit.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
