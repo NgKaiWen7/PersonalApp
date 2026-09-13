@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import {loadTodayWorkout, saveWorkoutData} from "./WorkoutData.jsx";
 import "./WorkoutEdit.css"
 
 const exerciseTypes = [
@@ -140,88 +141,16 @@ export default function WorkoutEdit() {
 
   // --- NEW: Load today's data when the page opens ---
   useEffect(() => {
-    async function loadTodayWorkout() {
-      try {
-        // 1. Get today's date in YYYY-MM-DD format
-        const todayStr = new Date().toISOString().split("T")[0];
-        const mockData = [
-          {
-            exerciseType: "Bench Press",
-            weight: 60,
-            reps: 10,
-          },
-          {
-            exerciseType: "Squat",
-            weight: 100,
-            reps: 8,
-          },
-        ];
-        setWorkoutHistory(mockData);
-        return;
-        // 2. Fetch data from your backend for this specific date
-        // Adjust this URL to match how your backend expects to receive the date
-        const backendUrl = `https://your-api.com/workouts?date=${todayStr}`;
-
-        const response = await fetch(backendUrl);
-
-        if (response.ok) {
-          const data = await response.json();
-
-          // 3. Update the table with the fetched data
-          // (Adjust this depending on if your backend returns an array directly,
-          // or an object like { date: "...", exercises: [...] })
-          if (data && data.exercises) {
-            setWorkoutHistory(data.exercises);
-          } else if (Array.isArray(data)) {
-            setWorkoutHistory(data);
-          }
-        }
-      } catch (error) {
-        console.error("Error loading today's workout:", error);
-      }
-    }
-
-    loadTodayWorkout();
-  }, []); // The empty array [] means this only runs ONCE when the page first loads
+    const loadWorkoutData = async () => {
+      const exercise_data = await loadTodayWorkout();
+      setWorkoutHistory(exercise_data);
+    };
+    loadWorkoutData();
+  }, []);
 
   async function handleSave() {
-    // 1. Optional: Prevent saving if the list is empty
-    if (workoutHistory.length === 0) {
-      alert("Please add at least one exercise before saving.");
-      return;
-    }
-
-    try {
-      // 2. Change this URL to your actual backend endpoint
-      const backendUrl = "https://your-api.com/workouts";
-
-      // 3. Send the data to the backend
-      const response = await fetch(backendUrl, {
-        method: "POST", // Use "PUT" if you are updating an existing workout
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          // You can send just the array, or wrap it in an object with a date
-          date: new Date().toISOString().split("T")[0],
-          exercises: workoutHistory,
-        }),
-      });
-
-      // 4. Check if the backend accepted it
-      if (!response.ok) {
-        throw new Error("Failed to save workout");
-      }
-
-      // 5. If successful, navigate back to the home page or dashboard
-      console.log("Workout saved successfully!");
-      navigate("/");
-
-    } catch (error) {
-      // 6. Handle any errors (like network dropping)
-      console.error("Error saving workout:", error);
-      alert("There was a problem saving your workout. Please try again.");
-    }
+    await saveWorkoutData(workoutHistory);
+    navigate("/");
   }
 
   function handleCancel() {

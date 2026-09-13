@@ -1,51 +1,9 @@
 import { useEffect, useState, useRef, useImperativeHandle } from "react";
 import { useNavigate } from "react-router-dom";
 import "./TodoEdit.css";
+import {  fetchTodos, saveTodos, generateClientKey } from "./TodoData.jsx";
 
-let nextClientKey = 100;
 
-function fetchTodos() {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([
-        {
-          date: "2026-09-13",
-          todos: [
-            {
-              clientKey: nextClientKey++, // <-- Direct assignation
-              id: 1,
-              title: "Workout",
-              description: "Chest and shoulders",
-              priority: "normal",
-              status: "",
-            },
-            {
-              clientKey: nextClientKey++, // <-- Direct assignation
-              id: 2,
-              title: "Study React",
-              description: "Learn useState",
-              priority: "high",
-              status: "",
-            },
-          ],
-        },
-        {
-          date: "2026-09-12",
-          todos: [
-            {
-              clientKey: nextClientKey++, // <-- Direct assignation
-              id: 3,
-              title: "Read",
-              description: "Read React documentation",
-              priority: "normal",
-              status: "done",
-            },
-          ],
-        },
-      ]);
-    }, 0);
-  });
-}
 
 function TodoTitle({ title, ref }) {
   return <textarea ref={ref} className="todo-title" defaultValue={title} />;
@@ -105,29 +63,20 @@ function TodoRow({ todo, todoRef, onDelete }) {
 function DaySection({ date, todos, appendTodo, removeTodo }) {
   const todoRefs = useRef({});
 
-  function saveDay() {
-    const data = todos.map((todo) => {
-      // Access the exposed function from our dictionary of refs
-      return todoRefs.current[todo.clientKey].getTodo();
-    });
-    console.log("Saving data:", data);
-    // POST/PUT data here
+  async function saveDay() {
+    await saveTodos(todos.map((todo) => todoRefs.current[todo.clientKey].getTodo()));
   }
 
   function deleteTodo(todo) {
     const itemKey = todo.clientKey;
-
-    // Remove it from our refs dictionary to free up memory
     delete todoRefs.current[itemKey];
-
-    // 2. Call the prop function to update the state in TodoDays
     removeTodo(todo);
   }
 
   function addTodo() {
     appendTodo({
       // 3. MUST add a unique clientKey here!
-      clientKey: nextClientKey++, // or Date.now().toString()
+      clientKey: generateClientKey(), // or Date.now().toString()
       id: null,
       title: "",
       description: "",
@@ -140,7 +89,7 @@ function DaySection({ date, todos, appendTodo, removeTodo }) {
       <div className="day-header">
         <h2>{date}</h2>
         <button onClick={addTodo}>Add TODO</button>
-        <button onClick={saveDay}>Save</button>
+        <button onClick={async () => await saveDay()}>Save</button>
       </div>
 
       <div className="todo-list">
