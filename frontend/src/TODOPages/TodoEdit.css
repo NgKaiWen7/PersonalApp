@@ -1,0 +1,30 @@
+.day-header {
+  flex-direction: column;
+}
+.todo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.todo-title,
+.todo-description {
+    border: none;
+    outline: none;
+  margin: 0;
+  padding: 0;
+  outline: none;
+ background: #d6e2ea;
+}
+
+.todo-title {
+  font-size: 1.4rem;
+  line-height: 1.3;
+}
+
+.todo-description {
+  font-size: 1rem;
+  line-height: 1.5;
+  font-style: italic;
+    background: #eef2f4;
+}

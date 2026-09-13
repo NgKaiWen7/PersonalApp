@@ -1,12 +1,9 @@
 .todo {
   margin-top: 24px;
 }
-
-.todo-title {
+.todo-header {
   font-size: 5rem;
   margin: 0 0 12px 0;
-}
-.todo-header {
   display: flex;
   align-items: center; /* Aligns the text and button vertically */
   gap: 10px;           /* Puts a 10px space between the title and the button */
