@@ -47,7 +47,6 @@ function fetchTodos() {
   });
 }
 
-
 function TodoTitle({ title, ref }) {
   return <textarea ref={ref} className="todo-title" defaultValue={title} />;
 }
@@ -62,17 +61,6 @@ function TodoDescription({ description, ref }) {
   );
 }
 
-function TodoPriority({ priority, ref }) {
-  return (
-    <select ref={ref} className="todo-priority" defaultValue={priority}>
-      <option value="low">Low</option>
-      <option value="medium">Medium</option>
-      <option value="high">High</option>
-      <option value="critical">Critical</option>
-    </select>
-  );
-}
-
 function TodoStatus({ status, ref }) {
   return (
     <label>
@@ -82,10 +70,9 @@ function TodoStatus({ status, ref }) {
   );
 }
 
-function TodoRow({ todo, todoRef , onDelete }) {
+function TodoRow({ todo, todoRef, onDelete }) {
   const titleRef = useRef(null);
   const descriptionRef = useRef(null);
-  const priorityRef = useRef(null);
   const statusRef = useRef(null);
 
   useImperativeHandle(todoRef, () => {
@@ -95,10 +82,9 @@ function TodoRow({ todo, todoRef , onDelete }) {
           ...todo,
           title: titleRef.current.value,
           description: descriptionRef.current.value,
-          priority: priorityRef.current.value,
           status: statusRef.current.checked,
         };
-      }
+      },
     };
   });
 
@@ -107,7 +93,6 @@ function TodoRow({ todo, todoRef , onDelete }) {
       <div className="todo-form">
         <TodoTitle ref={titleRef} title={todo.title} />
         <TodoDescription ref={descriptionRef} description={todo.description} />
-        <TodoPriority ref={priorityRef} priority={todo.priority} />
         <TodoStatus ref={statusRef} status={todo.status} />
       </div>
       <button className="delete-btn" onClick={onDelete}>
@@ -117,7 +102,7 @@ function TodoRow({ todo, todoRef , onDelete }) {
   );
 }
 
-function DaySection({ date, todos, appendTodo ,removeTodo}) {
+function DaySection({ date, todos, appendTodo, removeTodo }) {
   const todoRefs = useRef({});
 
   function saveDay() {
@@ -130,7 +115,7 @@ function DaySection({ date, todos, appendTodo ,removeTodo}) {
   }
 
   function deleteTodo(todo) {
-    const itemKey = todo.key ? todo.key : todo.clientKey;
+    const itemKey = todo.clientKey;
 
     // Remove it from our refs dictionary to free up memory
     delete todoRefs.current[itemKey];
@@ -146,7 +131,6 @@ function DaySection({ date, todos, appendTodo ,removeTodo}) {
       id: null,
       title: "",
       description: "",
-      priority: "medium",
       status: false,
     });
   }
@@ -216,7 +200,7 @@ function TodoDays({ daysToShow }) {
           return { ...day, todos: [...day.todos, todo] };
         }
         return day;
-      })
+      }),
     );
   }
   function removeTodo(date, todoToRemove) {
@@ -229,11 +213,11 @@ function TodoDays({ daysToShow }) {
           // Return a new day object with the item filtered out
           return {
             ...day,
-            todos: day.todos.filter(t => (t.clientKey) !== keyToRemove)
+            todos: day.todos.filter((t) => t.clientKey !== keyToRemove),
           };
         }
         return day;
-      })
+      }),
     );
   }
   return (
@@ -252,6 +236,5 @@ function TodoDays({ daysToShow }) {
 }
 
 export default TodoDays;
-
 
 export { TodoDays };

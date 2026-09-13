@@ -1,15 +1,91 @@
+/* ==========================================================================
+   Main App Header Section
+   ========================================================================== */
 .app-header {
-  padding: 24px 0;
-  text-align: left;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #ffffff;
+  padding: 16px 24px;
+  border-bottom: 2px dashed #f1f5f9; /* Playful dashed boundary separator */
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
+/* ==========================================================================
+   Header Top Row (Aligns Title and Logout button)
+   ========================================================================== */
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Pushes Title to Left, Logout to Right */
+  gap: 12px;
+  width: 100%;
+}
+
+/* Gradient App Title Typography */
 .app-header h1 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #4f46e5 0%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   margin: 0;
-  font-size: 5rem;
+  letter-spacing: -0.5px;
 }
 
+/* Subtitle */
 .app-header p {
-  margin: 4px 0 0;
-  color: grey;
-  font-size: 2rem;
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* ==========================================================================
+   Interactive Logout Button
+   ========================================================================== */
+.logout-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border: 1px solid #fee2e2;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #ef4444;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.logout-btn:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+  transform: translateY(-1px);
+}
+
+.logout-btn:active {
+  transform: translateY(0);
+}
+
+/* ==========================================================================
+   Responsive Adaptations for Small Mobile Screens
+   ========================================================================== */
+@media screen and (max-width: 480px) {
+  .app-header {
+    padding: 16px;
+  }
+
+  .header-top {
+    flex-direction: column; /* Stack Title and Logout vertically on narrow phones */
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .logout-btn {
+    width: 100%; /* Makes button hit-friendly and wide on small screens */
+  }
 }

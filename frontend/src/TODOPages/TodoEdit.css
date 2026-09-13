@@ -1,30 +1,139 @@
-.day-header {
-  flex-direction: column;
+/* ==========================================================================
+   1. Parent Container (Expands to full screen width)
+   ========================================================================== */
+.todo-list {
+  display: grid;
+  grid-template-columns: 1fr; /* 1-column stack */
+  gap: 16px;                  /* Vertical spacing between cards */
+  width: 100%;                /* Follows the width of the screen */
+  box-sizing: border-box;
 }
+
+/* ==========================================================================
+   2. Individual Todo Card Wrapper (Stretches to match container width)
+   ========================================================================== */
+.todo-edit {
+  position: relative;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 12px;
+  padding: 12px;
+  width: 100%;                /* Stretches to fill the screen width */
+  box-sizing: border-box;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Energetic active left-border accent */
+.todo-edit::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(to bottom, #6366f1, #a855f7);
+  border-radius: 12px 0 0 12px;
+}
+
+/* Lively hover lift effect with subtle glow scaling */
+.todo-edit:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.15), 0 4px 6px -2px rgba(99, 102, 241, 0.05);
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+/* Delete Button styled specifically inside the Todo card */
+.todo-edit .delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;                /* Stretches across the full card width */
+  margin-top: 8px;
+  padding: 8px 12px;
+  border: 1px solid #fee2e2;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #ef4444;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.todo-edit .delete-btn:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+  transform: translateY(-1px);
+}
+
+.todo-edit .delete-btn:active {
+  transform: translateY(0);
+}
+
+/* ==========================================================================
+   3. Form Wrapper
+   ========================================================================== */
 .todo-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
 }
 
+/* ==========================================================================
+   4. Form Inputs (Consolidated styles)
+   ========================================================================== */
 .todo-title,
 .todo-description {
-    border: none;
-    outline: none;
+  width: 100%;                /* Inputs stretch to match the expanding card width */
   margin: 0;
-  padding: 0;
+  padding: 8px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
   outline: none;
- background: #d6e2ea;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: all 0.2s ease-in-out;
 }
 
+.todo-title::placeholder,
+.todo-description::placeholder {
+  color: #94a3b8;
+}
+
+/* --- Specific Title Styles --- */
 .todo-title {
-  font-size: 1.4rem;
-  line-height: 1.3;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #1e293b;
 }
 
+.todo-title::placeholder {
+  font-weight: 500;
+}
+
+.todo-title:focus {
+  background: #ffffff;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* --- Specific Description Styles --- */
 .todo-description {
-  font-size: 1rem;
-  line-height: 1.5;
-  font-style: italic;
-    background: #eef2f4;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: #475569;
+  resize: vertical;
+  min-height: 44px;
+}
+
+.todo-description:focus {
+  background: #ffffff;
+  border-color: #a855f7;
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
 }
