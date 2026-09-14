@@ -16,12 +16,10 @@ function getDatesInRange(startDate, endDate) {
 
   return dates;
 }
-
 async function fetchTodos(startDate, endDate) {
-  const dates = getDatesInRange(startDate, endDate);
-  console.log("Fetching todos for dates:", dates);
+  const dates = getDatesInRange(startDate, endDate); // assumed to be YYYY-MM-DD strings
   const response = await fetch(
-    `http://localhost:8080/api/todos?dates=${dates.join(",")}`,
+    `https://backend.nkwzotero.uk/api/todos?dates=${dates.join(",")}`,
     {
       method: "GET",
       headers: {
@@ -37,14 +35,22 @@ async function fetchTodos(startDate, endDate) {
 
   const days = await response.json();
 
-  // Assign clientKey on the frontend since the backend doesn't know about it
-  return days.map((day) => ({
-    ...day,
-    tasks: (day.tasks ?? []).map((task) => ({
-      ...task,
-      clientKey: generateClientKey(),
-    })),
-  }));
+  // Normalize any date string/timestamp down to YYYY-MM-DD for matching
+  const toDateKey = (d) => new Date(d).toISOString().slice(0, 10);
+
+  const daysByDate = new Map(days.map((day) => [toDateKey(day.date), day]));
+
+  return dates.map((date) => {
+    const day = daysByDate.get(toDateKey(date)) ?? { date, tasks: [] };
+    return {
+      ...day,
+      date, // keep the original YYYY-MM-DD from `dates` for consistency in the frontend
+      tasks: (day.tasks ?? []).map((task) => ({
+        ...task,
+        clientKey: generateClientKey(),
+      })),
+    };
+  });
 }
 
 async function saveTodos(days) {
@@ -60,7 +66,7 @@ async function saveTodos(days) {
       })),
     };
 
-    const response = await fetch("http://localhost:8080/api/todos", {
+    const response = await fetch("https://backend.nkwzotero.uk/api/todos", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

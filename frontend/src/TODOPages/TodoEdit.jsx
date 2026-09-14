@@ -92,9 +92,9 @@ function DaySection({ date, todos, appendTodo, removeTodo }) {
       status: false,
     });
   }
-
+  const isToday = date === new Date().toISOString().slice(0, 10);
   return (
-    <section className="day-section">
+    <section className={`day-section${isToday ? " glowing" : ""}`}>
       <div className="day-header">
         <h2>{date}</h2>
         <button onClick={addTodo}>Add TODO</button>
@@ -158,7 +158,6 @@ function TodoDays({ centerDate }) {
       .catch((err) => console.error(err));
   }, []); // re-run only if the "center" the parent passed in changes
 
-  console.log(days);
 
   function appendTodo(date, todo) {
     setDays((prevDays) =>
@@ -181,7 +180,7 @@ function TodoDays({ centerDate }) {
       })
     );
   }
-
+  console.log("Days ", days);
   return (
     <div className="todo-days">
       {days.map((day) => (

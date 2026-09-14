@@ -137,3 +137,80 @@
   border-color: #a855f7;
   box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
 }
+.day-section {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 18px 20px;
+  border: 2px solid #e8e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.day-section .day-header h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2d2d3a;
+}
+
+.day-section .day-header button {
+  background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.day-section .day-header button:hover {
+  transform: translateY(-2px);
+}
+
+/* TODAY gets the spotlight */
+.day-section.glowing {
+  position: relative;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(#fff, #fff) padding-box,
+    linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #ff6b6b) border-box;
+  background-size: 300% 300%;
+  animation: border-shift 4s ease infinite, pop-in 0.4s ease;
+  box-shadow: 0 6px 24px rgba(255, 107, 107, 0.25);
+}
+
+.day-section.glowing .day-header h2 {
+  background: linear-gradient(135deg, #ff6b6b, #feca57);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.day-section.glowing .day-header h2::after {
+  content: " ⚡ TODAY";
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  vertical-align: middle;
+  background: linear-gradient(135deg, #ff6b6b, #feca57);
+  -webkit-background-clip: text;
+  background-clip: text;
+  margin-left: 8px;
+}
+
+@keyframes border-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes pop-in {
+  from {
+    transform: scale(0.96);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(1.02);
+    opacity: 1;
+  }
+}
