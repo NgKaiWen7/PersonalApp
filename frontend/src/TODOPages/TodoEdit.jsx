@@ -163,7 +163,7 @@ function TodoDays({ centerDate }) {
   function appendTodo(date, todo) {
     setDays((prevDays) =>
       prevDays.map((day) =>
-        day.date === date ? { ...day, todos: [...day.todos, todo] } : day
+        day.date === date ? { ...day, tasks: [...day.tasks, todo] } : day
       )
     );
   }
@@ -174,7 +174,7 @@ function TodoDays({ centerDate }) {
         if (day.date === date) {
           return {
             ...day,
-            todos: day.todos.filter((t) => t.clientKey !== todoToRemove.clientKey),
+            tasks: day.tasks.filter((t) => t.clientKey !== todoToRemove.clientKey),
           };
         }
         return day;
