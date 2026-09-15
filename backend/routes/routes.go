@@ -26,8 +26,9 @@ func Setup(database *sql.DB) http.Handler {
 	mux := http.NewServeMux()
 
 	todoHandler := handlers.NewTodoHandler(database)
-
 	mux.HandleFunc("/api/todos", todoHandler.Handle)
 
+	workoutHandler := handlers.NewWorkoutHandler(database)
+	mux.HandleFunc("/api/workouts", workoutHandler.Handle)
 	return corsMiddleware(mux)
 }

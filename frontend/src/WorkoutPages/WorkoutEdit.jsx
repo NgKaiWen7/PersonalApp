@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {loadTodayWorkout, saveWorkoutData} from "./WorkoutData.jsx";
-import "./WorkoutEdit.css"
+import { loadTodayWorkout, saveWorkoutData, deleteWorkout, updateWorkout } from "./WorkoutData.jsx";
+import "./WorkoutEdit.css";
 
 const exerciseTypes = [
   "Bench Press",
@@ -56,23 +56,30 @@ function RepsSelector({ value, onChange }) {
 }
 
 function WorkoutHistory({ exercises, setExercises }) {
-  function updateExercise(index, field, value) {
-    const updated = [...exercises];
-
-    updated[index] = {
-      ...updated[index],
-      [field]: value,
+  async function updateExercise(id, field, value) {
+    const updated = {
+      ...exercises,
+      [id]: {
+        ...exercises[id],
+        [field]: value,
+      },
     };
-
     setExercises(updated);
+    const success = await updateWorkout(id, updated[id]); // two args, not one object
+    if (!success) {
+      // revert on failure
+      setExercises(exercises);
+    }
   }
-  function deleteExercise(indexToRemove) {
-    // .filter() creates a new array containing only the items that DO NOT match the index you clicked
-    const updatedExercises = exercises.filter((exercise, index) => {
-      return index !== indexToRemove;
-    });
-    // Update the state with the new array
-    setExercises(updatedExercises);
+
+  async function deleteExercise(id) {
+    const success = await deleteWorkout(id);
+
+    if (success) {
+      const updated = { ...exercises };
+      delete updated[id];
+      setExercises(updated);
+    }
   }
 
   return (
@@ -88,13 +95,13 @@ function WorkoutHistory({ exercises, setExercises }) {
         </thead>
 
         <tbody>
-          {exercises.map((exercise, index) => (
-            <tr key={index}>
+          {Object.entries(exercises).map(([id, exercise]) =>(
+            <tr key={id}>
               <td>
                 <ExerciseSelector
                   value={exercise.exerciseType}
                   onChange={(value) =>
-                    updateExercise(index, "exerciseType", value)
+                    updateExercise(id, "exerciseType", value)
                   }
                 />
               </td>
@@ -102,24 +109,20 @@ function WorkoutHistory({ exercises, setExercises }) {
               <td>
                 <WeightSelector
                   value={exercise.weight}
-                  onChange={(value) =>
-                    updateExercise(index, "weight", value)
-                  }
+                  onChange={(value) => updateExercise(id, "weight", value)}
                 />
               </td>
 
               <td>
                 <RepsSelector
                   value={exercise.reps}
-                  onChange={(value) =>
-                    updateExercise(index, "reps", value)
-                  }
+                  onChange={(value) => updateExercise(id, "reps", value)}
                 />
               </td>
               <td>
                 <button
                   className="delete-row-btn"
-                  onClick={() => deleteExercise(index)}
+                  onClick={() => deleteExercise(id)}
                 >
                   ✕
                 </button>
@@ -134,7 +137,7 @@ function WorkoutHistory({ exercises, setExercises }) {
 
 export default function WorkoutEdit() {
   const [exerciseType, setExerciseType] = useState("");
-  const [weight, setWeight] = useState(0);
+  const [weight, setWeight] = useState(2.5);
   const [reps, setReps] = useState(1);
   const [workoutHistory, setWorkoutHistory] = useState([]);
   const navigate = useNavigate();
@@ -148,34 +151,34 @@ export default function WorkoutEdit() {
     loadWorkoutData();
   }, []);
 
-  async function handleSave() {
-    await saveWorkoutData(workoutHistory);
+  function handleBack() {
     navigate("/");
   }
-
-  function handleCancel() {
-    navigate("/");
-  }
-  function handleAddExercise() {
+  async function handleAddExercise() {
     if (!exerciseType) {
       return;
     }
 
-    setWorkoutHistory([
-      ...workoutHistory,
-      {
-        exerciseType,
-        weight,
-        reps,
-      },
-    ]);
+    const newExercise = {
+      exerciseType,
+      weight,
+      reps,
+    };
+
+    const id = await saveWorkoutData(newExercise);
+
+    if (id) {
+      setWorkoutHistory({
+        ...workoutHistory,
+        [id]: newExercise,
+      });
+    }
   }
   return (
     <div className="workout-edit">
       <h1>Workout Session</h1>
       <div className="workout-history">
-        <button onClick={handleSave}>Save</button>
-        <button onClick={handleCancel}>Cancel</button>
+        <button onClick={handleBack}>Back</button>
       </div>
 
       <ExerciseSelector value={exerciseType} onChange={setExerciseType} />

@@ -8,7 +8,6 @@ import (
 	"personalapp/db"
 	"personalapp/models"
 	"strings"
-
 )
 
 type TodoHandler struct {
@@ -44,7 +43,7 @@ func (h *TodoHandler) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	todoUUID, err := todos.CreateTodo(h.database, day)
+	todoUUID, err := db.CreateTodo(h.database, day)
 	if err != nil {
 		log.Printf("failed to create todo: %v", err)
 		http.Error(w, "failed to create todo", http.StatusInternalServerError)
@@ -67,7 +66,7 @@ func (h *TodoHandler) list(w http.ResponseWriter, r *http.Request) {
 
 	dates := strings.Split(datesParam, ",")
 
-	days, err := todos.GetTodosByDates(h.database, dates)
+	days, err := db.GetTodosByDates(h.database, dates)
 	if err != nil {
 		log.Printf("failed to fetch todos: %v", err)
 		http.Error(w, "failed to fetch todos", http.StatusInternalServerError)

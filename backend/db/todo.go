@@ -1,4 +1,4 @@
-package todos
+package db
 
 import (
 	"database/sql"

@@ -1,72 +1,102 @@
+const backendUrl = "https://backend.nkwzotero.uk/api/workouts";
+
 async function loadTodayWorkout() {
   try {
-    // 1. Get today's date in YYYY-MM-DD format
-    const todayStr = new Date().toISOString().split("T")[0];
-    const mockData = [
-      {
-        exerciseType: "Bench Press",
-        weight: 60,
-        reps: 10,
-      },
-      {
-        exerciseType: "Squat",
-        weight: 100,
-        reps: 8,
-      },
-    ];
-    return mockData;
-    const backendUrl = `https://your-api.com/workouts?date=${todayStr}`;
-
     const response = await fetch(backendUrl);
 
-    if (response.ok) {
-      const data = await response.json();
-
-      return data;
+    if (!response.ok) {
+      throw new Error("Failed to load today's workout");
     }
+
+    const data = await response.json();
+
+    return data.reduce((acc, item) => {
+      acc[item.id] = {
+        exerciseType: item.exercise_type,
+        weight: item.weight,
+        reps: item.reps,
+      };
+      return acc;
+    }, {});
   } catch (error) {
     console.error("Error loading today's workout:", error);
+    return {};
   }
 }
 
-async function saveWorkoutData(workoutData) {
-  // 1. Optional: Prevent saving if the list is empty
-  if (workoutData.length === 0) {
-    alert("Please add at least one exercise before saving.");
-    return;
+async function saveWorkoutData(exercise) {
+  if (!exercise || !exercise.exerciseType) {
+    alert("Please add an exercise before saving.");
+    return null;
   }
 
   try {
-    // 2. Change this URL to your actual backend endpoint
-    const backendUrl = "https://your-api.com/workouts";
-
-    // 3. Send the data to the backend
     const response = await fetch(backendUrl, {
-      method: "POST", // Use "PUT" if you are updating an existing workout
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        // You can send just the array, or wrap it in an object with a date
-        date: new Date().toISOString().split("T")[0],
-        exercises: workoutData,
+        exercise_type: exercise.exerciseType,
+        weight: exercise.weight,
+        reps: exercise.reps,
       }),
     });
 
-    // 4. Check if the backend accepted it
     if (!response.ok) {
       throw new Error("Failed to save workout");
     }
 
-    // 5. If successful, navigate back to the home page or dashboard
-    console.log("Workout saved successfully!");
-    navigate("/");
-
+    const data = await response.json();
+    return data.id;
   } catch (error) {
-    // 6. Handle any errors (like network dropping)
     console.error("Error saving workout:", error);
     alert("There was a problem saving your workout. Please try again.");
+    return null;
   }
 }
 
-export { loadTodayWorkout, saveWorkoutData };
+async function deleteWorkout(uuid) {
+  try {
+    const response = await fetch(`${backendUrl}?uuid=${uuid}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to delete workout");
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error deleting workout:", error);
+    alert("There was a problem deleting the workout. Please try again.");
+    return false;
+  }
+}
+
+async function updateWorkout(id, exercise) {
+  try {
+    const response = await fetch(`${backendUrl}?uuid=${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: id,
+        exercise_type: exercise.exerciseType,
+        weight: exercise.weight,
+        reps: exercise.reps,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to update workout");
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error updating workout:", error);
+    return false;
+  }
+}
+export { loadTodayWorkout, saveWorkoutData, deleteWorkout, updateWorkout };
