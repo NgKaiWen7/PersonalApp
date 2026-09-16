@@ -1,21 +1,32 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { loadTodayWorkout, saveWorkoutData, deleteWorkout, updateWorkout } from "./WorkoutData.jsx";
+import { useNavigate, useLocation } from "react-router-dom";
+import {
+  loadTodayWorkout,
+  saveWorkoutData,
+  deleteWorkout,
+  updateWorkout,
+} from "./WorkoutData.jsx";
 import "./WorkoutEdit.css";
 
-const exerciseTypes = [
-  "Bench Press",
-  "Squat",
-  "Deadlift",
-  "Overhead Press",
-  "Barbell Row",
-];
+const exercisesByDay = {
+  Push: [
+    "Bench Press",
+    "Overhead Press",
+    "Incline Dumbbell Press",
+    "Tricep Pushdown",
+  ],
+  Pull: ["Deadlift", "Barbell Row", "Lat Pulldown", "Bicep Curl"],
+  Legs: ["Squat", "Leg Press", "Romanian Deadlift", "Calf Raise"],
+};
 
-function ExerciseSelector({ value, onChange }) {
+function ExerciseSelector({ value, onChange, options }) {
+  console.log("ExerciseSelector options:", options);
   return (
     <select value={value} onChange={(e) => onChange(e.target.value)}>
-      <option value="">Select exercise</option>
-      {exerciseTypes.map((exercise) => (
+      <option value="" disabled>
+        Select exercise
+      </option>
+      {options.map((exercise) => (
         <option key={exercise} value={exercise}>
           {exercise}
         </option>
@@ -25,33 +36,25 @@ function ExerciseSelector({ value, onChange }) {
 }
 
 function WeightSelector({ value, onChange }) {
-  const weights = [];
-
-  for (let weight = 2.5; weight <= 100; weight += 2.5) {
-    weights.push(weight);
-  }
-
   return (
-    <select value={value} onChange={(e) => onChange(Number(e.target.value))}>
-      {weights.map((weight) => (
-        <option key={weight} value={weight}>
-          {weight} kg
-        </option>
-      ))}
-    </select>
+    <input
+      type="number"
+      value={value}
+      onChange={(e) => onChange(Number(e.target.value))}
+      min={2.5}
+      inputMode="decimal"
+    />
   );
 }
 function RepsSelector({ value, onChange }) {
-  const reps = Array.from({ length: 20 }, (_, i) => i + 1);
-
   return (
-    <select value={value} onChange={(e) => onChange(Number(e.target.value))}>
-      {reps.map((rep) => (
-        <option key={rep} value={rep}>
-          {rep} reps
-        </option>
-      ))}
-    </select>
+    <input
+      type="number"
+      value={value}
+      onChange={(e) => onChange(Number(e.target.value))}
+      min={1}
+      inputMode="numeric"
+    />
   );
 }
 
@@ -82,6 +85,7 @@ function WorkoutHistory({ exercises, setExercises }) {
     }
   }
 
+
   return (
     <div className="workout-history">
       <table>
@@ -95,30 +99,11 @@ function WorkoutHistory({ exercises, setExercises }) {
         </thead>
 
         <tbody>
-          {Object.entries(exercises).map(([id, exercise]) =>(
+          {Object.entries(exercises).map(([id, exercise]) => (
             <tr key={id}>
-              <td>
-                <ExerciseSelector
-                  value={exercise.exerciseType}
-                  onChange={(value) =>
-                    updateExercise(id, "exerciseType", value)
-                  }
-                />
-              </td>
-
-              <td>
-                <WeightSelector
-                  value={exercise.weight}
-                  onChange={(value) => updateExercise(id, "weight", value)}
-                />
-              </td>
-
-              <td>
-                <RepsSelector
-                  value={exercise.reps}
-                  onChange={(value) => updateExercise(id, "reps", value)}
-                />
-              </td>
+              <td>{exercise.exerciseType}</td>
+              <td>{exercise.weight}</td>
+              <td>{exercise.reps}</td>
               <td>
                 <button
                   className="delete-row-btn"
@@ -141,7 +126,8 @@ export default function WorkoutEdit() {
   const [reps, setReps] = useState(1);
   const [workoutHistory, setWorkoutHistory] = useState([]);
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const day = location.state?.day;
   // --- NEW: Load today's data when the page opens ---
   useEffect(() => {
     const loadWorkoutData = async () => {
@@ -174,14 +160,21 @@ export default function WorkoutEdit() {
       });
     }
   }
+  console.log("WorkoutEdit day:", day);
+  const exerciseOptions = exercisesByDay[day] || [];
+
   return (
     <div className="workout-edit">
-      <h1>Workout Session</h1>
+      <h1>{day ? `${day} Session` : "Workout Session"}</h1>
       <div className="workout-history">
         <button onClick={handleBack}>Back</button>
       </div>
 
-      <ExerciseSelector value={exerciseType} onChange={setExerciseType} />
+      <ExerciseSelector
+        value={exerciseType}
+        onChange={setExerciseType}
+        options={exerciseOptions}
+      />
 
       <WeightSelector value={weight} onChange={setWeight} />
 

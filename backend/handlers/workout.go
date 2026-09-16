@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"personalapp/db"
 	"personalapp/models"
+	"time"
 )
 
 type WorkoutHandler struct {
@@ -106,8 +107,14 @@ func (h *WorkoutHandler) update(w http.ResponseWriter, r *http.Request) {
 		"id": workoutUUID,
 	})
 }
+
 func (h *WorkoutHandler) list(w http.ResponseWriter, r *http.Request) {
-	workouts, err := db.GetTodaysWorkouts(h.database)
+	date := r.URL.Query().Get("date")
+	if date == "" {
+		date = time.Now().Format("2006-01-02")
+	}
+
+	workouts, err := db.GetWorkoutsByDate(h.database, date)
 	if err != nil {
 		log.Printf("failed to fetch workouts: %v", err)
 		http.Error(w, "failed to fetch workouts", http.StatusInternalServerError)

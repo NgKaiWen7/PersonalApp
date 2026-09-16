@@ -54,15 +54,15 @@ func UpdateWorkout(database *sql.DB, workout models.Workout) (string, error) {
 	return workoutID, nil
 }
 
-func GetTodaysWorkouts(database *sql.DB) ([]models.Workout, error) {
+func GetWorkoutsByDate(database *sql.DB, date string) ([]models.Workout, error) {
 	rows, err := database.Query(`
 		SELECT id, exercise_type, reps, weight
 		FROM workouts
-		WHERE created_at::date = CURRENT_DATE
+		WHERE created_at::date = $1
 		ORDER BY created_at ASC
-	`)
+	`, date)
 	if err != nil {
-		return nil, fmt.Errorf("query todays workouts: %w", err)
+		return nil, fmt.Errorf("query workouts by date: %w", err)
 	}
 	defer rows.Close()
 
@@ -89,7 +89,6 @@ func GetTodaysWorkouts(database *sql.DB) ([]models.Workout, error) {
 
 	return workouts, nil
 }
-
 func DeleteWorkout(database *sql.DB, workoutUUID string) (int64, error) {
 	result, err := database.Exec(`
 		DELETE FROM workouts

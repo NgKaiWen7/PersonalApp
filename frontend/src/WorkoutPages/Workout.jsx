@@ -2,6 +2,8 @@ import "./Workout.css";
 import { useNavigate } from "react-router-dom";
 
 export function WorkoutDay({ title }) {
+  const navigate = useNavigate();
+
   const workoutColors = {
     Push: "workout-push",
     Pull: "workout-pull",
@@ -9,25 +11,20 @@ export function WorkoutDay({ title }) {
   };
 
   return (
-    <div className={`workout-day ${workoutColors[title] || ""}`}>
+    <button
+      className={`workout-day ${workoutColors[title] || ""}`}
+      onClick={() => navigate("/workout/edit", { state: { day: title } })}
+    >
       {title}
-    </div>
+    </button>
   );
 }
 
 export function Workout() {
-  const navigate = useNavigate();
-
   return (
     <section className="workout">
       <div className="workout-header">
-      <h2 className="workout-title">Workout</h2>
-      <button
-        className="edit-btn"
-        onClick={() => navigate("/workout/edit")}
-      >
-        Edit
-      </button>
+        <h2 className="workout-title">Workout</h2>
       </div>
       <div className="workout-days">
         <WorkoutDay title="Push" />
