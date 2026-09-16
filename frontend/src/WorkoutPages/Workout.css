@@ -17,11 +17,10 @@
 
 /* Make the giant text responsive and punchy */
 .workout-title {
-  /* Scales dynamically between 3rem and 5rem based on screen size */
   font-size: clamp(3rem, 8vw, 5rem);
   font-weight: 800;
-  letter-spacing: -0.04em; /* Tightening the letters slightly makes huge text look modern */
-  color: #1a252f;
+  letter-spacing: -0.04em;
+  color: #f5f5f7;
   margin: 0;
   line-height: 1;
 }
