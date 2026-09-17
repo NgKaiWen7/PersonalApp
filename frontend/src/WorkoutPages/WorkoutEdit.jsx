@@ -59,22 +59,6 @@ function RepsSelector({ value, onChange }) {
 }
 
 function WorkoutHistory({ exercises, setExercises }) {
-  async function updateExercise(id, field, value) {
-    const updated = {
-      ...exercises,
-      [id]: {
-        ...exercises[id],
-        [field]: value,
-      },
-    };
-    setExercises(updated);
-    const success = await updateWorkout(id, updated[id]); // two args, not one object
-    if (!success) {
-      // revert on failure
-      setExercises(exercises);
-    }
-  }
-
   async function deleteExercise(id) {
     const success = await deleteWorkout(id);
 

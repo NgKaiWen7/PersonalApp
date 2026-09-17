@@ -5,9 +5,10 @@ import TodoDays from "./TodoEdit.jsx";
 
 function getTodayDate() {
   const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
+  const utc8 = new Date(now.getTime() + (8 * 60 + now.getTimezoneOffset()) * 60 * 1000);
+  const year = utc8.getFullYear();
+  const month = String(utc8.getMonth() + 1).padStart(2, "0");
+  const day = String(utc8.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`; // e.g. "2026-09-13"
 }
 

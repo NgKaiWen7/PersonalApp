@@ -58,8 +58,8 @@ func GetWorkoutsByDate(database *sql.DB, date string) ([]models.Workout, error) 
 	rows, err := database.Query(`
 		SELECT id, exercise_type, reps, weight
 		FROM workouts
-		WHERE created_at::date = $1
-		ORDER BY created_at ASC
+		WHERE (created_at AT TIME ZONE 'UTC' AT TIME ZONE '+08:00')::date = $1
+		ORDER BY created_at DESC
 	`, date)
 	if err != nil {
 		return nil, fmt.Errorf("query workouts by date: %w", err)

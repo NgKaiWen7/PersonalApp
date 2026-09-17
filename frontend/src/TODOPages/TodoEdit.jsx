@@ -6,6 +6,14 @@ const DAYS_BACK_DEFAULT = 7;
 const DAYS_FORWARD_DEFAULT = 7;
 const LOAD_MORE_CHUNK = 7; // how many extra days to fetch each time we scroll near the bottom
 
+function getTodayDate() {
+  const now = new Date();
+  const utc8 = new Date(now.getTime() + (8 * 60 + now.getTimezoneOffset()) * 60 * 1000);
+  const year = utc8.getFullYear();
+  const month = String(utc8.getMonth() + 1).padStart(2, "0");
+  const day = String(utc8.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`; // e.g. "2026-09-13"
+}
 
 
 function TodoTitle({ title, ref }) {
@@ -92,7 +100,7 @@ function DaySection({ date, todos, appendTodo, removeTodo }) {
       status: false,
     });
   }
-  const isToday = date === new Date().toISOString().slice(0, 10);
+  const isToday = date === getTodayDate();
   return (
     <section className={`day-section${isToday ? " glowing" : ""}`}>
       <div className="day-header">

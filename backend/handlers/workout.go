@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"personalapp/db"
@@ -109,12 +110,15 @@ func (h *WorkoutHandler) update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *WorkoutHandler) list(w http.ResponseWriter, r *http.Request) {
-	date := r.URL.Query().Get("date")
-	if date == "" {
-		date = time.Now().Format("2006-01-02")
-	}
-
+	// date := r.URL.Query().Get("date")
+	// if date == "" {
+	// 	date = time.Now().Format("2006-01-02")
+	// }
+	loc := time.FixedZone("UTC+8", 8*60*60)
+	date := time.Now().In(loc).Format("2006-01-02")
 	workouts, err := db.GetWorkoutsByDate(h.database, date)
+	fmt.Println(date)
+
 	if err != nil {
 		log.Printf("failed to fetch workouts: %v", err)
 		http.Error(w, "failed to fetch workouts", http.StatusInternalServerError)

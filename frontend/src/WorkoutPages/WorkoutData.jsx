@@ -2,7 +2,9 @@ const backendUrl = "https://backend.nkwzotero.uk/api/workouts";
 
 async function loadTodayWorkout() {
   try {
-    const today = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
+    const now = new Date();
+    now.setHours(now.getHours() + 8);
+    const today = now.toISOString().split("T")[0];
     const url = `${backendUrl}?date=${today}`;
 
     const response = await fetch(url);
