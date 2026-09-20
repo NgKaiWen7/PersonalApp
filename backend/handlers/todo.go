@@ -53,7 +53,7 @@ func (h *TodoHandler) create(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]any{
-		"todo_uuid": todoUUID,
+		"uuid": todoUUID,
 	})
 }
 

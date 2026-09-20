@@ -16,6 +16,7 @@ function getDatesInRange(startDate, endDate) {
 
   return dates;
 }
+
 async function fetchTodos(startDate, endDate) {
   const dates = getDatesInRange(startDate, endDate); // assumed to be YYYY-MM-DD strings
   const response = await fetch(
@@ -25,66 +26,47 @@ async function fetchTodos(startDate, endDate) {
       headers: {
         "Content-Type": "application/json",
       },
-    }
+    },
   );
 
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(`Failed to fetch todos: ${errorText}`);
   }
-
   const days = await response.json();
-
-  // Normalize any date string/timestamp down to YYYY-MM-DD for matching
-  const toDateKey = (d) => new Date(d).toISOString().slice(0, 10);
-
-  const daysByDate = new Map(days.map((day) => [toDateKey(day.date), day]));
-
-  return dates.map((date) => {
-    const day = daysByDate.get(toDateKey(date)) ?? { date, tasks: [] };
-    return {
-      ...day,
-      date, // keep the original YYYY-MM-DD from `dates` for consistency in the frontend
-      tasks: (day.tasks ?? []).map((task) => ({
-        ...task,
-        clientKey: generateClientKey(),
-      })),
-    };
-  });
+  var return_format = {};
+  dates.forEach((date, index) => {
+    if (days[date]) {
+      return_format[date] = days[date]
+    } else {
+      return_format[date] = {"date":date, "title": "", "description": ""}
+    }
+  })
+  return return_format;
 }
 
-async function saveTodos(days) {
-  const results = [];
+async function saveTodos(date, description, title) {
+  const payload = {
+    date: date,
+    description: description,
+    title: title,
+  };
 
-  for (const day of days) {
-    const payload = {
-      date: day.date,
-      tasks: day.todos.map((todo) => ({
-        title: todo.title,
-        description: todo.description,
-        status: todo.status,
-      })),
-    };
+  const response = await fetch("https://backend.nkwzotero.uk/api/todos", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
 
-    const response = await fetch("https://backend.nkwzotero.uk/api/todos", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        `Failed to save todos for ${day.date} (${response.status}): ${errorText}`
-      );
-    }
-
-    results.push(await response.json());
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(
+      `Failed to save todos for ${date} (${response.status}): ${errorText}`,
+    );
   }
-
-  return results;
+  return await response.json();
 }
 
 function generateClientKey() {

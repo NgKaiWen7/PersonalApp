@@ -1,185 +1,150 @@
-/* ==========================================================================
-   1. Parent Container
-   ========================================================================== */
-.todo-list {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
+:root {
+  --bg: #121212;
+  --bg-elevated: #1c1c1c;
+  --border: #2c2c2c;
+  --text: #e6e6e6;
+  --text-muted: #8f8f8f;
+  --accent: #4d8dff;
+  --accent-muted: #2a3f66;
+  --radius: 6px;
+}
+
+.todo-days {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
   width: 100%;
+  max-width: 100%;      /* was 640px */
+  margin: 0;             /* was 0 auto — auto-centering no longer needed at full width */
+  padding: 1rem 1.5rem;  /* keep some breathing room off the true screen edge */
+  background: var(--bg);
   box-sizing: border-box;
 }
 
-/* ==========================================================================
-   2. Individual Todo Card Wrapper
-   ========================================================================== */
-.todo-edit {
-  position: relative;
-  background: #1a1d23;
-  border: 1px solid #2a2f38;
-  border-left: 3px solid #6366f1;
-  border-radius: 8px;
-  padding: 12px;
-  width: 100%;
-  box-sizing: border-box;
+/* --- Day card --- */
+
+.day-section {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
 }
 
-/* Delete Button */
-.todo-edit .delete-btn {
-  display: inline-flex;
+.day-section.glowing {
+  border-color: var(--accent);
+}
+
+/* --- Header row --- */
+
+.day-header {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
-  width: 100%;
-  margin-top: 8px;
-  padding: 8px 12px;
-  border: 1px solid #4c2626;
-  border-radius: 6px;
-  background: #2a1616;
-  color: #f87171;
-  font-size: 0.75rem;
-  font-weight: 700;
+  gap: 0.6rem;
+  padding: 0.6rem 0.8rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.day-header h2 {
+  flex: 1;
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.today-badge {
+  font-size: 0.7rem;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+}
+
+.disclosure-arrow {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.7rem;
+  line-height: 1;
+  padding: 0.2rem;
+  transform: rotate(0deg);
+  transition: transform 0.15s ease;
+}
+
+.disclosure-arrow.open {
+  transform: rotate(90deg);
+  color: var(--text);
+}
+
+.save-btn {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 4px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
   cursor: pointer;
 }
 
-.todo-edit .delete-btn:hover {
-  background: #3a1c1c;
-  color: #fca5a5;
+.save-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
-/* ==========================================================================
-   3. Form Wrapper
-   ========================================================================== */
-.todo-form {
+/* --- Editor body --- */
+
+.todo-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.5rem;
+  padding: 0 0.8rem;
+  max-height: 500px;
+  opacity: 1;
+  transition: max-height 0.2s ease, opacity 0.2s ease, padding 0.2s ease;
 }
 
-/* ==========================================================================
-   4. Form Inputs
-   ========================================================================== */
+.todo-list.collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding: 0 0.8rem;
+  pointer-events: none;
+}
+
+.todo-list:not(.collapsed) {
+  padding-bottom: 0.8rem;
+}
+
 .todo-title,
 .todo-description {
   width: 100%;
-  margin: 0;
-  padding: 8px 10px;
-  border: 1px solid #2a2f38;
-  border-radius: 6px;
-  background: #12151a;
-  outline: none;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
   font-family: inherit;
+  padding: 0.5rem 0.6rem;
+  resize: vertical;
   box-sizing: border-box;
 }
 
-.todo-title::placeholder,
-.todo-description::placeholder {
-  color: #64748b;
-}
-
 .todo-title {
-  font-size: 0.85rem;
-  font-weight: 700;
-  line-height: 1.2;
-  color: #e2e8f0;
+  width: 100%;
+  max-width: 180px;
+  resize: none;
+  height: 2.6rem;      /* pick the exact height you want */
+  overflow-y: auto;     /* extra lines scroll inside instead of growing the box */
 }
-
-.todo-title:focus {
-  border-color: #6366f1;
-}
-
 .todo-description {
-  font-size: 0.75rem;
-  line-height: 1.4;
-  color: #94a3b8;
-  resize: vertical;
-  min-height: 44px;
+  font-size: 16px; /* iOS Safari won't zoom at 16px or above */
+  color: var(--text-muted);
+  min-height: 4.5rem;
 }
 
+.todo-title:focus,
 .todo-description:focus {
-  border-color: #a855f7;
-}
-
-/* ==========================================================================
-   5. Day Section
-   ========================================================================== */
-.day-section {
-  background: #1a1d23;
-  border-radius: 12px;
-  padding: 18px 20px;
-  border: 1px solid #2a2f38;
-}
-
-.day-section .day-header h2 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #e2e8f0;
-}
-
-.day-section .day-header button {
-  background: #6366f1;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 6px 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.day-section .day-header button:hover {
-  background: #7c7ff0;
-}
-
-/* TODAY gets a simple accent instead of a glow/animation */
-.day-section.glowing {
-  position: relative;
-  border: 1px solid #f59e0b;
-  background: linear-gradient(135deg, #241c0f, #1a1d23);
-  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.15), 0 4px 16px rgba(245, 158, 11, 0.12);
-  padding-left: 24px;
-}
-
-/* Bold left accent bar instead of just an outline */
-.day-section.glowing::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: #f59e0b;
-  border-radius: 12px 0 0 12px;
-}
-
-.day-section.glowing .day-header h2 {
-  color: #f59e0b;
-  font-size: 1.2rem; /* slightly larger to draw the eye */
-}
-
-/* Badge instead of plain text suffix */
-.day-section.glowing .day-header h2::after {
-  content: "TODAY";
-  display: inline-block;
-  font-size: 0.65rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  color: #1a1d23;
-  background: #f59e0b;
-  padding: 3px 8px;
-  border-radius: 999px;
-  vertical-align: middle;
-  margin-left: 10px;
-}
-
-/* Optional: one subtle, single pulse on load (not looping) */
-.day-section.glowing {
-  animation: today-appear 0.5s ease-out;
-}
-
-@keyframes today-appear {
-  from {
-    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.3), 0 4px 16px rgba(245, 158, 11, 0.12);
-  }
-  to {
-    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.15), 0 4px 16px rgba(245, 158, 11, 0.12);
-  }
+  outline: none;
+  border-color: var(--accent);
+  color: var(--text);
 }
