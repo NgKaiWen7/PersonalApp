@@ -44,12 +44,12 @@ func AuthMiddleware(db *sql.DB, next http.Handler) http.Handler {
 		token := parts[1]
 
 		var userUUID string
-
 		err := db.QueryRow(`
-			SELECT username
-			FROM users
-			WHERE token = $1
-			AND validated_date > NOW()
+		    UPDATE users
+		    SET validated_date = NOW()
+		    WHERE token = $1
+		      AND validated_date > NOW() - INTERVAL '1 hour'
+		    RETURNING username
 		`, token).Scan(&userUUID)
 
 		if err != nil {
