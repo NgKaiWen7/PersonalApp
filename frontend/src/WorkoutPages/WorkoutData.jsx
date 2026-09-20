@@ -1,5 +1,4 @@
 const backendUrl = "https://backend.nkwzotero.uk/api/workouts";
-
 async function loadTodayWorkout() {
   try {
     const now = new Date();
@@ -7,7 +6,14 @@ async function loadTodayWorkout() {
     const today = now.toISOString().split("T")[0];
     const url = `${backendUrl}?date=${today}`;
 
-    const response = await fetch(url);
+    const token = localStorage.getItem("app_token");
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     if (!response.ok) {
       throw new Error("Failed to load today's workout");
@@ -36,10 +42,12 @@ async function saveWorkoutData(exercise) {
   }
 
   try {
+    const token = localStorage.getItem("app_token");
     const response = await fetch(backendUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         exercise_type: exercise.exerciseType,
@@ -63,8 +71,14 @@ async function saveWorkoutData(exercise) {
 
 async function deleteWorkout(uuid) {
   try {
+    const token = localStorage.getItem("app_token");
+
     const response = await fetch(`${backendUrl}?uuid=${uuid}`, {
       method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
     });
 
     if (!response.ok) {
@@ -78,30 +92,4 @@ async function deleteWorkout(uuid) {
     return false;
   }
 }
-
-async function updateWorkout(id, exercise) {
-  try {
-    const response = await fetch(`${backendUrl}?uuid=${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id: id,
-        exercise_type: exercise.exerciseType,
-        weight: exercise.weight,
-        reps: exercise.reps,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to update workout");
-    }
-
-    return true;
-  } catch (error) {
-    console.error("Error updating workout:", error);
-    return false;
-  }
-}
-export { loadTodayWorkout, saveWorkoutData, deleteWorkout, updateWorkout };
+export { loadTodayWorkout, saveWorkoutData, deleteWorkout };

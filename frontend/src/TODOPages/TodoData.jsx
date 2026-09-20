@@ -19,12 +19,15 @@ function getDatesInRange(startDate, endDate) {
 
 async function fetchTodos(startDate, endDate) {
   const dates = getDatesInRange(startDate, endDate); // assumed to be YYYY-MM-DD strings
+  const token = localStorage.getItem("app_token");
+  console.log(token);
   const response = await fetch(
     `https://backend.nkwzotero.uk/api/todos?dates=${dates.join(",")}`,
     {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
       },
     },
   );
@@ -51,11 +54,13 @@ async function saveTodos(date, description, title) {
     description: description,
     title: title,
   };
+  const token = localStorage.getItem("app_token");
 
   const response = await fetch("https://backend.nkwzotero.uk/api/todos", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
     },
     body: JSON.stringify(payload),
   });

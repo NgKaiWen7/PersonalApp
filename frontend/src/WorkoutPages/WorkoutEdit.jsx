@@ -4,7 +4,6 @@ import {
   loadTodayWorkout,
   saveWorkoutData,
   deleteWorkout,
-  updateWorkout,
 } from "./WorkoutData.jsx";
 import "./WorkoutEdit.css";
 
