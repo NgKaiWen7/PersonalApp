@@ -33,6 +33,7 @@ func main() {
 	if err := database.Ping(); err != nil {
 		log.Fatalf("failed to connect to db: %v", err)
 	}
+	// InitUser(database, "nkw", "Yobama7Cute!")
 	router := routes.Setup(database)
 
 	log.Println("Server listening on :8080")

@@ -86,9 +86,10 @@ func (h *AuthHandler) post(w http.ResponseWriter, r *http.Request) {
 
 	token := base64.RawURLEncoding.EncodeToString(tokenBytes)
 	_, err = h.database.Exec(`
-		UPDATE users
-		SET token = $1
-		WHERE username = $2
+    UPDATE users
+    SET token = $1,
+        validated_at = NOW()
+    WHERE username = $2
 	`, token, user)
 
 	if err != nil {

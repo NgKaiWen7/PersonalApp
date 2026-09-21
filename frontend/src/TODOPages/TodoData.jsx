@@ -20,7 +20,6 @@ function getDatesInRange(startDate, endDate) {
 async function fetchTodos(startDate, endDate) {
   const dates = getDatesInRange(startDate, endDate); // assumed to be YYYY-MM-DD strings
   const token = localStorage.getItem("app_token");
-  console.log(token);
   const response = await fetch(
     `https://backend.nkwzotero.uk/api/todos?dates=${dates.join(",")}`,
     {
