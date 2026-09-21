@@ -1,91 +1,136 @@
-/* ==========================================================================
-   Main App Header Section
-   ========================================================================== */
 .app-header {
-  font-family: system-ui, -apple-system, sans-serif;
-  background: #16191d;
-  padding: 16px 24px;
-  border-bottom: 2px dashed #2a2f36; /* Playful dashed boundary separator */
   width: 100%;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+
+  padding: 18px 24px 16px;
+
+  background: #0f1216;
+
+  border-bottom: 1px solid #272d34;
 }
 
-/* ==========================================================================
-   Header Top Row (Aligns Title and Logout button)
-   ========================================================================== */
+
+/* =========================
+   Header top
+   ========================= */
+
 .header-top {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Pushes Title to Left, Logout to Right */
-  gap: 12px;
-  width: 100%;
+  justify-content: space-between;
+
+  gap: 16px;
 }
 
-/* Gradient App Title Typography */
+
+/* =========================
+   Title
+   ========================= */
+
 .app-header h1 {
-  font-size: 1.35rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, #818cf8 0%, #f472b6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   margin: 0;
-  letter-spacing: -0.5px;
+
+  color: #f0f2f4;
+
+  font-size: 18px;
+  font-weight: 600;
+
+  letter-spacing: 0.04em;
 }
 
-/* Subtitle */
+
+/* =========================
+   Subtitle
+   ========================= */
+
 .app-header p {
-  font-size: 0.8rem;
-  color: #94a3b8;
-  margin: 0;
+  margin: 6px 0 0;
+
+  color: #737d87;
+
+  font-size: 11px;
+  letter-spacing: 0.03em;
 }
 
-/* ==========================================================================
-   Interactive Logout Button
-   ========================================================================== */
+
+/* =========================
+   Logout
+   ========================= */
+
 .logout-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 12px;
-  border: 1px solid #4c2626;
-  border-radius: 8px;
-  background: #2a1616;
-  color: #f87171;
-  font-size: 0.75rem;
-  font-weight: 700;
+  flex-shrink: 0;
+
+  height: 34px;
+  padding: 0 11px;
+
+  border: 1px solid #30363d;
+  border-radius: 5px;
+
+  background: #15191e;
+  color: #9da6af;
+
+  font-family: inherit;
+  font-size: 11px;
+
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    color 0.12s ease;
 }
 
 .logout-btn:hover {
-  background: #3a1c1c;
-  color: #fca5a5;
-  border-color: #7f1d1d;
-  transform: translateY(-1px);
+  background: #1b2026;
+  border-color: #4a535d;
+  color: #e6e9ed;
 }
 
 .logout-btn:active {
-  transform: translateY(0);
+  background: #111419;
 }
 
-/* ==========================================================================
-   Responsive Adaptations for Small Mobile Screens
-   ========================================================================== */
-@media screen and (max-width: 480px) {
+
+/* =========================
+   Mobile
+   ========================= */
+
+@media (max-width: 600px) {
   .app-header {
-    padding: 16px;
+    padding: 15px 14px 14px;
   }
 
   .header-top {
-    flex-direction: column; /* Stack Title and Logout vertically on narrow phones */
     align-items: flex-start;
-    gap: 8px;
+  }
+
+  .app-header h1 {
+    font-size: 16px;
+  }
+
+  .app-header p {
+    margin-top: 5px;
+    font-size: 10px;
   }
 
   .logout-btn {
-    width: 100%; /* Makes button hit-friendly and wide on small screens */
+    height: 36px;
+    padding: 0 10px;
+
+    font-size: 10px;
+  }
+}
+
+
+/* =========================
+   Very small screens
+   ========================= */
+
+@media (max-width: 380px) {
+  .app-header h1 {
+    font-size: 14px;
+  }
+
+  .logout-btn {
+    font-size: 9px;
   }
 }
