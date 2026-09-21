@@ -88,7 +88,7 @@ func (h *AuthHandler) post(w http.ResponseWriter, r *http.Request) {
 	_, err = h.database.Exec(`
     UPDATE users
     SET token = $1,
-        validated_at = NOW()
+        validated_date = NOW()
     WHERE username = $2
 	`, token, user)
 
