@@ -4,17 +4,23 @@ import { Workout } from "./WorkoutPages/Workout";
 import { useAuth } from "./AuthContext";
 import "./Header.css";
 import "./App.css";
+import { useNavigate } from "react-router-dom";
 
 export function Header() {
   const { logout, user } = useAuth();
+  const navigate = useNavigate();
 
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
   return (
     <header className="app-header">
       <div className="header-top">
         <h1>My Productivity App</h1>
 
         {user && (
-          <button className="logout-btn" onClick={logout}>
+          <button className="logout-btn" onClick={handleLogout}>
             Logout ({user.username})
           </button>
         )}
