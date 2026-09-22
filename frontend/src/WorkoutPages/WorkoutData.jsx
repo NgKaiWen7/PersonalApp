@@ -1,4 +1,5 @@
 const backendUrl = "https://backend.nkwzotero.uk/api/workouts";
+const backendMetaUrl = "https://backend.nkwzotero.uk/api/workoutsmeta";
 async function loadTodayWorkout() {
   try {
     const now = new Date();
@@ -92,4 +93,30 @@ async function deleteWorkout(uuid) {
     return false;
   }
 }
-export { loadTodayWorkout, saveWorkoutData, deleteWorkout };
+
+async function loadTodayLoad() {
+  try {
+    const url = `${backendMetaUrl}`;
+
+    const token = localStorage.getItem("app_token");
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to load today's workout");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error loading today's workout:", error);
+    return null;
+  }
+}
+
+export { loadTodayWorkout, saveWorkoutData, deleteWorkout ,loadTodayLoad};

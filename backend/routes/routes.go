@@ -71,10 +71,12 @@ func Setup(database *sql.DB) http.Handler {
 
 	todoHandler := handlers.NewTodoHandler(database)
 	workoutHandler := handlers.NewWorkoutHandler(database)
+	workoutMetaHandler := handlers.NewWorkoutMetaHandler(database)
 	authHandler := handlers.NewAuthHandler(database)
 
 	mux.Handle("/api/todos", AuthMiddleware(database, http.HandlerFunc(todoHandler.Handle)))
 	mux.Handle("/api/workouts", AuthMiddleware(database, http.HandlerFunc(workoutHandler.Handle)))
+	mux.Handle("/api/workoutsmeta", AuthMiddleware(database, http.HandlerFunc(workoutMetaHandler.Handle)))
 	mux.HandleFunc("/api/auth", authHandler.Handle)
 	return corsMiddleware(mux)
 }

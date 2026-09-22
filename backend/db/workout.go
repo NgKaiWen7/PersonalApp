@@ -106,3 +106,19 @@ func DeleteWorkout(database *sql.DB, workoutUUID string) (int64, error) {
 
 	return rowsAffected, nil
 }
+
+func GetTodayLoad(database *sql.DB) (float64, error) {
+	var totalVolume float64
+
+	err := database.QueryRow(`
+		SELECT COALESCE(SUM(reps * weight), 0)
+		FROM workouts
+		WHERE (created_at AT TIME ZONE 'Asia/Kuala_Lumpur')::date =
+		      (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kuala_Lumpur')::date;
+	`).Scan(&totalVolume)
+	if err != nil {
+		return 0, err
+	}
+	fmt.Println(totalVolume)
+	return totalVolume, nil
+}

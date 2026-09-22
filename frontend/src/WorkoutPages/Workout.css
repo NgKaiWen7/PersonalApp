@@ -95,3 +95,28 @@
 .workout-legs {
   background: linear-gradient(135deg, rgb(80, 180, 120), rgb(50, 140, 90));
 }
+
+.workout-load {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.workout-load-label {
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.workout-load-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.workout-load-value small {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #888;
+}

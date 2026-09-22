@@ -4,6 +4,7 @@ import {
   loadTodayWorkout,
   saveWorkoutData,
   deleteWorkout,
+  loadTodayLoad
 } from "./WorkoutData.jsx";
 import "./WorkoutEdit.css";
 
@@ -22,7 +23,6 @@ const exercisesByDay = {
 };
 
 function ExerciseSelector({ value, onChange, options }) {
-  console.log("ExerciseSelector options:", options);
   return (
     <select value={value} onChange={(e) => onChange(e.target.value)}>
       <option value="" disabled>
@@ -146,14 +146,22 @@ export default function WorkoutEdit() {
       });
     }
   }
-  console.log("WorkoutEdit day:", day);
   const exerciseOptions = exercisesByDay[day] || [];
+  const [totalLoad, setTotalLoad] = useState(0);
+  useEffect(() => {
+    async function fetchLoad() {
+      const load = await loadTodayLoad();
+      setTotalLoad(load);
+    }
 
+    fetchLoad();
+  }, []);
   return (
     <div className="workout-edit">
       <h1>{day ? `${day} Session` : "Workout Session"}</h1>
       <div className="workout-history">
         <button onClick={handleBack}>Back</button>
+        <p>{totalLoad} kgs</p>
       </div>
 
       <ExerciseSelector
