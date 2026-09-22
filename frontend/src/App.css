@@ -6,57 +6,38 @@ html,
 body,
 #root {
   margin: 0;
+  padding: 0;
   min-height: 100%;
-  width: 100%;
 }
 
 body {
-  background: #0b0d10;
-  color: #e6e9ed;
-
-  font-family:
-    "JetBrains Mono",
-    "SFMono-Regular",
-    Consolas,
-    "Liberation Mono",
-    monospace;
+  font-family: Arial, sans-serif;
+  background: #111218;
+  color: #e8e8ec;
 }
 
 button,
 input,
-select,
-textarea {
-  font-family: inherit;
+textarea,
+select {
+  font: inherit;
 }
 
-
-/* =========================
-   App
-   ========================= */
-
+/* Main application */
 .app-container {
   min-height: 100vh;
-  background: #0b0d10;
+  background: #111218;
 }
 
-
-/* =========================
-   Main content
-   ========================= */
-
+/* Main content */
 .content {
   width: 100%;
-  max-width: 1100px;
-
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 20px 24px 40px;
+  padding: 28px 24px;
 }
 
-
-/* =========================
-   Loading
-   ========================= */
-
+/* Loading */
 .loading-screen {
   min-height: 100vh;
 
@@ -64,20 +45,15 @@ textarea {
   align-items: center;
   justify-content: center;
 
-  background: #0b0d10;
-  color: #7f8994;
+  background: #111218;
+  color: #aaaab5;
 
-  font-size: 13px;
-  letter-spacing: 0.04em;
+  font-size: 18px;
 }
 
-
-/* =========================
-   Mobile
-   ========================= */
-
-@media (max-width: 600px) {
+/* Mobile */
+@media (max-width: 768px) {
   .content {
-    padding: 16px 14px 32px;
+    padding: 20px 16px;
   }
 }

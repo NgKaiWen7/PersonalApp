@@ -11,15 +11,12 @@ import "./WorkoutEdit.css";
 const exercisesByDay = {
   Push: [
     "Bench Press",
-    "Fly",
+    "Overhead Press",
     "Incline Dumbbell Press",
     "Tricep Pushdown",
-    "Tricep Overhead Extension",
-    "Lateral Raise",
-    "Front Raise?"
   ],
-  Pull: ["Lat Pulldown (Wide)", "Lat Pulldown (Narrow)", "Face Pull", "Row", "Bicep Curl"],
-  Legs: ["Squat", "Hip Extension", "Hip Induction", "Leg Extension", "Leg Curl", "Calf Raise"],
+  Pull: ["Deadlift", "Barbell Row", "Lat Pulldown", "Bicep Curl"],
+  Legs: ["Squat", "Leg Press", "Romanian Deadlift", "Calf Raise"],
 };
 
 function ExerciseSelector({ value, onChange, options }) {
@@ -110,7 +107,7 @@ export default function WorkoutEdit() {
   const [exerciseType, setExerciseType] = useState("");
   const [weight, setWeight] = useState(2.5);
   const [reps, setReps] = useState(1);
-  const [workoutHistory, setWorkoutHistory] = useState({});
+  const [workoutHistory, setWorkoutHistory] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
   const day = location.state?.day;
