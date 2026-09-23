@@ -6,6 +6,7 @@ import { Login } from "./Login";
 import WorkoutEdit from "./WorkoutPages/WorkoutEdit";
 import TodoDays from "./TODOPages/TodoEdit.jsx";
 import { AuthProvider } from "./AuthContext";
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     {" "}

@@ -1,0 +1,58 @@
+.aim {
+    width: 100%;
+}
+.aim-header {
+    margin-bottom: 24px;
+}
+.aim-header h2 {
+    margin: 0;
+    font-size: 28px;
+}
+.aim-row {
+    margin-bottom: 28px;
+}
+.aim-row h3 {
+    margin: 0 0 12px;
+    font-size: 18px;
+}
+.aim-cards {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 4px 4px 12px;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+}
+.aim-card {
+    flex: 0 0 280px;
+    min-height: 120px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    border: 1px solid #333;
+    border-radius: 12px;
+    background: #000;
+    color: #fff;
+    scroll-snap-align: start;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+.aim-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+.aim-card p {
+    margin: 0;
+    line-height: 1.5;
+    font-size: 15px;
+}
+@media (max-width: 600px) {
+    .aim-card {
+        flex-basis: 240px;
+    }
+    .aim-row {
+        margin-bottom: 24px;
+    }
+}

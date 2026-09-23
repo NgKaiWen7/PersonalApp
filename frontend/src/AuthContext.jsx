@@ -1,10 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const savedUser = localStorage.getItem('app_user');
@@ -27,6 +29,7 @@ export function AuthProvider({ children }) {
       );
 
       if (!response.ok) {
+        navigate("/login");
         return false;
       }
 
@@ -36,6 +39,7 @@ export function AuthProvider({ children }) {
       const token = data.token;
 
       if (!token) {
+        navigate("/login");
         return false;
       }
 
@@ -47,9 +51,9 @@ export function AuthProvider({ children }) {
 
       localStorage.setItem('app_user', JSON.stringify(userData));
       localStorage.setItem('app_token', token);
-
       return true;
     } catch (error) {
+      navigate("/login");
       console.error('Login failed:', error);
       return false;
     }
@@ -59,6 +63,7 @@ export function AuthProvider({ children }) {
     setUser(null);
     localStorage.removeItem('app_user');
     localStorage.removeItem('app_token');
+    navigate("/login");
   };
 
   return (

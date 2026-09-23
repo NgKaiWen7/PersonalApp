@@ -2,6 +2,7 @@ import React from "react";
 import { Todo } from "./TODOPages/Todo";
 import { Workout } from "./WorkoutPages/Workout";
 import { useAuth } from "./AuthContext";
+import { Aim } from "./AimPages/Aim.jsx";
 import "./Header.css";
 import "./App.css";
 import { useNavigate } from "react-router-dom";
@@ -12,7 +13,6 @@ export function Header() {
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
   };
   return (
     <header className="app-header">
@@ -39,14 +39,14 @@ export default function App() {
   }
 
   if (!user) {
+    navigate("/login");
     return null;
   }
 
   return (
     <div className="app-container">
-      <Header />
-
       <main className="content">
+        <Aim />
         <Todo />
         <Workout />
       </main>
