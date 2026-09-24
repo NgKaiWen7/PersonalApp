@@ -34,11 +34,38 @@ func NewAuthHandler(database *sql.DB) *AuthHandler {
 
 func (h *AuthHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
+	case http.MethodGet:
+		h.get(w, r)
 	case http.MethodPost:
 		h.post(w, r)
 	default:
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 	}
+}
+
+func (h *AuthHandler) get(w http.ResponseWriter, r *http.Request) bool {
+	user := r.URL.Query().Get("user")
+	token := r.URL.Query().Get("token")
+	var row string
+
+	err := h.database.QueryRow(`
+		SELECT user
+		FROM users
+		WHERE username = $1
+		AND token = $2
+		AND validated_date > NOW() - INTERVAL '1 hour'
+	`, user, token).Scan(&row)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			fmt.Printf("No rows")
+			http.Error(w, "Invalid user name or token", http.StatusUnauthorized)
+			return false
+		}
+		http.Error(w, "database error", http.StatusInternalServerError)
+		return false
+	}
+	return true
 }
 
 func (h *AuthHandler) post(w http.ResponseWriter, r *http.Request) {
