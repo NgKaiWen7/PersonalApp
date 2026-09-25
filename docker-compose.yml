@@ -4,6 +4,7 @@ services:
     working_dir: /app
     volumes:
       - ./backend:/app
+      - /mnt/data/readings:/readings
     ports:
       - "8080:8080"
     depends_on:
