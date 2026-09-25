@@ -81,6 +81,7 @@ func Setup(database *sql.DB) http.Handler {
 	mux.Handle("GET /api/readings", AuthMiddleware(database, http.HandlerFunc(readingHandler.Handle)))
 	mux.Handle("GET /api/readings/{id}", AuthMiddleware(database, http.HandlerFunc(readingHandler.Handle)))
 	mux.Handle("POST /api/readings", AuthMiddleware(database, http.HandlerFunc(readingHandler.Handle)))
+	mux.Handle("DELETE /api/readings/{id}", AuthMiddleware(database, http.HandlerFunc(readingHandler.Handle)))
 	mux.HandleFunc("/api/auth", authHandler.Handle)
 	return corsMiddleware(mux)
 }

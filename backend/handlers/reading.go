@@ -3,8 +3,8 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -27,6 +27,8 @@ func (h *ReadingHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		h.get(w, r)
 	case http.MethodPost:
 		h.post(w, r)
+	case http.MethodDelete:
+		h.delete(w, r)
 	default:
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 	}
@@ -40,6 +42,43 @@ func (h *ReadingHandler) get(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.getFile(w, r, fileID)
+}
+
+func (h *ReadingHandler) delete(w http.ResponseWriter, r *http.Request) {
+	fileID := r.PathValue("id")
+	tx, begin_err := h.database.Begin()
+	if begin_err != nil {
+		log.Printf("Failed to begin transaction: %v", begin_err)
+		http.Error(w, "Unable to start transaction", http.StatusInternalServerError)
+		return
+	}
+	defer tx.Rollback()
+
+	deleteFilePath, db_err := db.DeleteReadings(tx, fileID)
+	if db_err != nil {
+		http.Error(w, "Unable to delete file from database", http.StatusNotFound)
+		return
+	}
+	if deleteFilePath == "" {
+		http.Error(w, "No file found in database", http.StatusNotFound)
+		return
+	}
+	err := os.Remove(deleteFilePath)
+	if err != nil {
+		log.Printf("Failed to delete file: %v", err)
+		http.Error(w, "Failed to delete physical file", http.StatusInternalServerError)
+		return
+	}
+	if err := tx.Commit(); err != nil {
+		log.Printf("Failed to commit transaction: %v", err)
+		http.Error(w, "Unable to commit deletion", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"deleted_file": deleteFilePath,
+	})
 }
 
 func (h *ReadingHandler) list(w http.ResponseWriter, r *http.Request) {
@@ -96,5 +135,5 @@ func (h *ReadingHandler) post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "%d", fileid)
+	w.Write([]byte(fileid))
 }

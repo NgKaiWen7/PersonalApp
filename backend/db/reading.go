@@ -38,6 +38,24 @@ func GetReadings(database *sql.DB, id string) (string, error) {
 	log.Println(fullpath)
 	return fullpath, nil
 }
+func DeleteReadings(tx *sql.Tx, id string) (string, error) {
+	var filename string
+	var filedirectory string
+
+	err := tx.QueryRow(`
+		DELETE FROM readings
+		WHERE id = $1
+		RETURNING filedirectory, filename
+	`, id).Scan(&filedirectory, &filename)
+	if err != nil {
+		log.Printf("DeleteReadings: failed to delete reading id=%s: %v", id, err)
+		return "", fmt.Errorf("delete reading %s: %w", id, err)
+	}
+	log.Printf("DeleteReadings: deleted database record id=%s filedirectory=%s filename=%s", id, filedirectory, filename)
+	fullpath := strings.Join([]string{filedirectory, filename}, "/")
+	log.Printf("DeleteReadings: full file path=%s", fullpath)
+	return fullpath, nil
+}
 
 func ListReadings(database *sql.DB) ([]models.Readings, error) {
 	rows, err := database.Query(`
