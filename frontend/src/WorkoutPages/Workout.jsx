@@ -28,7 +28,6 @@ export function Workout() {
       const load = await loadTodayLoad();
       setTotalLoad(load);
     }
-
     fetchLoad();
   }, []);
   return (

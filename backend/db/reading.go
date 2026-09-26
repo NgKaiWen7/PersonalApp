@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -48,6 +49,10 @@ func DeleteReadings(tx *sql.Tx, id string) (string, error) {
 		RETURNING filedirectory, filename
 	`, id).Scan(&filedirectory, &filename)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return "", nil
+		}
+
 		log.Printf("DeleteReadings: failed to delete reading id=%s: %v", id, err)
 		return "", fmt.Errorf("delete reading %s: %w", id, err)
 	}

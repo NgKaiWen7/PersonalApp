@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"io"
 	"log"
 	"net/http"
@@ -65,9 +66,13 @@ func (h *ReadingHandler) delete(w http.ResponseWriter, r *http.Request) {
 	}
 	err := os.Remove(deleteFilePath)
 	if err != nil {
-		log.Printf("Failed to delete file: %v", err)
-		http.Error(w, "Failed to delete physical file", http.StatusInternalServerError)
-		return
+		if errors.Is(err, os.ErrNotExist) {
+			// File already doesn't exist — ignore
+		} else {
+			log.Printf("Failed to delete file: %v", err)
+			http.Error(w, "Failed to delete physical file", http.StatusInternalServerError)
+			return
+		}
 	}
 	if err := tx.Commit(); err != nil {
 		log.Printf("Failed to commit transaction: %v", err)
@@ -103,34 +108,53 @@ func (h *ReadingHandler) getFile(w http.ResponseWriter, r *http.Request, fileID 
 }
 
 func (h *ReadingHandler) post(w http.ResponseWriter, r *http.Request) {
+	const maxUploadSize = 1 << 30 // 1 GiB
+
+	r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
+
 	err := r.ParseMultipartForm(32 << 20)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		if errors.Is(err, http.ErrBodyReadAfterClose) {
+			http.Error(w, "Request body closed unexpectedly", http.StatusBadRequest)
+			return
+		}
+
+		http.Error(w, "Invalid multipart form or file too large", http.StatusBadRequest)
 		return
 	}
 
 	file, header, err := r.FormFile("file")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		if errors.Is(err, http.ErrMissingFile) {
+			http.Error(w, "Missing file", http.StatusBadRequest)
+			return
+		}
+
+		http.Error(w, "Invalid file upload", http.StatusBadRequest)
 		return
 	}
+
 	defer file.Close()
 
 	dst, err := os.Create(filepath.Join("/readings", header.Filename))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("Failed to create destination file: %v", err)
+		http.Error(w, "Failed to create file", http.StatusInternalServerError)
 		return
 	}
+
 	defer dst.Close()
 
 	_, err = io.Copy(dst, file)
 	if err != nil {
+		log.Printf("Failed to write destination file: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	var fileid string
 	fileid, err = db.CreateNewReadings(h.database, header.Filename, "/readings")
 	if err != nil {
+		log.Printf("Failed toupdate database: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
