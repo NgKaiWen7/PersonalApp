@@ -2,6 +2,7 @@ import React from "react";
 import { Todo } from "./TODOPages/Todo";
 import { Workout } from "./WorkoutPages/Workout";
 import { Readings } from "./ReadingPages/Reading";
+import { Notes } from "./NotePages/Notes";
 import { useAuth } from "./AuthContext";
 import { Aim } from "./AimPages/Aim.jsx";
 import "./Header.css";
@@ -51,6 +52,7 @@ export default function App() {
         <Todo />
         <Workout />
         <Readings />
+        <Notes />
       </main>
     </div>
   );

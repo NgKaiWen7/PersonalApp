@@ -1,150 +1,152 @@
 :root {
-  --bg: #121212;
-  --bg-elevated: #1c1c1c;
-  --border: #2c2c2c;
-  --text: #e6e6e6;
-  --text-muted: #8f8f8f;
-  --accent: #4d8dff;
-  --accent-muted: #2a3f66;
-  --radius: 6px;
+    --bg: #121212;
+    --bg-elevated: #1c1c1c;
+    --border: #2c2c2c;
+    --text: #e6e6e6;
+    --text-muted: #8f8f8f;
+    --accent: #4d8dff;
+    --accent-muted: #2a3f66;
+    --radius: 6px;
 }
 
 .todo-days {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  width: 100%;
-  max-width: 100%;      /* was 640px */
-  margin: 0;             /* was 0 auto — auto-centering no longer needed at full width */
-  padding: 1rem 1.5rem;  /* keep some breathing room off the true screen edge */
-  background: var(--bg);
-  box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 100%; /* was 640px */
+    margin: 0; /* was 0 auto — auto-centering no longer needed at full width */
+    padding: 1rem 1.5rem; /* keep some breathing room off the true screen edge */
+    background: var(--bg);
+    box-sizing: border-box;
 }
 
 /* --- Day card --- */
 
 .day-section {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
 }
 
 .day-section.glowing {
-  border-color: var(--accent);
+    border-color: var(--accent);
 }
 
 /* --- Header row --- */
 
 .day-header {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.6rem 0.8rem;
-  cursor: pointer;
-  user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 0.8rem;
+    cursor: pointer;
+    user-select: none;
 }
 
 .day-header h2 {
-  flex: 1;
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: var(--text);
+    flex: 1;
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text);
 }
 
 .today-badge {
-  font-size: 0.7rem;
-  color: var(--accent);
-  border: 1px solid var(--accent);
-  border-radius: 4px;
-  padding: 0.1rem 0.4rem;
+    font-size: 0.7rem;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    padding: 0.1rem 0.4rem;
 }
 
 .disclosure-arrow {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  font-size: 0.7rem;
-  line-height: 1;
-  padding: 0.2rem;
-  transform: rotate(0deg);
-  transition: transform 0.15s ease;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.7rem;
+    line-height: 1;
+    padding: 0.2rem;
+    transform: rotate(0deg);
+    transition: transform 0.15s ease;
 }
 
 .disclosure-arrow.open {
-  transform: rotate(90deg);
-  color: var(--text);
+    transform: rotate(90deg);
+    color: var(--text);
 }
 
 .save-btn {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  color: var(--text);
-  border-radius: 4px;
-  padding: 0.3rem 0.7rem;
-  font-size: 0.8rem;
-  cursor: pointer;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 4px;
+    padding: 0.3rem 0.7rem;
+    font-size: 0.8rem;
+    cursor: pointer;
 }
 
 .save-btn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent);
 }
 
 /* --- Editor body --- */
 
 .todo-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 0 0.8rem;
-  max-height: 500px;
-  opacity: 1;
-  transition: max-height 0.2s ease, opacity 0.2s ease, padding 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0 0.8rem;
+    max-height: 500px;
+    opacity: 1;
+    transition:
+        max-height 0.2s ease,
+        opacity 0.2s ease,
+        padding 0.2s ease;
 }
 
 .todo-list.collapsed {
-  max-height: 0;
-  opacity: 0;
-  padding: 0 0.8rem;
-  pointer-events: none;
+    max-height: 0;
+    opacity: 0;
+    padding: 0 0.8rem;
+    pointer-events: none;
 }
 
 .todo-list:not(.collapsed) {
-  padding-bottom: 0.8rem;
+    padding-bottom: 0.8rem;
 }
 
 .todo-title,
 .todo-description {
-  width: 100%;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  color: var(--text);
-  font-family: inherit;
-  padding: 0.5rem 0.6rem;
-  resize: vertical;
-  box-sizing: border-box;
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: inherit;
+    padding: 0.5rem 0.6rem;
+    resize: vertical;
+    box-sizing: border-box;
 }
 
 .todo-title {
-  width: 100%;
-  max-width: 180px;
-  resize: none;
-  height: 2.6rem;      /* pick the exact height you want */
-  overflow-y: auto;     /* extra lines scroll inside instead of growing the box */
+    resize: none;
+    height: 2.6rem; /* pick the exact height you want */
+    overflow-y: auto; /* extra lines scroll inside instead of growing the box */
 }
 .todo-description {
-  font-size: 16px; /* iOS Safari won't zoom at 16px or above */
-  color: var(--text-muted);
-  min-height: 4.5rem;
+    margin: 0;
+    font-size: 16px; /* iOS Safari won't zoom at 16px or above */
+    color: var(--text-muted);
+    min-height: 4.5rem;
 }
 
 .todo-title:focus,
 .todo-description:focus {
-  outline: none;
-  border-color: var(--accent);
-  color: var(--text);
+    outline: none;
+    border-color: var(--accent);
+    color: var(--text);
 }
