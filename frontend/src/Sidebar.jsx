@@ -11,6 +11,12 @@ export function Sidebar() {
     { label: "Notes", icon: "📝", path: "/notes" },
     { label: "Readings", icon: "📚", path: "/readings" },
   ];
+  function handleLogout() {
+    localStorage.removeItem("app_user");
+    localStorage.removeItem("app_token");
+
+    window.location.href = "/login";
+  }
   return (
     <div className={`sidebar ${isExpanded ? "expanded" : "collapsed"}`}>
       <button
@@ -33,6 +39,10 @@ export function Sidebar() {
           </NavLink>
         ))}
       </nav>
+      <button className="sidebar-logout" onClick={handleLogout}>
+        <span className="sidebar-icon">➜🚪</span>
+        {isExpanded && "Logout"}
+      </button>
     </div>
   );
 }
