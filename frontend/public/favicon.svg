@@ -1,34 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- Body -->
-  <ellipse cx="32" cy="35" rx="21" ry="24" fill="#44A180"/>
-
-  <!-- Head -->
-  <circle cx="31" cy="22" r="18" fill="#d11111"/>
-
-  <!-- Face patch -->
-  <circle cx="24" cy="24" r="10" fill="#F5D76E"/>
-
-  <!-- Eye -->
-  <circle cx="25" cy="20" r="4.5" fill="#191A33"/>
-  <circle cx="26.5" cy="18.5" r="1.4" fill="white"/>
-
-  <!-- Beak -->
-  <path d="M38 23 Q51 22 43 31 Q39 34 34 29 Z" fill="#E49C1B"/>
-  <path d="M39 27 Q46 27 43 31" fill="none" stroke="#191A33" stroke-width="1.5" stroke-linecap="round"/>
-
-  <!-- Wing -->
-  <path d="M42 34 Q55 38 45 52 Q39 57 35 49 Q39 42 42 34Z"
-        fill="#2F8068"/>
-
-  <!-- Belly -->
-  <ellipse cx="30" cy="43" rx="11" ry="14" fill="#F5D76E"/>
-
-  <!-- Feet -->
-  <path d="M23 56 Q20 61 16 59 M23 56 Q25 61 29 59"
-        fill="none" stroke="#E49C1B" stroke-width="3" stroke-linecap="round"/>
-  <path d="M39 55 Q36 61 33 59 M39 55 Q42 60 45 57"
-        fill="none" stroke="#E49C1B" stroke-width="3" stroke-linecap="round"/>
-
-  <!-- Tiny cheek -->
-  <circle cx="18" cy="28" r="2" fill="#E98C7A"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <text
+    x="50"
+    y="78"
+    text-anchor="middle"
+    font-size="82"
+    font-family="Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif"
+  >🦜</text>
 </svg>

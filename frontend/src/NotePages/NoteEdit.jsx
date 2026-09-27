@@ -10,6 +10,25 @@ function TextBlock({
 }) {
   return (
     <div className="note-block">
+      <button
+        onClick={() => onMove(index, -1)}
+        disabled={index === 0}
+      >
+        ↑
+      </button>
+
+      <button
+        onClick={() => onMove(index, 1)}
+        disabled={false}
+      >
+        ↓
+      </button>
+
+      <button
+        onClick={() => onDelete(index)}
+      >
+        ×
+      </button>
       <textarea
         className="note-text-block"
         value={block.content}
@@ -20,27 +39,6 @@ function TextBlock({
         rows={3}
       />
 
-      <div className="note-block-actions">
-        <button
-          onClick={() => onMove(index, -1)}
-          disabled={index === 0}
-        >
-          ↑
-        </button>
-
-        <button
-          onClick={() => onMove(index, 1)}
-          disabled={false}
-        >
-          ↓
-        </button>
-
-        <button
-          onClick={() => onDelete(index)}
-        >
-          ×
-        </button>
-      </div>
     </div>
   );
 }
@@ -55,38 +53,25 @@ function ImageBlock({
   const imageUrl = ''
   return (
     <div className="note-block">
-      {block.content ? (
-        <img
-          className="note-image-block"
-          src={imageUrl}
-          alt=""
-        />
-      ) : (
-        <div className="note-image-placeholder">
-          Image
-        </div>
-      )}
+      <button
+        onClick={() => onMove(index, -1)}
+        disabled={index === 0}
+      >
+        ↑
+      </button>
 
-      <div className="note-block-actions">
-        <button
-          onClick={() => onMove(index, -1)}
-          disabled={index === 0}
-        >
-          ↑
-        </button>
+      <button
+        onClick={() => onMove(index, 1)}
+      >
+        ↓
+      </button>
 
-        <button
-          onClick={() => onMove(index, 1)}
-        >
-          ↓
-        </button>
-
-        <button
-          onClick={() => onDelete(index)}
-        >
-          ×
-        </button>
-      </div>
+      <button
+        onClick={() => onDelete(index)}
+      >
+        ×
+      </button>
+      <img className="note-image-block" src={imageUrl} alt="" />
     </div>
   );
 }
