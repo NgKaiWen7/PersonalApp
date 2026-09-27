@@ -1,17 +1,4 @@
 
-import { Sidebar } from "../Sidebar.jsx";
-
-function NoteLayout({ children }) {
-  return (
-    <div className="flex w-full min-h-screen">
-      <Sidebar />
-
-      <main className="flex-1 min-w-0">
-        {children}
-      </main>
-    </div>
-  );
-}
 
 export function NoteList() {
   return (
@@ -35,11 +22,3 @@ export function NoteList() {
     </div>
   );
 }
-//
-// export function NoteList() {
-//   return (
-//     <NoteLayout>
-//       <NoteEditor />
-//     </NoteLayout>
-//   );
-// }

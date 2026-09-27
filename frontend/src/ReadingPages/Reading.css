@@ -13,32 +13,38 @@
 
 .reading-title {
   margin: 0;
+
+  color: #d6b25e;
   font-size: 22px;
   font-weight: 600;
-  color: #c9ced6;
+  letter-spacing: 0.2px;
 }
 
 .reading-add {
   padding: 7px 14px;
 
-  background: transparent;
-  color: var(--text);
+  background: #181818;
+  color: #d6b25e;
 
-  border: 1px solid var(--border);
+  border: 1px solid #5a4925;
   border-radius: 4px;
 
   font-family: inherit;
   font-size: 13px;
+  font-weight: 500;
 
   cursor: pointer;
+
   transition:
     background 0.15s ease,
-    border-color 0.15s ease;
+    border-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .reading-add:hover {
-  background: var(--surface);
-  border-color: var(--text-muted);
+  background: #211d15;
+  border-color: #9a7935;
+  color: #e4c873;
 }
 
 .reading-list {
