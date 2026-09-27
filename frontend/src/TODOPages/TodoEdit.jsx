@@ -1,16 +1,8 @@
-import {
-  useEffect,
-  useState,
-  useRef,
-  useImperativeHandle,
-  useCallback,
-} from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState, useRef } from "react";
 import "./TodoEdit.css";
-import { fetchTodos, saveTodos, generateClientKey } from "./TodoData.jsx";
+import { fetchTodos, saveTodos } from "./TodoData.jsx";
 const DAYS_BACK_DEFAULT = 7;
 const DAYS_FORWARD_DEFAULT = 7;
-const LOAD_MORE_CHUNK = 7; // how many extra days to fetch each time we scroll near the bottom
 
 function getTodayDate() {
   const now = new Date();
@@ -28,7 +20,15 @@ function resizeToContent(el) {
 }
 
 function TodoTitle({ title, ref }) {
-  return <textarea ref={ref} className="todo-title" defaultValue={title} />;
+  return (
+    <textarea
+      ref={ref}
+      className="todo-title"
+      defaultValue={title}
+      onInput={(e) => resizeToContent(e.target)}
+      placeholder="Enter title here"
+    />
+  );
 }
 
 function TodoDescription({ description, ref }) {
@@ -42,6 +42,7 @@ function TodoDescription({ description, ref }) {
       className="todo-description"
       defaultValue={description}
       onInput={(e) => resizeToContent(e.target)}
+      placeholder="Enter description here"
       rows={1}
     />
   );
@@ -54,11 +55,14 @@ function DaySection({ date, title, description }) {
   async function saveDay() {
     await saveTodos(date, descriptionRef.current.value, titleRef.current.value);
   }
-
-  const isToday = date === getTodayDate();
+  const today = getTodayDate();
+  const isToday = date === today;
+  const isFuture = date > today;
   const [isOpen, setIsOpen] = useState(isToday);
   return (
-    <section className={`day-section${isToday ? " glowing" : ""}`}>
+    <section
+      className={`day-section${isToday ? " glowing" : ""}${isFuture ? " future" : ""}`}
+    >
       <div
         className="day-header"
         role="button"

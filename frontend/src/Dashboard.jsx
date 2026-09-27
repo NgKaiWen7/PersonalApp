@@ -1,10 +1,10 @@
 import { Aim } from "./AimPages/Aim.jsx";
-import { Todo } from "./TODOPages/Todo.jsx";
+import { TodoDashboard } from "./TODOPages/Todo.jsx";
 
 export function Dashboard() {
   return (
     <>
-      <Todo />
+      <TodoDashboard />
       <Aim />
     </>
   );
