@@ -1,7 +1,8 @@
 import "./Workout.css";
 import { useState, useEffect} from "react";
 import { useNavigate } from "react-router-dom";
-import {  loadTodayLoad } from "./WorkoutData.jsx";
+import { loadTodayLoad } from "./WorkoutData.jsx";
+
 export function WorkoutDay({ title }) {
   const navigate = useNavigate();
 

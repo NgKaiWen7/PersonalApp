@@ -19,8 +19,6 @@ export function NoteList() {
       className="min-h-screen"
       style={{ display: "flex" }}
     >
-      <Sidebar />
-
       <main className="flex-1 min-w-0">
         <div className="h-screen p-7">
           <input

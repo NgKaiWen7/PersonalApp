@@ -4,7 +4,7 @@ import {
   loadTodayWorkout,
   saveWorkoutData,
   deleteWorkout,
-  loadTodayLoad
+  loadTodayLoad,
 } from "./WorkoutData.jsx";
 import "./WorkoutEdit.css";
 
@@ -16,10 +16,23 @@ const exercisesByDay = {
     "Tricep Pushdown",
     "Tricep Overhead Extension",
     "Lateral Raise",
-    "Front Raise?"
+    "Front Raise?",
   ],
-  Pull: ["Lat Pulldown (Wide)", "Lat Pulldown (Narrow)", "Face Pull", "Row", "Bicep Curl"],
-  Legs: ["Squat", "Hip Extension", "Hip Induction", "Leg Extension", "Leg Curl", "Calf Raise"],
+  Pull: [
+    "Lat Pulldown (Wide)",
+    "Lat Pulldown (Narrow)",
+    "Face Pull",
+    "Row",
+    "Bicep Curl",
+  ],
+  Legs: [
+    "Squat",
+    "Hip Extension",
+    "Hip Induction",
+    "Leg Extension",
+    "Leg Curl",
+    "Calf Raise",
+  ],
 };
 
 function ExerciseSelector({ value, onChange, options }) {
@@ -71,7 +84,6 @@ function WorkoutHistory({ exercises, setExercises }) {
     }
   }
 
-
   return (
     <div className="workout-history">
       <table>
@@ -106,26 +118,33 @@ function WorkoutHistory({ exercises, setExercises }) {
   );
 }
 
+export function WorkoutDay({ title, day, setDay }) {
+  const workoutColors = {
+    Push: "workout-push",
+    Pull: "workout-pull",
+    Legs: "workout-legs",
+  };
+
+  return (
+    <button
+      className={`workout-day ${workoutColors[title] || ""} ${
+        day === title ? "selected" : ""
+      }`}
+      onClick={() => setDay(title)}
+    >
+      {title}
+    </button>
+  );
+}
+
 export default function WorkoutEdit() {
   const [exerciseType, setExerciseType] = useState("");
   const [weight, setWeight] = useState(2.5);
   const [reps, setReps] = useState(1);
-  const [workoutHistory, setWorkoutHistory] = useState({});
-  const navigate = useNavigate();
-  const location = useLocation();
-  const day = location.state?.day;
-  // --- NEW: Load today's data when the page opens ---
-  useEffect(() => {
-    const loadWorkoutData = async () => {
-      const exercise_data = await loadTodayWorkout();
-      setWorkoutHistory(exercise_data);
-    };
-    loadWorkoutData();
-  }, []);
+  const [day, setDay] = useState("Push");
+  const exerciseOptions = exercisesByDay[day] || [];
+  const [totalLoad, setTotalLoad] = useState(0);
 
-  function handleBack() {
-    navigate("/");
-  }
   async function handleAddExercise() {
     if (!exerciseType) {
       return;
@@ -136,18 +155,10 @@ export default function WorkoutEdit() {
       weight,
       reps,
     };
-
     const id = await saveWorkoutData(newExercise);
-
-    if (id) {
-      setWorkoutHistory({
-        ...workoutHistory,
-        [id]: newExercise,
-      });
-    }
+    const load = await loadTodayLoad();
+    setTotalLoad(load)
   }
-  const exerciseOptions = exercisesByDay[day] || [];
-  const [totalLoad, setTotalLoad] = useState(0);
   useEffect(() => {
     async function fetchLoad() {
       const load = await loadTodayLoad();
@@ -159,9 +170,13 @@ export default function WorkoutEdit() {
   return (
     <div className="workout-edit">
       <h1>{day ? `${day} Session` : "Workout Session"}</h1>
+          <WorkoutDay title="Push" day={day} setDay={setDay} />
+          <WorkoutDay title="Pull" day={day} setDay={setDay} />
+          <WorkoutDay title="Legs" day={day} setDay={setDay} />
       <div className="workout-history">
-        <button onClick={handleBack}>Back</button>
-        <p>{totalLoad} kgs</p>
+        <div className="workout-days">
+        </div>
+        <p>Volume: {totalLoad} kgs</p>
       </div>
 
       <ExerciseSelector
@@ -176,12 +191,6 @@ export default function WorkoutEdit() {
 
       <div className="workout-history">
         <button onClick={handleAddExercise}>Add Exercise</button>
-      </div>
-      <div className="workout-history">
-        <WorkoutHistory
-          exercises={workoutHistory}
-          setExercises={setWorkoutHistory}
-        />
       </div>
     </div>
   );
