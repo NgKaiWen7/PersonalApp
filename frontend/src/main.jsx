@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import App from "./App";
 import { Login } from "./Login";
 import { ReadingList } from "./ReadingPages/ReadingList.jsx";
+import { NoteList } from "./NotePages/NoteList.jsx";
 import WorkoutEdit from "./WorkoutPages/WorkoutEdit";
 import TodoDays from "./TODOPages/TodoEdit.jsx";
 import { AuthProvider } from "./AuthContext";
@@ -17,6 +18,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         {" "}
         <Route path="/" element={<App />} />{" "}
         <Route path="/login" element={<Login />} />{" "}
+        <Route path="/notes" element={<NoteList />} />{" "}
         <Route path="/readings" element={<ReadingList />} />{" "}
         <Route path="/todo/edit" element={<TodoDays />} />{" "}
         <Route path="/workout/edit" element={<WorkoutEdit />} />{" "}

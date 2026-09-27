@@ -1,15 +1,8 @@
 body {
   margin: 0;
-  background-color: #f4f4f4; /* Optional background */
-  /*background-image: url('assets/background.jpg');
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: top;*/
+  background-color: #f4f4f4;
 }
 
 #root {
-  /* This creates a larger outer space around your whole app */
-  padding: 32px;
-  max-width: 1200px;
-  margin: 0 auto; /* Centers your app if max-width is set */
+  min-height: 100vh;
 }

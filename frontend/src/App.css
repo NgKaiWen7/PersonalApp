@@ -1,83 +1,77 @@
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 html,
 body,
 #root {
-  margin: 0;
-  min-height: 100%;
-  width: 100%;
+    margin: 0;
+    min-height: 100%;
+    width: 100%;
 }
 
 body {
-  background: #0b0d10;
-  color: #e6e9ed;
+    background: #0b0d10;
+    color: #e6e9ed;
 
-  font-family:
-    "JetBrains Mono",
-    "SFMono-Regular",
-    Consolas,
-    "Liberation Mono",
-    monospace;
+    font-family:
+        "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono",
+        monospace;
 }
 
 button,
 input,
 select,
 textarea {
-  font-family: inherit;
+    font-family: inherit;
 }
-
 
 /* =========================
    App
    ========================= */
 
 .app-container {
-  min-height: 100vh;
-  background: #0b0d10;
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
 }
-
 
 /* =========================
    Main content
    ========================= */
 
 .content {
-  width: 100%;
-  max-width: 1100px;
+    width: 100%;
+    max-width: 1100px;
 
-  margin: 0 auto;
-  padding: 20px 24px 40px;
+    margin: 0 auto;
+    padding: 20px 24px 40px;
 }
-
 
 /* =========================
    Loading
    ========================= */
 
 .loading-screen {
-  min-height: 100vh;
+    min-height: 100vh;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-  background: #0b0d10;
-  color: #7f8994;
+    background: #0b0d10;
+    color: #7f8994;
 
-  font-size: 13px;
-  letter-spacing: 0.04em;
+    font-size: 13px;
+    letter-spacing: 0.04em;
 }
-
 
 /* =========================
    Mobile
    ========================= */
 
 @media (max-width: 600px) {
-  .content {
-    padding: 16px 14px 32px;
-  }
+    .content {
+        padding: 16px 14px 32px;
+    }
 }

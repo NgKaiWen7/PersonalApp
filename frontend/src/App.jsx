@@ -4,6 +4,8 @@ import { Workout } from "./WorkoutPages/Workout";
 import { Readings } from "./ReadingPages/Reading";
 import { Notes } from "./NotePages/Notes";
 import { useAuth } from "./AuthContext";
+import { Sidebar } from "./Sidebar.jsx";
+
 import { Aim } from "./AimPages/Aim.jsx";
 import "./Header.css";
 import "./App.css";
@@ -47,6 +49,8 @@ export default function App() {
 
   return (
     <div className="app-container">
+      <Sidebar />
+
       <main className="content">
         <Aim />
         <Todo />
