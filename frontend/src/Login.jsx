@@ -20,28 +20,26 @@ export function Login() {
   };
   return (
     <div className="login-container">
-      {" "}
       <form className="login-form" onSubmit={handleSubmit}>
-        {" "}
-        <h2>Login Required</h2>{" "}
-        <p>Please enter your credentials to access your dashboard.</p>{" "}
-        {error && <div className="login-error">{error}</div>}{" "}
+        <h2>Login Required</h2>
+        <p>Please enter your credentials to access your dashboard.</p>
+        {error && <div className="login-error">{error}</div>}
         <input
           type="text"
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
-        />{" "}
+        />
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-        />{" "}
-        <button type="submit"> Sign In </button>{" "}
-      </form>{" "}
+        />
+        <button type="submit"> Sign In </button>
+      </form>
     </div>
   );
 }

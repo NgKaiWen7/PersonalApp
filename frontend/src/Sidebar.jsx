@@ -17,13 +17,26 @@ export function Sidebar() {
 
     window.location.href = "/login";
   }
+  const collapsedIcons = ["🦜", "🐧"];
+
+  const [sidebarIcon, setSidebarIcon] = useState("🦜");
+
+  function toggleSidebar() {
+    setSidebarIcon(
+      collapsedIcons[Math.floor(Math.random() * collapsedIcons.length)]
+    );
+
+    setIsExpanded((prev) => !prev);
+  }
   return (
     <div className={`sidebar ${isExpanded ? "expanded" : "collapsed"}`}>
       <button
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={toggleSidebar}
         className="sidebar-header"
       >
-        <span className="sidebar-title">{isExpanded ? "🦜NKW" : "🦜"}</span>
+        <span className="sidebar-title">
+          {isExpanded ? `${sidebarIcon} NKW` : sidebarIcon}
+        </span>
       </button>
       <nav className="sidebar-nav">
         {menuItems.map((item) => (
