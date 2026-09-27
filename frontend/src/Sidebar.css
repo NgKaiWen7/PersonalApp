@@ -1,20 +1,20 @@
 .sidebar {
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
 
-  width: 256px;
+    width: 256px;
 
-  flex-shrink: 0;
+    flex-shrink: 0;
 
-  background: #111827;
-  color: white;
-  position: fixed;
-  top: 0;
-  left: 0;
+    background: #111827;
+    color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
 
-  height: 100vh;
-  z-index: 100;
-  transition: width 300ms ease;
+    height: 100vh;
+    z-index: 100;
+    transition: width 300ms ease;
 }
 .sidebar.expanded {
     width: 256px;
@@ -41,6 +41,7 @@
 }
 .sidebar.collapsed .sidebar-header {
     justify-content: center;
+    align-items: center;
 }
 .sidebar-title {
     display: block;
@@ -70,44 +71,44 @@
     background: #1f2937;
 }
 .sidebar-item.active {
-  background: #252a30;
-  color: #ffffff;
+    background: #252a30;
+    color: #ffffff;
 }
 .sidebar-logout {
-  position: fixed;
-  left: 0;
-  bottom: 0;
+    position: fixed;
+    left: 0;
+    bottom: 0;
 
-  width: 240px; /* same width as your expanded sidebar */
+    width: 240px; /* same width as your expanded sidebar */
 
-  display: flex;
-  align-items: center;
-  gap: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 
-  padding: 10px 12px;
+    padding: 10px 12px;
 
-  background: transparent;
-  border: none;
-  border-radius: 8px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
 
-  color: var(--text-muted);
-  font: inherit;
-  text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
+    color: var(--text-muted);
+    font: inherit;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
 
-  cursor: pointer;
+    cursor: pointer;
 
-  transition:
-    background-color 150ms ease,
-    color 150ms ease;
+    transition:
+        background-color 150ms ease,
+        color 150ms ease;
 }
 
 .sidebar-logout:hover {
-  background: #1f2937;
-  color: var(--text);
+    background: #1f2937;
+    color: var(--text);
 }
 
 .sidebar.collapsed .sidebar-logout {
-  display: none;
+    display: none;
 }

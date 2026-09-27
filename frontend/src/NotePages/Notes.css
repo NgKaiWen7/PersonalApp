@@ -1,45 +1,178 @@
-.notes {
-  min-height: 120px;
-  padding: 24px;
+.notes-page {
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
 
-  display: flex;
-  align-items: center;
+  padding: 28px 32px;
 
-  border: 1px solid #2a2a2a;
-  border-radius: 16px;
-  background: #111111;
-
-  cursor: pointer;
-
-  transition:
-    transform 0.15s ease,
-    border-color 0.15s ease,
-    background 0.15s ease;
+  background: #101114;
+  color: #e5e5e5;
 }
 
-.notes:hover {
-  transform: translateY(-3px);
-  border-color: #444444;
-  background: #171717;
-}
-
-.notes:active {
-  transform: translateY(-1px);
-  background: #0d0d0d;
-}
+/* Header */
 
 .notes-header {
-  width: 100%;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  margin-bottom: 24px;
 }
 
-.notes-title {
+.notes-header h1 {
   margin: 0;
 
-  color: #ffffff;
-  font-size: 1.25rem;
+  color: #e5e5e5;
+  font-size: 24px;
   font-weight: 600;
+}
+
+.notes-subtitle {
+  margin-top: 4px;
+
+  color: #666b73;
+  font-size: 13px;
+}
+
+/* Create */
+
+.notes-create-button {
+  padding: 8px 14px;
+
+  border: 1px solid #8b6827;
+  border-radius: 4px;
+
+  background: transparent;
+
+  color: #dca83a;
+  font: inherit;
+  font-size: 13px;
+
+  cursor: pointer;
+}
+
+.notes-create-button:hover {
+  background: #211b10;
+  border-color: #b78932;
+}
+
+/* Search */
+
+.notes-search {
+  margin-bottom: 20px;
+}
+
+.notes-search input {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 10px 12px;
+
+  border: 1px solid #292c31;
+  border-radius: 4px;
+  outline: none;
+
+  background: #15171b;
+
+  color: #e5e5e5;
+  font: inherit;
+  font-size: 14px;
+}
+
+.notes-search input::placeholder {
+  color: #555a62;
+}
+
+.notes-search input:focus {
+  border-color: #806020;
+}
+
+/* List */
+
+.notes-list {
+  display: flex;
+  flex-direction: column;
+
+  border-top: 1px solid #292c31;
+}
+
+/* Card */
+
+.note-card {
+  padding: 15px 4px;
+
+  border-bottom: 1px solid #292c31;
+
+  cursor: pointer;
+}
+
+.note-card:hover {
+  background: #15171b;
+}
+
+.note-card-title {
+  margin-bottom: 5px;
+
+  color: #dca83a;
+  font-size: 15px;
+}
+
+.note-card-content {
+  overflow: hidden;
+
+  color: #858a92;
+  font-size: 13px;
+  line-height: 1.5;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Empty / loading */
+
+.notes-message {
+  padding: 40px 4px;
+
+  color: #626770;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Pagination */
+
+.notes-pagination {
+  display: flex;
+  gap: 5px;
+
+  margin-top: 24px;
+}
+
+.notes-page-button {
+  min-width: 32px;
+  height: 32px;
+
+  padding: 0 8px;
+
+  border: 1px solid #30343a;
+  border-radius: 3px;
+
+  background: transparent;
+
+  color: #777c84;
+  font: inherit;
+  font-size: 13px;
+
+  cursor: pointer;
+}
+
+.notes-page-button:hover {
+  border-color: #806020;
+  color: #dca83a;
+}
+
+.notes-page-button.active {
+  border-color: #a27628;
+  background: #211b10;
+
+  color: #dca83a;
 }

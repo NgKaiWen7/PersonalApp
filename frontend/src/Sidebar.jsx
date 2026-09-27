@@ -6,10 +6,13 @@ export function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(true);
   const menuItems = [
     { label: "Dashboard", icon: "🏠", path: "/" },
-    { label: "To Do", icon: "☑️", path: "/todo" },
-    { label: "Workout", icon: "🏋️", path: "/workout" },
+    { label: "To Do's", icon: "☑️", path: "/todo" },
+    { label: "Workouts", icon: "🏋️", path: "/workout" },
     { label: "Notes", icon: "📝", path: "/notes" },
     { label: "Readings", icon: "📚", path: "/readings" },
+    // { label: "Files", icon: "📁", path: "/files" },
+    // { label: "Images", icon: "📸", path: "/pictures" },
+    // { label: "Finance", icon: "💰", path: "/finance" },
   ];
   function handleLogout() {
     localStorage.removeItem("app_user");

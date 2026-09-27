@@ -1,17 +1,172 @@
-import { useNavigate } from "react-router-dom";
-import "./Notes.css"
+import React, { useEffect, useState } from "react";
+import { NoteEdit } from "./NoteEdit.jsx";
+import "./Notes.css";
 
-export function Notes() {
-  const navigate = useNavigate();
+function NoteCard({ note, onClick }) {
+  return (
+    <div className="note-card" onClick={onClick}>
+      <div className="note-card-title">
+        <strong>{note.title || "Untitled"}</strong>
+      </div>
+
+      <div className="note-card-content">
+        {note.content.length > 50
+          ? `${note.content.slice(0, 50)}...`
+          : note.content}
+      </div>
+    </div>
+  );
+}
+
+function Pagination({ page, totalPages, onPageChange }) {
+  if (totalPages <= 1) {
+    return null;
+  }
 
   return (
-    <section
-      className="notes"
-      onClick={() => navigate("/notes")}
-    >
+    <div className="notes-pagination">
+      {Array.from({ length: totalPages }, (_, index) => {
+        const pageNumber = index + 1;
+
+        return (
+          <button
+            key={pageNumber}
+            className={`notes-page-button ${
+              page === pageNumber ? "active" : ""
+            }`}
+            onClick={() => onPageChange(pageNumber)}
+          >
+            {pageNumber}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+export function Notes() {
+  const [text, setText] = useState("");
+  const [notes, setNotes] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [selectedNote, setSelectedNote] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const limit = 10;
+
+  const handleSearchChange = (event) => {
+    setText(event.target.value);
+    setPage(1);
+  };
+
+  async function getNotes(searchText, currentPage) {
+    setLoading(true);
+
+    try {
+      let result;
+
+      if (searchText === "") {
+        result = await getLimitedNotes(limit, currentPage);
+      } else {
+        result = await searchNotes(
+          searchText,
+          limit,
+          currentPage
+        );
+      }
+
+      setNotes(result.notes);
+      setTotalPages(result.totalPages);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    getNotes(text, page);
+  }, [text, page]);
+
+  const handleCreate = () => {
+    setSelectedNote({
+      id: null,
+      title: "",
+      blocks: [],
+    });
+  };
+
+  const handleNoteClick = (note) => {
+    setSelectedNote(note);
+  };
+
+  const handleBack = () => {
+    setSelectedNote(null);
+  };
+
+  if (selectedNote) {
+    return (
+      <NoteEdit
+        note={selectedNote}
+        onBack={handleBack}
+      />
+    );
+  }
+
+  return (
+    <div className="notes-page">
       <div className="notes-header">
-        <h2 className="notes-title">Notes</h2>
+        <div>
+          <h1>Notes</h1>
+          <div className="notes-subtitle">
+            Your notes
+          </div>
+        </div>
+
+        <button
+          className="notes-create-button"
+          onClick={handleCreate}
+        >
+          + New Note
+        </button>
       </div>
-    </section>
+
+      <div className="notes-search">
+        <input
+          id="user-input"
+          type="text"
+          value={text}
+          onChange={handleSearchChange}
+          placeholder="Search notes..."
+        />
+      </div>
+
+      <div className="notes-list">
+        {loading && (
+          <div className="notes-message">
+            Loading...
+          </div>
+        )}
+
+        {!loading && notes.length === 0 && (
+          <div className="notes-message">
+            No notes found.
+          </div>
+        )}
+
+        {!loading &&
+          notes.map((note) => (
+            <NoteCard
+              key={note.id}
+              note={note}
+              onClick={() => handleNoteClick(note)}
+            />
+          ))}
+      </div>
+
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+      />
+    </div>
   );
 }
