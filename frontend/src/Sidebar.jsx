@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import "./Sidebar.css";
 
 export function Sidebar() {
@@ -17,15 +17,20 @@ export function Sidebar() {
         onClick={() => setIsExpanded(!isExpanded)}
         className="sidebar-header"
       >
-        <span className="sidebar-title">{isExpanded ? "APPNAME" : " ≡ "}</span>
+        <span className="sidebar-title">{isExpanded ? "🦜NKW" : "🦜"}</span>
       </button>
       <nav className="sidebar-nav">
         {menuItems.map((item) => (
-          <Link key={item.label} to={item.path} className="sidebar-item">
+          <NavLink
+            key={item.label}
+            to={item.path}
+            className={({ isActive }) =>
+              `sidebar-item ${isActive ? "active" : ""}`
+            }
+          >
             <span className="sidebar-icon">{item.icon}</span>
-
             {isExpanded && item.label}
-          </Link>
+          </NavLink>
         ))}
       </nav>
     </div>

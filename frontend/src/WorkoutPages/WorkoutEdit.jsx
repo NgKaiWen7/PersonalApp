@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
 import {
-  loadTodayWorkout,
   saveWorkoutData,
   deleteWorkout,
   loadTodayLoad,
@@ -73,51 +71,6 @@ function RepsSelector({ value, onChange }) {
   );
 }
 
-function WorkoutHistory({ exercises, setExercises }) {
-  async function deleteExercise(id) {
-    const success = await deleteWorkout(id);
-
-    if (success) {
-      const updated = { ...exercises };
-      delete updated[id];
-      setExercises(updated);
-    }
-  }
-
-  return (
-    <div className="workout-history">
-      <table>
-        <thead>
-          <tr>
-            <th>Exercise</th>
-            <th>Weight (kg)</th>
-            <th>Reps</th>
-            <th>Delete</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {Object.entries(exercises).map(([id, exercise]) => (
-            <tr key={id}>
-              <td>{exercise.exerciseType}</td>
-              <td>{exercise.weight}</td>
-              <td>{exercise.reps}</td>
-              <td>
-                <button
-                  className="delete-row-btn"
-                  onClick={() => deleteExercise(id)}
-                >
-                  ✕
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
 export function WorkoutDay({ title, day, setDay }) {
   const workoutColors = {
     Push: "workout-push",
@@ -157,7 +110,7 @@ export default function WorkoutEdit() {
     };
     const id = await saveWorkoutData(newExercise);
     const load = await loadTodayLoad();
-    setTotalLoad(load)
+    setTotalLoad(load);
   }
   useEffect(() => {
     async function fetchLoad() {
@@ -169,26 +122,21 @@ export default function WorkoutEdit() {
   }, []);
   return (
     <div className="workout-edit">
-      <h1>{day ? `${day} Session` : "Workout Session"}</h1>
-          <WorkoutDay title="Push" day={day} setDay={setDay} />
-          <WorkoutDay title="Pull" day={day} setDay={setDay} />
-          <WorkoutDay title="Legs" day={day} setDay={setDay} />
-      <div className="workout-history">
-        <div className="workout-days">
-        </div>
+      <div className="workout-load">
         <p>Volume: {totalLoad} kgs</p>
       </div>
-
+      <div className="workout-days">
+        <WorkoutDay title="Push" day={day} setDay={setDay} />
+        <WorkoutDay title="Pull" day={day} setDay={setDay} />
+        <WorkoutDay title="Legs" day={day} setDay={setDay} />
+      </div>
       <ExerciseSelector
         value={exerciseType}
         onChange={setExerciseType}
         options={exerciseOptions}
       />
-
       <WeightSelector value={weight} onChange={setWeight} />
-
       <RepsSelector value={reps} onChange={setReps} />
-
       <div className="workout-history">
         <button onClick={handleAddExercise}>Add Exercise</button>
       </div>

@@ -1,0 +1,96 @@
+.simple-table-container {
+  width: 100%;
+  overflow-x: auto;
+
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--surface);
+}
+
+.simple-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+
+.simple-table thead {
+  background: var(--bg);
+}
+
+.simple-table th {
+  padding: 10px 14px;
+
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  border-bottom: 1px solid var(--border);
+}
+
+.simple-table td {
+  padding: 11px 14px;
+  color: var(--text);
+
+  border-bottom: 1px solid var(--border);
+}
+
+.simple-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.simple-table tbody tr {
+  transition: background 0.12s ease;
+}
+
+.simple-table tbody tr:hover {
+  background: var(--bg);
+}
+
+/* Filename */
+.simple-table-filename {
+  color: #d8dce2;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+/* Category */
+
+.simple-table-category {
+  color: var(--text-muted) !important;
+}
+
+/* Action buttons */
+
+.simple-table-action {
+  padding: 5px 10px;
+
+  background: transparent;
+  color: var(--text-muted);
+
+  border: 1px solid var(--border);
+  border-radius: 3px;
+
+  font-family: inherit;
+  font-size: 12px;
+
+  cursor: pointer;
+
+  transition:
+    color 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.simple-table-action:hover {
+  color: var(--text);
+  background: var(--bg);
+  border-color: var(--text-muted);
+}
+
+.simple-table-delete:hover {
+  color: #e57373;
+  border-color: #e57373;
+}

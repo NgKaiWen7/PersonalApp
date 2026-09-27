@@ -1,327 +1,166 @@
-/* =========================
-   Workout Edit
-   ========================= */
+/* WorkoutEdit.css */
 
 .workout-edit {
-  min-height: 100vh;
-  box-sizing: border-box;
-  padding: 24px;
-  background: #0b0d10;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 32px 24px;
+
   color: #e6e9ed;
-
-  font-family:
-    "JetBrains Mono",
-    "SFMono-Regular",
-    Consolas,
-    "Liberation Mono",
-    monospace;
 }
 
 
-/* =========================
-   Header
-   ========================= */
+/* Volume */
 
-.workout-edit h1 {
-  margin: 0 0 24px 0;
+.workout-load {
+  margin-bottom: 24px;
+  padding: 20px;
 
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  background: #15181c;
+  border-left: 4px solid #e49c1b;
+}
 
-  color: #f2f4f7;
+.workout-load p {
+  margin: 0;
+
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 
-/* =========================
-   Generic containers
-   ========================= */
+/* Workout days */
 
-.workout-history {
-  margin-top: 14px;
-}
+.workout-day {
+  width: 100%;
+  margin: 0;
 
+  padding: 10px 22px;
 
-/* =========================
-   Buttons
-   ========================= */
+  background: #15181c;
+  border: 1px solid #30343a;
+  border-radius: 4px;
 
-.workout-history button {
-  height: 42px;
-  padding: 0 16px;
-
-  border: 1px solid #30363d;
-  border-radius: 6px;
-
-  background: #15191e;
-  color: #d7dce2;
-
+  color: #888;
   font-family: inherit;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
 
+  display: flex;
+  justify-content: center;
   cursor: pointer;
-
-  transition:
-    background 0.12s ease,
-    border-color 0.12s ease;
 }
 
-.workout-history button:hover {
-  background: #1b2026;
-  border-color: #4a535d;
+.workout-day:hover {
+  color: #fff;
+  border-color: #666;
+}
+.workout-day.selected {
+  color: #fff;
+  border-color: #e49c1b;
+  background: #211b12;
+}
+.workout-days {
+  display: flex;
+  margin-bottom: 4px;
+  grid-template-columns: repeat(3, 1fr);
 }
 
-.workout-history button:active {
-  background: #111419;
+
+/* Day colors */
+
+.workout-push.selected {
+  border-color: #e49c1b;
+  color: #e49c1b;
+}
+
+.workout-pull.selected {
+    border-color: #e49c1b;
+    color: #e49c1b;
+}
+
+.workout-legs.selected {
+    border-color: #e49c1b;
+    color: #e49c1b;
 }
 
 
-/* =========================
-   Inputs / Select
-   ========================= */
+/* Exercise selector */
 
-.workout-edit select,
-.workout-edit input {
-  box-sizing: border-box;
-
+.workout-edit select {
+  width: 100%;
   height: 44px;
+  margin-bottom: 12px;
 
-  border: 1px solid #30363d;
-  border-radius: 6px;
+  padding: 0 12px;
 
-  background: #111418;
+  background: #15181c;
+  border: 1px solid #30343a;
+  border-radius: 4px;
+
   color: #e6e9ed;
-
   font-family: inherit;
   font-size: 14px;
 
   outline: none;
-
-  transition:
-    border-color 0.12s ease,
-    background 0.12s ease;
 }
 
-.workout-edit select {
-  width: 100%;
-  margin-top: 8px;
-  padding: 0 12px;
-
-  cursor: pointer;
+.workout-edit select:focus {
+  border-color: #e49c1b;
 }
+
+
+/* Weight and reps */
 
 .workout-edit input {
   width: 100%;
-  margin-top: 8px;
+  height: 44px;
+  margin-bottom: 12px;
+
   padding: 0 12px;
+
+  background: #15181c;
+  border: 1px solid #30343a;
+  border-radius: 4px;
+
+  color: #e6e9ed;
+  font-family: inherit;
+  font-size: 16px;
+
+  outline: none;
 }
 
-
-/* Focus */
-
-.workout-edit select:focus,
 .workout-edit input:focus {
-  border-color: #68727d;
-  background: #15191e;
+  border-color: #e49c1b;
 }
 
 
-/* =========================
-   Number input
-   ========================= */
+/* Add button */
 
-.workout-edit input[type="number"] {
-  -moz-appearance: textfield;
+.workout-history {
+  margin-top: 8px;
 }
 
-.workout-edit input[type="number"]::-webkit-inner-spin-button,
-.workout-edit input[type="number"]::-webkit-outer-spin-button {
-  opacity: 1;
-}
-
-
-/* =========================
-   Add Exercise
-   ========================= */
-
-.workout-edit > .workout-history:nth-of-type(2) {
-  margin-top: 14px;
-}
-
-.workout-edit > .workout-history:nth-of-type(2) button {
+.workout-history button {
   width: 100%;
+  height: 46px;
 
-  background: #181d22;
-  border-color: #414951;
+  border: none;
+  border-radius: 4px;
 
-  color: #ffffff;
-}
-
-.workout-edit > .workout-history:nth-of-type(2) button:hover {
-  background: #20262c;
-}
-
-
-/* =========================
-   History
-   ========================= */
-
-.workout-edit .workout-history:last-child {
-  margin-top: 24px;
-
-  border: 1px solid #272d34;
-  border-radius: 7px;
-
-  background: #0f1216;
-
-  overflow-x: auto;
-}
-
-
-/* =========================
-   Table
-   ========================= */
-
-.workout-edit table {
-  width: 100%;
-  border-collapse: collapse;
-
-  font-size: 12px;
-}
-
-
-/* Header */
-
-.workout-edit thead {
-  background: #15191e;
-}
-
-.workout-edit th {
-  padding: 9px 10px;
-
-  border-bottom: 1px solid #30363d;
-
-  color: #8f99a3;
-
-  font-size: 10px;
-  font-weight: 600;
-
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-
-  text-align: left;
-  white-space: nowrap;
-}
-
-
-/* Rows */
-
-.workout-edit td {
-  padding: 8px 10px;
-
-  border-bottom: 1px solid #20252b;
-
-  color: #d7dce2;
-
-  white-space: nowrap;
-}
-
-.workout-edit tbody tr:last-child td {
-  border-bottom: none;
-}
-
-
-/* Row interaction */
-
-.workout-edit tbody tr:hover {
-  background: #14181d;
-}
-
-
-/* =========================
-   Delete button
-   ========================= */
-
-.delete-row-btn {
-  width: 30px;
-  height: 30px;
-
-  padding: 0;
-
-  border: 1px solid #343a41;
-  border-radius: 5px;
-
-  background: transparent;
-  color: #8f99a3;
+  background: #e49c1b;
+  color: #111;
 
   font-family: inherit;
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 700;
 
   cursor: pointer;
 }
 
-.delete-row-btn:hover {
-  background: #1a1e23;
-  border-color: #555e67;
-  color: #f0f2f4;
+.workout-history button:hover {
+  background: #f0ad32;
 }
 
-
-/* =========================
-   Mobile / Gym
-   ========================= */
-
-@media (max-width: 600px) {
-  .workout-edit {
-    padding: 16px;
-  }
-
-  .workout-edit h1 {
-    margin-bottom: 18px;
-    font-size: 20px;
-  }
-
-  .workout-edit select,
-  .workout-edit input {
-    height: 48px;
-    font-size: 15px;
-  }
-
-  .workout-history button {
-    height: 46px;
-  }
-
-  .workout-edit table {
-    font-size: 12px;
-  }
-
-  .workout-edit th {
-    padding: 8px;
-    font-size: 9px;
-  }
-
-  .workout-edit td {
-    padding: 8px;
-  }
-
-  .delete-row-btn {
-    width: 34px;
-    height: 34px;
-  }
-}
-
-
-/* =========================
-   Very small screens
-   ========================= */
-
-@media (max-width: 380px) {
-  .workout-edit {
-    padding: 12px;
-  }
-
-  .workout-edit h1 {
-    font-size: 18px;
-  }
+.workout-history button:active {
+  transform: translateY(1px);
 }

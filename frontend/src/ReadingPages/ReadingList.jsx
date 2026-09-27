@@ -1,14 +1,19 @@
 import { useState, useEffect, useRef } from "react";
-import { loadReadings, addReadings, deleteReadings , getReadingFile} from "./ReadingData.jsx";
+import {
+  loadReadings,
+  addReadings,
+  deleteReadings,
+  getReadingFile,
+} from "./ReadingData.jsx";
+import "./Reading.css";
+import "./ReadingTable.css";
 
 export default function SimpleTable({ data }) {
   const [readings, setReadings] = useState([]);
   async function deleteButtonClick(id) {
     try {
       await deleteReadings(id);
-      setReadings((current) =>
-        current.filter((reading) => reading.id !== id)
-      );
+      setReadings((current) => current.filter((reading) => reading.id !== id));
     } catch (error) {
       console.error("Delete failed:", error);
     }
@@ -28,31 +33,35 @@ export default function SimpleTable({ data }) {
     setReadings(data);
   }, [data]);
   return (
-    <div style={{ padding: "20px" }}>
-      <table
-        style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}
-      >
+    <div className="simple-table-container">
+      <table className="simple-table">
         <thead>
-          <tr style={{ borderBottom: "2px solid #ccc" }}>
-            <th style={{ padding: "10px" }}>FileName</th>
-            <th style={{ padding: "10px" }}>Category</th>
-            <th style={{ padding: "10px" }}>Delete</th>
-            <th style={{ padding: "10px" }}>View</th>
+          <tr>
+            <th>FileName</th>
+            <th>Category</th>
+            <th>Delete</th>
+            <th>View</th>
           </tr>
         </thead>
         <tbody>
-          {(readings).map((_readings) => (
+          {readings.map((_readings) => (
             <tr key={_readings.id} style={{ borderBottom: "1px solid #eee" }}>
-              <td style={{ padding: "10px" }}>{_readings.filename}</td>
-              <td style={{ padding: "10px" }}>{_readings.category}</td>
+              <td className="simple-table-filename">{_readings.filename}</td>
+              <td className="simple-table-category">{_readings.category}</td>
               <td>
-                <button onClick={() => deleteButtonClick(_readings.id)}>
-                  Delete
+                <button
+                  className="simple-table-action simple-table-delete"
+                  onClick={() => deleteButtonClick(_readings.id)}
+                >
+                  🗑️
                 </button>
               </td>
               <td>
-                <button onClick={() => viewButtonClick(_readings.id)}>
-                  View
+                <button
+                  className="simple-table-action"
+                  onClick={() => viewButtonClick(_readings.id)}
+                >
+                  👁️
                 </button>
               </td>
             </tr>
@@ -115,13 +124,12 @@ export function ReadingList() {
       console.error("Upload failed:", error);
     }
   }
-  console.log(readings);
   return (
     <section className="reading">
       <div className="reading-header">
         <h2 className="reading-title">Readings</h2>
         <button className="reading-add" onClick={handleButtonClick}>
-          Add
+          ➕
         </button>
         <input
           ref={fileInputRef}
@@ -133,7 +141,7 @@ export function ReadingList() {
       </div>
 
       <div className="reading-list">
-        <SimpleTable data = { readings }></SimpleTable>
+        <SimpleTable data={readings}></SimpleTable>
       </div>
     </section>
   );
