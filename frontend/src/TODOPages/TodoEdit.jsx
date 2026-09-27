@@ -1,8 +1,29 @@
 import { useEffect, useState, useRef } from "react";
 import "./TodoEdit.css";
+import "./SaveMessage.css";
+import {animals} from "./TodoSave.jsx"
 import { fetchTodos, saveTodos } from "./TodoData.jsx";
 const DAYS_BACK_DEFAULT = 7;
 const DAYS_FORWARD_DEFAULT = 7;
+
+
+function showSavedMessage() {
+  const message = animals[Math.floor(Math.random() * animals.length)];
+
+  const toast = document.createElement("div");
+  toast.className = "saved-toast";
+  toast.textContent = message;
+
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.add("hide");
+
+    setTimeout(() => {
+      toast.remove();
+    }, 300);
+  }, 1800);
+}
 
 function getTodayDate() {
   const now = new Date();
@@ -14,6 +35,7 @@ function getTodayDate() {
   const day = String(utc8.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`; // e.g. "2026-09-13"
 }
+
 function resizeToContent(el) {
   el.style.height = "auto";
   el.style.height = `${el.scrollHeight}px`;
@@ -32,10 +54,6 @@ function TodoTitle({ title, ref }) {
 }
 
 function TodoDescription({ description, ref }) {
-  useEffect(() => {
-    if (ref?.current) resizeToContent(ref.current);
-  }, []);
-
   return (
     <textarea
       ref={ref}
@@ -54,11 +72,27 @@ function DaySection({ date, title, description }) {
 
   async function saveDay() {
     await saveTodos(date, descriptionRef.current.value, titleRef.current.value);
+    showSavedMessage();
+
   }
   const today = getTodayDate();
   const isToday = date === today;
   const isFuture = date > today;
   const [isOpen, setIsOpen] = useState(isToday);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    requestAnimationFrame(() => {
+      if (titleRef.current) {
+        resizeToContent(titleRef.current);
+      }
+
+      if (descriptionRef.current) {
+        resizeToContent(descriptionRef.current);
+      }
+    });
+  }, [isOpen]);
   return (
     <section
       className={`day-section${isToday ? " glowing" : ""}${isFuture ? " future" : ""}`}

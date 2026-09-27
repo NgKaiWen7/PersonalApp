@@ -13,6 +13,7 @@ const aims = {
     "Continue C++ inference-engine development",
     "Improve Linux and systems administration skills",
     "Build one substantial systems project",
+    "Add personal assistnat to my personal app",
   ],
   weekly: [
     "Finish the Aim component",
