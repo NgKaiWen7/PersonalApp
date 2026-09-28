@@ -74,14 +74,25 @@ func Setup(database *sql.DB) http.Handler {
 	workoutMetaHandler := handlers.NewWorkoutMetaHandler(database)
 	authHandler := handlers.NewAuthHandler(database)
 	readingHandler := handlers.NewReadingHandler(database)
+	noteHandler := handlers.NewNotesHandler(database)
+	noteBlockHandler := handlers.NewNoteBlockHandler(database)
 
 	mux.Handle("/api/todos", AuthMiddleware(database, http.HandlerFunc(todoHandler.Handle)))
+
 	mux.Handle("/api/workouts", AuthMiddleware(database, http.HandlerFunc(workoutHandler.Handle)))
 	mux.Handle("/api/workoutsmeta", AuthMiddleware(database, http.HandlerFunc(workoutMetaHandler.Handle)))
+
 	mux.Handle("GET /api/readings", AuthMiddleware(database, http.HandlerFunc(readingHandler.Handle)))
 	mux.Handle("GET /api/readings/{id}", AuthMiddleware(database, http.HandlerFunc(readingHandler.Handle)))
 	mux.Handle("POST /api/readings", AuthMiddleware(database, http.HandlerFunc(readingHandler.Handle)))
 	mux.Handle("DELETE /api/readings/{id}", AuthMiddleware(database, http.HandlerFunc(readingHandler.Handle)))
+
+	mux.Handle("/api/notes", AuthMiddleware(database, http.HandlerFunc(noteHandler.Handle)))
+	mux.Handle("/api/notes/{id}", AuthMiddleware(database, http.HandlerFunc(noteHandler.Handle)))
+
+	mux.Handle("/api/noteblock/{id}", AuthMiddleware(database, http.HandlerFunc(noteBlockHandler.Handle)))
+
 	mux.HandleFunc("/api/auth", authHandler.Handle)
+
 	return corsMiddleware(mux)
 }
