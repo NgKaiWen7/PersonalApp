@@ -18,19 +18,38 @@ func NewNoteBlockHandler(database *sql.DB) *NoteBlockHandler {
 		database: database,
 	}
 }
-
 func (h *NoteBlockHandler) Handle(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		h.get(w, r)
-	case http.MethodPatch:
-		h.patch(w, r)
-	case http.MethodPost:
-		h.post(w, r)
-	case http.MethodDelete:
-		h.delete(w, r)
+	switch r.Pattern {
+	case "/api/notes/{id}/blocks/reorder":
+		if r.Method != http.MethodPost {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		h.reorder(w, r)
+
+	case "/api/noteblock":
+		switch r.Method {
+		case http.MethodPost:
+			h.post(w, r)
+		default:
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		}
+
+	case "/api/noteblock/{id}":
+		switch r.Method {
+		case http.MethodGet:
+			h.get(w, r)
+		case http.MethodPatch:
+			h.patch(w, r)
+		case http.MethodDelete:
+			h.delete(w, r)
+		default:
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		}
+
 	default:
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		http.NotFound(w, r)
 	}
 }
 func (h *NoteBlockHandler) get(w http.ResponseWriter, r *http.Request) {
@@ -92,7 +111,7 @@ func (h *NoteBlockHandler) post(w http.ResponseWriter, r *http.Request) {
 
 	blockID, err := db.CreateNewNoteBlock(h.database, noteBlock)
 	if err != nil {
-		http.Error(w, "Error creating note block", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { NoteEdit } from "./NoteEdit.jsx";
 import "./Notes.css";
+import {getLimitedNotes} from "./NoteData.jsx"
 
 function NoteCard({ note, onClick }) {
   return (
@@ -8,11 +9,10 @@ function NoteCard({ note, onClick }) {
       <div className="note-card-title">
         <strong>{note.title || "Untitled"}</strong>
       </div>
-
       <div className="note-card-content">
-        {note.content.length > 50
-          ? `${note.content.slice(0, 50)}...`
-          : note.content}
+        {note.description > 50
+          ? `${note.description.slice(0, 50)}...`
+          : note.description}
       </div>
     </div>
   );
@@ -22,7 +22,6 @@ function Pagination({ page, totalPages, onPageChange }) {
   if (totalPages <= 1) {
     return null;
   }
-
   return (
     <div className="notes-pagination">
       {Array.from({ length: totalPages }, (_, index) => {
@@ -49,7 +48,7 @@ export function Notes() {
   const [notes, setNotes] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [selectedNote, setSelectedNote] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const limit = 10;
@@ -66,7 +65,7 @@ export function Notes() {
       let result;
 
       if (searchText === "") {
-        result = await getLimitedNotes(limit, currentPage);
+        result = await getLimitedNotes({page: currentPage });
       } else {
         result = await searchNotes(
           searchText,
@@ -74,9 +73,7 @@ export function Notes() {
           currentPage
         );
       }
-
-      setNotes(result.notes);
-      setTotalPages(result.totalPages);
+      setNotes(result);
     } finally {
       setLoading(false);
     }
@@ -87,30 +84,25 @@ export function Notes() {
   }, [text, page]);
 
   const handleCreate = () => {
-    setSelectedNote({
-      id: null,
-      title: "",
-      blocks: [],
-    });
+    setSelectedId(null);
   };
 
-  const handleNoteClick = (note) => {
-    setSelectedNote(note);
+  const handleNoteClick = (id) => {
+    setSelectedId(id);
   };
 
   const handleBack = () => {
-    setSelectedNote(null);
+    setSelectedId(null);
   };
 
-  if (selectedNote) {
+  if (selectedId) {
     return (
       <NoteEdit
-        note={selectedNote}
+        id={selectedId}
         onBack={handleBack}
       />
     );
   }
-
   return (
     <div className="notes-page">
       <div className="notes-header">
@@ -157,7 +149,7 @@ export function Notes() {
             <NoteCard
               key={note.id}
               note={note}
-              onClick={() => handleNoteClick(note)}
+              onClick={() => handleNoteClick(note.id)}
             />
           ))}
       </div>

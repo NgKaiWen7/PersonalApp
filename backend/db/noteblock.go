@@ -30,28 +30,44 @@ func GetNoteBlocks(database *sql.DB, noteBlockID string) (models.NoteBlock, erro
 
 	return block, nil
 }
-func CreateNewNoteBlock(database *sql.DB, noteBlock models.NoteBlock) (string, error) {
-	var blockID string
+func CreateNewNoteBlock(database *sql.DB, noteBlock models.NoteBlock) (models.NoteBlock, error) {
+	var block models.NoteBlock
 
 	err := database.QueryRow(`
 		INSERT INTO note_blocks
 			(note_id, position, content, type, link)
 		VALUES
-			($1, $2, $3, $4, $5)
-		RETURNING id
+			(
+				$1,
+				COALESCE(
+					(SELECT MAX(position) + 1
+					 FROM note_blocks
+					 WHERE note_id = $1),
+					0
+				),
+				$2,
+				$3,
+				$4
+			)
+		RETURNING id, note_id, position, content, type, link
 	`,
 		noteBlock.NoteID,
-		noteBlock.Position,
 		noteBlock.Content,
 		noteBlock.Type,
 		noteBlock.Link,
-	).Scan(&blockID)
+	).Scan(
+		&block.ID,
+		&block.NoteID,
+		&block.Position,
+		&block.Content,
+		&block.Type,
+		&block.Link,
+	)
 
 	if err != nil {
 		return "", fmt.Errorf("Create NoteBlock: %w", err)
 	}
-
-	return blockID, nil
+	return block, nil
 }
 func DeleteNoteBlock(database *sql.DB, noteBlockID string) (string, error) {
 	_, err := database.Exec(`
@@ -71,12 +87,6 @@ func PatchNoteBlock(database *sql.DB, noteBlockID string, updates map[string]any
 		args      []any
 		argIndex  = 1
 	)
-
-	if value, ok := updates["position"]; ok {
-		setValues = append(setValues, fmt.Sprintf("position = $%d", argIndex))
-		args = append(args, value)
-		argIndex++
-	}
 
 	if value, ok := updates["content"]; ok {
 		setValues = append(setValues, fmt.Sprintf("content = $%d", argIndex))

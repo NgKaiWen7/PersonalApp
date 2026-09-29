@@ -1,107 +1,121 @@
 import React, { useEffect, useState } from "react";
-import "./NoteEdit.css"
+import "./NoteEdit.css";
+import { getFullNotes, saveNewNote, createNewBlocks } from "./NoteData.jsx";
 
-function TextBlock({
-  block,
-  index,
-  onUpdate,
-  onMove,
-  onDelete,
-}) {
+function TextBlock({ block, index, onUpdate, onMove, onDelete }) {
   return (
     <div className="note-block">
-      <button
-        onClick={() => onMove(index, -1)}
-        disabled={index === 0}
-      >
+      <button onClick={() => onMove(index, -1)} disabled={index === 0}>
         ↑
       </button>
 
-      <button
-        onClick={() => onMove(index, 1)}
-        disabled={false}
-      >
+      <button onClick={() => onMove(index, 1)} disabled={false}>
         ↓
       </button>
 
-      <button
-        onClick={() => onDelete(index)}
-      >
-        ×
-      </button>
+      <button onClick={() => onDelete(index)}>×</button>
       <textarea
         className="note-text-block"
         value={block.content}
-        onChange={(event) =>
-          onUpdate(index, event.target.value)
-        }
+        onChange={(event) => onUpdate(index, event.target.value)}
         placeholder="Write something..."
         rows={3}
       />
-
     </div>
   );
 }
+function ImageBlock({ block, index, onMove, onDelete }) {
+  const imageUrl = block.content ? getImageUrl(block.content) : null;
 
-function ImageBlock({
-  block,
-  index,
-  onMove,
-  onDelete,
-}) {
-  // const imageUrl = getImageUrl(block.content);
-  const imageUrl = ''
   return (
     <div className="note-block">
-      <button
-        onClick={() => onMove(index, -1)}
-        disabled={index === 0}
-      >
+      <button onClick={() => onMove(index, -1)} disabled={index === 0}>
         ↑
       </button>
 
-      <button
-        onClick={() => onMove(index, 1)}
-      >
-        ↓
-      </button>
+      <button onClick={() => onMove(index, 1)}>↓</button>
 
-      <button
-        onClick={() => onDelete(index)}
-      >
-        ×
-      </button>
-      <img className="note-image-block" src={imageUrl} alt="" />
+      <button onClick={() => onDelete(index)}>×</button>
+
+      {imageUrl && <img className="note-image-block" src={imageUrl} alt="" />}
     </div>
   );
 }
 
-export function NoteEdit({ note, onBack }) {
-  const [title, setTitle] = useState(note.title);
-  const [blocks, setBlocks] = useState(note.blocks || []);
+export function NoteEdit({ id, onBack }) {
+  const createNote = () => ({
+    id: "",
+    title: "",
+    description: "",
+    category: "",
+    date: null,
+    noteblocks: [],
+  });
+  const [note, setNote] = useState(createNote());
+  const [blocks, setBlocks] = useState([]);
 
-  if (!note) {
-    return null;
-  }
+  useEffect(() => {
+    if (!id) {
+      setNote(createNote());
+      console.log(note.noteblocks);
+      setBlocks(data.noteblocks ?? []);
+      return;
+    }
+    async function loadNote() {
+      try {
+        const data = await getFullNotes({ id: id });
+        setNote(data);
+        console.log(data);
+        setBlocks(data.noteblocks ?? []);
+      } catch (err) {
+        console.error(err);
+      }
+    }
 
-  const addTextBlock = () => {
+    loadNote();
+  }, [id]);
+
+  const addTextBlock = async () => {
+    const block = {
+      noteid: note.id,
+      position: blocks.length,
+      content: "",
+      type: "text",
+      link: "",
+    };
+
+    const id = await createNewBlocks({
+      block: block,
+    });
+
     setBlocks([
       ...blocks,
       {
-        type: "text",
-        content: "",
-        position: blocks.length,
+        ...block,
+        id,
       },
     ]);
   };
 
-  const addImageBlock = () => {
+  const addImageBlock = async () => {
+    const block = {
+      noteid: note.id,
+      position: blocks.length,
+      content: "",
+      type: "image",
+      link: "",
+    };
+
+    const id = await createNewBlocks({
+      note_id: note.id,
+      block,
+    });
+
     setBlocks([
       ...blocks,
       {
-        type: "image",
-        content: "",
-        position: blocks.length,
+        ...block,
+        id,
       },
     ]);
   };
@@ -120,10 +134,7 @@ export function NoteEdit({ note, onBack }) {
   const moveBlock = (index, direction) => {
     const newIndex = index + direction;
 
-    if (
-      newIndex < 0 ||
-      newIndex >= blocks.length
-    ) {
+    if (newIndex < 0 || newIndex >= blocks.length) {
       return;
     }
 
@@ -138,9 +149,7 @@ export function NoteEdit({ note, onBack }) {
   };
 
   const deleteBlock = (index) => {
-    setBlocks(
-      blocks.filter((_, blockIndex) => blockIndex !== index)
-    );
+    setBlocks(blocks.filter((_, blockIndex) => blockIndex !== index));
   };
 
   const handleSave = async () => {
@@ -152,35 +161,27 @@ export function NoteEdit({ note, onBack }) {
         position: index,
       })),
     };
-
-    console.log("Saving note:", updatedNote);
-
-    // TODO: call API
-    // await updateNote(updatedNote);
+    if (note.id == null || note.id === "") {
+      await saveNewNote({ notes: updatedNote });
+    }
   };
 
   return (
     <div className="note-editor">
       <div className="note-editor-header">
-        <button
-          className="note-back-button"
-          onClick={onBack}
-        >
+        <button className="note-back-button" onClick={onBack}>
           ←
         </button>
 
         <input
           className="note-title-input"
           type="text"
-          value={title}
+          value={note.title}
           onChange={(event) => setTitle(event.target.value)}
           placeholder="Untitled"
         />
 
-        <button
-          className="note-save-button"
-          onClick={handleSave}
-        >
+        <button className="note-save-button" onClick={handleSave}>
           Save
         </button>
       </div>
@@ -216,13 +217,9 @@ export function NoteEdit({ note, onBack }) {
         })}
 
         <div className="note-add-buttons">
-          <button onClick={addTextBlock}>
-            + Text
-          </button>
+          <button onClick={addTextBlock}>+ Text</button>
 
-          <button onClick={addImageBlock}>
-            + Image
-          </button>
+          <button onClick={addImageBlock}>+ Image</button>
         </div>
       </div>
     </div>

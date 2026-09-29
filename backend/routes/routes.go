@@ -90,6 +90,7 @@ func Setup(database *sql.DB) http.Handler {
 	mux.Handle("/api/notes", AuthMiddleware(database, http.HandlerFunc(noteHandler.Handle)))
 	mux.Handle("/api/notes/{id}", AuthMiddleware(database, http.HandlerFunc(noteHandler.Handle)))
 
+	mux.Handle("POST /api/noteblock", AuthMiddleware(database, http.HandlerFunc(noteBlockHandler.Handle)))
 	mux.Handle("/api/noteblock/{id}", AuthMiddleware(database, http.HandlerFunc(noteBlockHandler.Handle)))
 
 	mux.HandleFunc("/api/auth", authHandler.Handle)
