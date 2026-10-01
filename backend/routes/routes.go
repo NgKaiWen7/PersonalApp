@@ -24,23 +24,17 @@ func corsMiddleware(next http.Handler) http.Handler {
 
 func AuthMiddleware(db *sql.DB, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		authHeader := r.Header.Get("Authorization")
-
 		if authHeader == "" {
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
-
 		parts := strings.SplitN(authHeader, " ", 2)
-
 		if len(parts) != 2 || parts[0] != "Bearer" {
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
-
 		token := parts[1]
-
 		var userUUID string
 		err := db.QueryRow(`
 		    UPDATE users
@@ -49,17 +43,14 @@ func AuthMiddleware(db *sql.DB, next http.Handler) http.Handler {
 		      AND validated_date > NOW() - INTERVAL '1 hour'
 		    RETURNING username
 		`, token).Scan(&userUUID)
-
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				http.Error(w, "unauthorized", http.StatusUnauthorized)
 				return
 			}
-
 			http.Error(w, "internal server error", http.StatusInternalServerError)
 			return
 		}
-
 		next.ServeHTTP(w, r)
 	})
 }
@@ -87,11 +78,14 @@ func Setup(database *sql.DB) http.Handler {
 
 	mux.Handle("/api/notes", AuthMiddleware(database, http.HandlerFunc(noteHandler.Handle)))
 	mux.Handle("/api/notes/{id}", AuthMiddleware(database, http.HandlerFunc(noteHandler.Handle)))
-	mux.Handle("PATCH /api/notes/{id}/blocks/reorder", AuthMiddleware(database, http.HandlerFunc(noteBlockHandler.Handle)))
+	mux.Handle("/api/reordernotes/{id}", AuthMiddleware(database, http.HandlerFunc(noteBlockHandler.Handle)))
 
 	mux.Handle("/api/noteblock/{id}", AuthMiddleware(database, http.HandlerFunc(noteBlockHandler.Handle)))
 
 	mux.HandleFunc("/api/auth", authHandler.Handle)
-
+	mux.HandleFunc("PATCH /test", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("test route works"))
+	})
 	return corsMiddleware(mux)
 }

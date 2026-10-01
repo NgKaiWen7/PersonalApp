@@ -69,15 +69,15 @@ async function createNewBlocks({ noteID, type }) {
 }
 async function orderNoteBlocks({ id, block_list }) {
   const token = localStorage.getItem("app_token");
-  const url = noteUrl + `/${id}/blocks/reorder`;
-
+  const url = `https://backend.nkwzotero.uk/api/reordernotes/${id}`;
+  const uuid_list = block_list.map((block) => block.id);
   const response = await fetch(url, {
     method: "PATCH",
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(block_list),
+    body: JSON.stringify(uuid_list),
   });
 
   if (!response.ok) {

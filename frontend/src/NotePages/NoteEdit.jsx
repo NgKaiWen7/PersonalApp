@@ -33,7 +33,6 @@ function TextBlock({ block, index, onUpdate, onMove, onDelete }) {
 }
 function ImageBlock({ block, index, onMove, onDelete }) {
   const imageUrl = block.content ? getImageUrl(block.content) : null;
-
   return (
     <div className="note-block">
       <button onClick={() => onMove(index, -1)} disabled={index === 0}>
@@ -118,7 +117,7 @@ export function NoteEdit({ id, onBack }) {
       });
     }, 1000);
   };
-  const moveBlock = (index, direction) => {
+  const moveBlock = async (index, direction) => {
     const newIndex = index + direction;
     if (newIndex < 0 || newIndex >= blocks.length) {
       return;
@@ -129,6 +128,10 @@ export function NoteEdit({ id, onBack }) {
       newBlocks[index],
     ];
     setBlocks(newBlocks);
+    await orderNoteBlocks({
+      id:note.id,
+      block_list: newBlocks,
+    });
   };
   const deleteBlock = async (index) => {
     if (note.id != null && blocks[index].id != null) {
@@ -187,7 +190,6 @@ export function NoteEdit({ id, onBack }) {
               />
             );
           }
-
           if (block.type === "image") {
             return (
               <ImageBlock

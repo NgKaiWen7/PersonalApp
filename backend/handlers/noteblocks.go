@@ -20,7 +20,7 @@ func NewNoteBlockHandler(database *sql.DB) *NoteBlockHandler {
 }
 func (h *NoteBlockHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	switch r.Pattern {
-	case "/api/notes/{id}/blocks/reorder":
+	case "/api/reordernotes/{id}":
 		if r.Method != http.MethodPatch {
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 			return
@@ -46,19 +46,18 @@ func (h *NoteBlockHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func (h *NoteBlockHandler) reorder(w http.ResponseWriter, r *http.Request) {
-	noteID := r.PathValue("noteID")
+	noteID := r.PathValue("id")
 	if noteID == "" {
 		http.Error(w, "Note ID is required", http.StatusBadRequest)
 		return
 	}
-	var req struct {
-		Order []string `json:"order"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	var order []string
+
+	if err := json.NewDecoder(r.Body).Decode(&order); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-	if err := db.ReorderNoteBlocks(h.database, noteID, req.Order); err != nil {
+	if err := db.ReorderNoteBlocks(h.database, noteID, order); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
