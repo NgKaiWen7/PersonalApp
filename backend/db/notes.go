@@ -13,20 +13,16 @@ func CreateNewNotes(database *sql.DB, notes models.Notes) (string, error) {
 		return "", fmt.Errorf("begin transaction: %w", err)
 	}
 	defer tx.Rollback()
-
 	var noteID string
-
 	err = tx.QueryRow(`
 		INSERT INTO notes (title, description, category)
 		VALUES ($1, $2, $3)
 		RETURNING id
 	`, notes.Title, notes.Description, notes.Category).Scan(&noteID)
-
 	if err != nil {
 		return "", fmt.Errorf("create note: %w", err)
 	}
-
-	for _, block := range notes.NoteBlocks {
+	for i, block := range notes.NoteBlocks {
 		_, err = tx.Exec(`
 			INSERT INTO note_blocks
 				(note_id, position, content, type, link)
@@ -34,7 +30,7 @@ func CreateNewNotes(database *sql.DB, notes models.Notes) (string, error) {
 				($1, $2, $3, $4, $5)
 		`,
 			noteID,
-			block.Position,
+			i,
 			block.Content,
 			block.Type,
 			block.Link,
@@ -44,11 +40,9 @@ func CreateNewNotes(database *sql.DB, notes models.Notes) (string, error) {
 			return "", fmt.Errorf("create note block: %w", err)
 		}
 	}
-
 	if err := tx.Commit(); err != nil {
 		return "", fmt.Errorf("commit note: %w", err)
 	}
-
 	return noteID, nil
 }
 func DeleteNotes(database *sql.DB, noteid string) (string, error) {
@@ -62,16 +56,12 @@ func DeleteNotes(database *sql.DB, noteid string) (string, error) {
 }
 func GetNotes(database *sql.DB, noteID string, page int) ([]models.Notes, error) {
 	const pageSize = 50
-
 	if page < 1 {
 		page = 1
 	}
-
 	offset := (page - 1) * pageSize
-
 	var rows *sql.Rows
 	var err error
-
 	if noteID == "" {
 		rows, err = database.Query(`
 			SELECT
@@ -84,17 +74,13 @@ func GetNotes(database *sql.DB, noteID string, page int) ([]models.Notes, error)
 			ORDER BY last_edited_date DESC
 			LIMIT $1 OFFSET $2
 		`, pageSize, offset)
-
 		if err != nil {
 			return nil, fmt.Errorf("get notes: %w", err)
 		}
 		defer rows.Close()
-
 		notes := make([]models.Notes, 0)
-
 		for rows.Next() {
 			var note models.Notes
-
 			err := rows.Scan(
 				&note.ID,
 				&note.Title,
@@ -105,17 +91,13 @@ func GetNotes(database *sql.DB, noteID string, page int) ([]models.Notes, error)
 			if err != nil {
 				return nil, fmt.Errorf("scan note: %w", err)
 			}
-
 			notes = append(notes, note)
 		}
-
 		if err := rows.Err(); err != nil {
 			return nil, fmt.Errorf("iterate notes: %w", err)
 		}
-
 		return notes, nil
 	}
-
 	// Get one note with its blocks.
 	rows, err = database.Query(`
 		SELECT
@@ -136,15 +118,12 @@ func GetNotes(database *sql.DB, noteID string, page int) ([]models.Notes, error)
 		WHERE n.id = $1
 		ORDER BY nb.position ASC
 	`, noteID)
-
 	if err != nil {
 		return nil, fmt.Errorf("get note: %w", err)
 	}
 	defer rows.Close()
-
 	notes := make([]models.Notes, 0)
 	var currentNote *models.Notes
-
 	for rows.Next() {
 		var (
 			note      models.Notes
@@ -155,7 +134,6 @@ func GetNotes(database *sql.DB, noteID string, page int) ([]models.Notes, error)
 			blockType sql.NullString
 			link      sql.NullString
 		)
-
 		err := rows.Scan(
 			&note.ID,
 			&note.Title,
@@ -200,53 +178,47 @@ func GetNotes(database *sql.DB, noteID string, page int) ([]models.Notes, error)
 
 	return notes, nil
 }
-
-func PatchNotes(database *sql.DB, noteID string, updates map[string]any) (string, error) {
+func PatchNote(database *sql.DB, noteID string, updates models.NoteUpdate) error {
 	var (
 		setValues []string
 		args      []any
 		argIndex  = 1
 	)
-
-	if value, ok := updates["title"]; ok {
+	if updates.Title != nil {
 		setValues = append(setValues, fmt.Sprintf("title = $%d", argIndex))
-		args = append(args, value)
+		args = append(args, *updates.Title)
 		argIndex++
 	}
-
-	if value, ok := updates["description"]; ok {
+	if updates.Description != nil {
 		setValues = append(setValues, fmt.Sprintf("description = $%d", argIndex))
-		args = append(args, value)
+		args = append(args, *updates.Description)
 		argIndex++
 	}
-
-	if value, ok := updates["category"]; ok {
+	if updates.Category != nil {
 		setValues = append(setValues, fmt.Sprintf("category = $%d", argIndex))
-		args = append(args, value)
+		args = append(args, *updates.Category)
 		argIndex++
 	}
-
 	if len(setValues) == 0 {
-		return "", fmt.Errorf("no valid fields to update")
+		return fmt.Errorf("no valid fields to update")
 	}
-
 	setValues = append(setValues, "last_edited_date = NOW()")
-
 	args = append(args, noteID)
-
 	query := fmt.Sprintf(`
 		UPDATE notes
 		SET %s
 		WHERE id = $%d
-		RETURNING id
 	`, strings.Join(setValues, ", "), argIndex)
-
-	var updatedID string
-
-	err := database.QueryRow(query, args...).Scan(&updatedID)
+	result, err := database.Exec(query, args...)
 	if err != nil {
-		return "", fmt.Errorf("Patch Notes: %w", err)
+		return fmt.Errorf("patch notes: %w", err)
 	}
-
-	return updatedID, nil
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("check patched note: %w", err)
+	}
+	if rows == 0 {
+		return fmt.Errorf("note not found")
+	}
+	return nil
 }

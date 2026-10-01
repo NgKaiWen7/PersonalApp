@@ -12,14 +12,12 @@ import (
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "https://nkwzotero.uk")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
 		w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
-
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusOK)
 			return
 		}
-
 		next.ServeHTTP(w, r)
 	})
 }
@@ -89,8 +87,8 @@ func Setup(database *sql.DB) http.Handler {
 
 	mux.Handle("/api/notes", AuthMiddleware(database, http.HandlerFunc(noteHandler.Handle)))
 	mux.Handle("/api/notes/{id}", AuthMiddleware(database, http.HandlerFunc(noteHandler.Handle)))
+	mux.Handle("PATCH /api/notes/{id}/blocks/reorder", AuthMiddleware(database, http.HandlerFunc(noteBlockHandler.Handle)))
 
-	mux.Handle("POST /api/noteblock", AuthMiddleware(database, http.HandlerFunc(noteBlockHandler.Handle)))
 	mux.Handle("/api/noteblock/{id}", AuthMiddleware(database, http.HandlerFunc(noteBlockHandler.Handle)))
 
 	mux.HandleFunc("/api/auth", authHandler.Handle)

@@ -70,35 +70,23 @@ func (h *NotesHandler) get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
-
 func (h *NotesHandler) patch(w http.ResponseWriter, r *http.Request) {
 	noteID := r.PathValue("id")
-
 	if noteID == "" {
 		http.Error(w, "Note ID is required", http.StatusBadRequest)
 		return
 	}
-
-	var updates map[string]any
-
+	var updates models.NoteUpdate
 	if err := json.NewDecoder(r.Body).Decode(&updates); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-
-	updatedID, err := db.PatchNotes(h.database, noteID, updates)
-	if err != nil {
+	if err := db.PatchNote(h.database, noteID, updates); err != nil {
 		http.Error(w, "Error updating note", http.StatusInternalServerError)
 		return
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-
-	json.NewEncoder(w).Encode(map[string]string{
-		"id": updatedID,
-	})
+	w.WriteHeader(http.StatusNoContent)
 }
-
 func (h *NotesHandler) post(w http.ResponseWriter, r *http.Request) {
 	var notes models.Notes
 	if err := json.NewDecoder(r.Body).Decode(&notes); err != nil {
@@ -116,7 +104,6 @@ func (h *NotesHandler) post(w http.ResponseWriter, r *http.Request) {
 		"id": noteID,
 	})
 }
-
 func (h *NotesHandler) delete(w http.ResponseWriter, r *http.Request) {
 	noteID := r.PathValue("id")
 

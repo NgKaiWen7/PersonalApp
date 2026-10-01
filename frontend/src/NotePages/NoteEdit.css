@@ -18,7 +18,7 @@
 }
 
 .note-back-button,
-.note-save-button {
+.note-delete-button {
     border: none;
     background: transparent;
     cursor: pointer;
@@ -51,7 +51,7 @@
     color: #555a62;
 }
 
-.note-save-button {
+.note-delete-button {
     padding: 7px 16px;
 
     border: 1px solid #8c6825;
@@ -60,7 +60,7 @@
     color: #dca83a;
 }
 
-.note-save-button:hover {
+.note-delete-button:hover {
     background: #211b10;
 }
 

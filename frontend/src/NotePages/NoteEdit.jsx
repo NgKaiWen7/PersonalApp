@@ -1,6 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "./NoteEdit.css";
-import { getFullNotes, saveNewNote, createNewBlocks } from "./NoteData.jsx";
+import {
+  getFullNotes,
+  saveNewNote,
+  createNewBlocks,
+  orderNoteBlocks,
+  patchNoteBlocks,
+  patchNote,
+  deleteNoteBlocks,
+  deleteNote,
+} from "./NoteData.jsx";
 
 function TextBlock({ block, index, onUpdate, onMove, onDelete }) {
   return (
@@ -8,11 +17,9 @@ function TextBlock({ block, index, onUpdate, onMove, onDelete }) {
       <button onClick={() => onMove(index, -1)} disabled={index === 0}>
         ↑
       </button>
-
       <button onClick={() => onMove(index, 1)} disabled={false}>
         ↓
       </button>
-
       <button onClick={() => onDelete(index)}>×</button>
       <textarea
         className="note-text-block"
@@ -41,10 +48,9 @@ function ImageBlock({ block, index, onMove, onDelete }) {
     </div>
   );
 }
-
 export function NoteEdit({ id, onBack }) {
   const createNote = () => ({
-    id: "",
+    id: null,
     title: "",
     description: "",
     category: "",
@@ -53,139 +59,120 @@ export function NoteEdit({ id, onBack }) {
   });
   const [note, setNote] = useState(createNote());
   const [blocks, setBlocks] = useState([]);
+  const saveTimers = useRef({});
+  const titleSaveTimer = useRef(null);
 
   useEffect(() => {
-    if (!id) {
+    async function createNewNote() {
       setNote(createNote());
-      console.log(note.noteblocks);
-      setBlocks(data.noteblocks ?? []);
-      return;
+      const new_id = await saveNewNote({ notes: note });
+      setNote({ ...note, id: new_id });
+      setBlocks(note.noteblocks ?? []);
     }
     async function loadNote() {
       try {
         const data = await getFullNotes({ id: id });
         setNote(data);
-        console.log(data);
         setBlocks(data.noteblocks ?? []);
       } catch (err) {
         console.error(err);
       }
     }
-
-    loadNote();
+    if (!id) {
+      createNewNote();
+    } else {
+      loadNote();
+    }
   }, [id]);
-
-  const addTextBlock = async () => {
-    const block = {
-      noteid: note.id,
-      position: blocks.length,
+  const addBlock = async (blocktype) => {
+    let id = null;
+    id = await createNewBlocks({
+      noteID: note.id,
+      type: blocktype,
+    });
+    const newBlock = {
+      id,
       content: "",
-      type: "text",
+      type: blocktype,
       link: "",
     };
 
-    const id = await createNewBlocks({
-      block: block,
-    });
-
-    setBlocks([
-      ...blocks,
-      {
-        ...block,
-        id,
-      },
-    ]);
+    setBlocks([...blocks, newBlock]);
   };
-
-  const addImageBlock = async () => {
-    const block = {
-      noteid: note.id,
-      position: blocks.length,
-      content: "",
-      type: "image",
-      link: "",
-    };
-
-    const id = await createNewBlocks({
-      note_id: note.id,
-      block,
-    });
-
-    setBlocks([
-      ...blocks,
-      {
-        ...block,
-        id,
-      },
-    ]);
-  };
-
   const updateBlock = (index, content) => {
     const newBlocks = [...blocks];
-
     newBlocks[index] = {
       ...newBlocks[index],
       content,
     };
-
+    const block = newBlocks[index];
+    if (block.id == null) {
+      throw new Error("Cannot update block without an ID");
+    }
     setBlocks(newBlocks);
+    clearTimeout(saveTimers.current[block.id]);
+    saveTimers.current[block.id] = setTimeout(() => {
+      patchNoteBlocks({
+        id: block.id,
+        content,
+      });
+    }, 1000);
   };
-
   const moveBlock = (index, direction) => {
     const newIndex = index + direction;
-
     if (newIndex < 0 || newIndex >= blocks.length) {
       return;
     }
-
     const newBlocks = [...blocks];
-
     [newBlocks[index], newBlocks[newIndex]] = [
       newBlocks[newIndex],
       newBlocks[index],
     ];
-
     setBlocks(newBlocks);
   };
-
-  const deleteBlock = (index) => {
+  const deleteBlock = async (index) => {
+    if (note.id != null && blocks[index].id != null) {
+      await deleteNoteBlocks({ id: blocks[index].id });
+    }
     setBlocks(blocks.filter((_, blockIndex) => blockIndex !== index));
   };
-
-  const handleSave = async () => {
-    const updatedNote = {
-      ...note,
-      title,
-      blocks: blocks.map((block, index) => ({
-        ...block,
-        position: index,
-      })),
-    };
-    if (note.id == null || note.id === "") {
-      await saveNewNote({ notes: updatedNote });
-    }
+  const handleNoteDelete = async () => {
+    await deleteNote({ id: note.id });
+    onBack();
   };
-
+  const updateTitle = (title) => {
+    setNote((prevNote) => ({
+      ...prevNote,
+      title: title,
+    }));
+    if (note.id == null) {
+      throw new Error("Cannot update note without an ID");
+    }
+    clearTimeout(titleSaveTimer.current);
+    titleSaveTimer.current = setTimeout(() => {
+      patchNote({
+        id: note.id,
+        title: title
+      });
+    }, 1000);
+  };
   return (
     <div className="note-editor">
       <div className="note-editor-header">
         <button className="note-back-button" onClick={onBack}>
           ←
         </button>
-
         <input
           className="note-title-input"
           type="text"
           value={note.title}
-          onChange={(event) => setTitle(event.target.value)}
+          onChange={(event) => updateTitle(event.target.value)}
           placeholder="Untitled"
         />
-
-        <button className="note-save-button" onClick={handleSave}>
-          Save
+        <button className="note-delete-button" onClick={handleNoteDelete}>
+          Delete
         </button>
       </div>
-
       <div className="note-editor-content">
         {blocks.map((block, index) => {
           if (block.type === "text") {
@@ -215,11 +202,9 @@ export function NoteEdit({ id, onBack }) {
 
           return null;
         })}
-
         <div className="note-add-buttons">
-          <button onClick={addTextBlock}>+ Text</button>
-
-          <button onClick={addImageBlock}>+ Image</button>
+          <button onClick={() => addBlock("text")}>+ Text</button>
+          <button onClick={() => addBlock("image")}>+ Image</button>
         </div>
       </div>
     </div>
