@@ -1,4 +1,4 @@
-import { pool } from "../utils/db";
+import { pool } from "../../utils/db";
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
