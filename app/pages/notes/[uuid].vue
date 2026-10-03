@@ -16,6 +16,7 @@ interface NoteBlock {
     link: string | null;
 }
 const blocks = ref<NoteBlock[]>([]);
+const { getNoteBlocks, addBlock } = useNoteBlocks(uuid, blocks);
 async function getNote() {
     const response = await fetch(`/api/notes/${uuid}`);
     if (!response.ok) {
@@ -47,13 +48,6 @@ async function handleChange() {
             saved.value = false;
         }, 1000);
     }, 1000);
-}
-async function getNoteBlocks() {
-    const response = await fetch(`/api/notes/blocks/${uuid}`);
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    blocks.value = await response.json();
 }
 function handleBack() {
     navigateTo(`/notes`);
@@ -101,6 +95,9 @@ function handleDragOver(index: number) {
     const [block] = blocks.value.splice(draggedIndex.value, 1);
     blocks.value.splice(index, 0, block);
     draggedIndex.value = index;
+}
+function handleAddText() {
+  addBlock();
 }
 onMounted(() => {
     getNoteBlocks();
@@ -155,6 +152,12 @@ onMounted(() => {
                     @drop="handleDrop(index)"
                 />
             </template>
+            <Button
+                class="mt-2 border border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800"
+                @click="handleAddText"
+            >
+                + Text
+            </Button>
         </div>
     </div>
     <div v-else class="p-6 text-sm text-slate-500">Loading...</div>
