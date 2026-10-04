@@ -3,31 +3,24 @@ const props = defineProps<{
   title: string;
   description: string;
 }>();
-
 const emit = defineEmits<{
   change: [title: string, description: string];
 }>();
-
 const title = ref(props.title);
 const description = ref(props.description);
-
 let saveTimer: ReturnType<typeof setTimeout> | undefined;
-
 function save() {
   clearTimeout(saveTimer);
-
   saveTimer = setTimeout(() => {
     emit("change", title.value, description.value);
   }, 500);
 }
-
 watch(
   () => props.title,
   (value) => {
     title.value = value;
   },
 );
-
 watch(
   () => props.description,
   (value) => {
@@ -44,7 +37,6 @@ watch(
       placeholder="Title"
       @change="save"
     />
-
     <textarea
       v-model="description"
       class="min-h-[60vh] w-full resize-none border-0 bg-transparent text-lg leading-8 text-slate-300 outline-none placeholder:text-slate-600"

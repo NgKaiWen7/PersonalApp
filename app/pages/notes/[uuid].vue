@@ -143,7 +143,7 @@ onMounted(() => {
         <!-- Markdown editor goes here -->
         <textarea
             v-model="content"
-            class="min-h-[60vh] w-full resize-none rounded-md bg-slate-950 p-4 text-sm leading-relaxed text-white outline-none"
+            class="min-h-[60vh] flex-1 w-full resize-none rounded-md bg-slate-950 p-4 text-sm leading-relaxed text-white outline-none"
             placeholder="Start writing..."
             @paste="handlePaste"
             @blur="handleChange"

@@ -8,7 +8,6 @@ const saved = ref(false);
 function handleDateChange(date: Date) {
   selectedDate.value = date;
 }
-
 const { data: todos } = await useFetch("/api/todo", {
   query: {
     date: computed(() => {
@@ -16,16 +15,11 @@ const { data: todos } = await useFetch("/api/todo", {
     }),
   },
 });
-async function handleTodoChange(
-  title: string,
-  description: string,
-) {
+async function handleTodoChange(  title: string, description: string) {
   const todo = todos.value?.[0];
-
   if (!todo) {
     return;
   }
-
   await $fetch(`/api/todo/${todo.uuid}`, {
     method: "PATCH",
     body: {
@@ -34,13 +28,11 @@ async function handleTodoChange(
     },
   });
   saved.value = true;
-
   setTimeout(() => {
     saved.value = false;
   }, 1000);
 }
 </script>
-
 <template>
     <Saved :show="saved" />
   <div class="flex h-screen flex-col">

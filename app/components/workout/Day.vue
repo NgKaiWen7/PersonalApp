@@ -3,9 +3,32 @@ const props = defineProps({
     day: String,
 });
 const exercises: Record<string, string[]> = {
-    Push: ["Bench Press", "Shoulder Press", "Lateral Raise", "Tricep Pushdown"],
-    Pull: ["Pull Up", "Barbell Row", "Lat Pulldown", "Bicep Curl"],
-    Legs: ["Squat", "Leg Press", "Leg Curl", "Calf Raise"],
+    Push: [
+        "Bench Press",
+        "Fly",
+        "Lateral Raise",
+        "Front Raise",
+        "Tricep Pushdown",
+        "Tricep Overhead Extension",
+        "Incline Dumbbell Press",
+    ],
+    Pull: [
+        "Lat Pulldown (Wide)",
+        "Lat Pulldown (Narrow)",
+        "Rear Dealts",
+        "Face Pull",
+        "Pull Over",
+        "Row",
+        "Bicep Curl",
+    ],
+    Legs: [
+        "Squat",
+        "Leg Extension",
+        "Calf Raise",
+        "Leg Curl",
+        "Hip Adduction",
+        "Hip Abduction",
+    ],
 };
 
 const dayExercises = computed(() => {

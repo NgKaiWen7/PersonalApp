@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-
 const selectedOffset = ref(0);
 const dateButtons = ref<Record<number, HTMLElement>>({});
 const dates = Array.from({ length: 29 }, (_, i) => i - 14);
@@ -15,7 +13,6 @@ function goToday() {
 function formatDate(offset: number) {
     const date = new Date();
     date.setDate(date.getDate() + offset);
-
     return date.toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",
@@ -24,15 +21,11 @@ function formatDate(offset: number) {
 const emit = defineEmits<{
     "date-change": [date: Date];
 }>();
-
 function selectDate(offset: number) {
     selectedOffset.value = offset;
-
     const date = new Date();
     date.setDate(date.getDate() + offset);
-
     emit("date-change", date);
-
     nextTick(() => {
         dateButtons.value[offset]?.scrollIntoView({
             behavior: "smooth",
