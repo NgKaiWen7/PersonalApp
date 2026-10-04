@@ -14,7 +14,8 @@ export default defineEventHandler(async (event) => {
             id,
             title,
             description,
-            category
+            category,
+            content
         FROM notes
         WHERE id = $1
         `,

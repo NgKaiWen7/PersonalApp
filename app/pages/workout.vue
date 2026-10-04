@@ -1,4 +1,7 @@
 <script setup lang="ts">
+definePageMeta({
+    middleware: "auth",
+})
 const selectedDay = ref("Push");
 const days = ["Push", "Pull", "Legs"];
 const { total, loadTotal } = useWorkout();

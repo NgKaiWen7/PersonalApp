@@ -1,31 +1,28 @@
 <script setup lang="ts">
+definePageMeta({
+    middleware: "auth",
+});
 const route = useRoute();
-const title = ref(null);
-const description = ref(null);
-const category = ref(null);
+const title = ref("");
+const description = ref("");
+const category = ref("");
+const content = ref("");
+const note = ref(null);
 const saved = ref(false);
-const draggedIndex = ref<number | null>(null);
+const isPreview = ref(false);
+const pendingImage = ref<File | null>(null);
 let saveTimer: ReturnType<typeof setTimeout> | undefined;
 const uuid = route.params.uuid as string;
-interface NoteBlock {
-    id: string;
-    note_id: string;
-    position: number;
-    content: string | null;
-    type: string;
-    link: string | null;
-}
-const blocks = ref<NoteBlock[]>([]);
-const { getNoteBlocks, addBlock } = useNoteBlocks(uuid, blocks);
 async function getNote() {
     const response = await fetch(`/api/notes/${uuid}`);
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
-    const note = await response.json();
-    title.value = note.title;
-    description.value = note.description;
-    category.value = note.category;
+    note.value = await response.json();
+    title.value = note.value.title;
+    description.value = note.value.description;
+    category.value = note.value.category;
+    content.value = note.value.content;
 }
 async function handleChange() {
     clearTimeout(saveTimer);
@@ -38,6 +35,7 @@ async function handleChange() {
             body: JSON.stringify({
                 title: title.value,
                 description: description.value,
+                content: content.value,
             }),
         });
         if (!response.ok) {
@@ -61,67 +59,64 @@ async function handleDelete() {
     }
     await navigateTo("/notes");
 }
-async function saveBlockOrder() {
-    const response = await fetch(`/api/notes/blocks/${uuid}`, {
-        method: "PATCH",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(blocks.value.map((block) => block.id)),
-    });
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+async function handlePaste(event: ClipboardEvent) {
+    const items = event.clipboardData?.items;
+    if (!items) return;
+    for (const item of items) {
+        if (!item.type.startsWith("image/")) {
+            continue;
+        }
+        event.preventDefault();
+        const file = item.getAsFile();
+        if (!file) return;
+        pendingImage.value = file;
+        return;
     }
 }
-function handleDragStart(index: number) {
-    console.log("drag start", index);
-    draggedIndex.value = index;
-}
-function handleDrop(index: number) {
-    if (draggedIndex.value === null) return;
-    if (draggedIndex.value === index) return;
-    const [block] = blocks.value.splice(draggedIndex.value, 1);
-    blocks.value.splice(index, 0, block);
-    draggedIndex.value = null;
-}
-function handleDragEnd() {
-    console.log("drag end");
-    draggedIndex.value = null;
-    saveBlockOrder();
-}
-function handleDragOver(index: number) {
-    if (draggedIndex.value === null) return;
-    if (draggedIndex.value === index) return;
-    const [block] = blocks.value.splice(draggedIndex.value, 1);
-    blocks.value.splice(index, 0, block);
-    draggedIndex.value = index;
-}
-function handleAddText() {
-  addBlock();
+async function handleImageInsert(data: {
+    file: File;
+    filename: string;
+    alt: string;
+    description: string;
+}) {
+    const formData = new FormData();
+    formData.append("image", data.file, data.filename);
+    formData.append("note_id", uuid);
+    try {
+        const image = await $fetch("/api/image", {
+            method: "POST",
+            body: formData,
+        });
+        const markdown = `![${data.alt}](image:${image.id})`;
+        content.value += markdown;
+        pendingImage.value = null;
+        handleChange();
+    } catch (error) {
+        console.error("Failed to upload image:", error);
+    }
 }
 onMounted(() => {
-    getNoteBlocks();
     getNote();
 });
 </script>
 <template>
-    <Saved :show="saved" />
-    <div class="flex w-full justify-between px-4">
-        <Button
-            class="border border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800"
-            @click="handleBack"
-        >
-            ← Back
-        </Button>
-
-        <Button
-            class="border border-red-500/30 bg-red-950/40 text-red-400 hover:bg-red-950/70"
-            @click="handleDelete"
-        >
-            Delete
-        </Button>
-    </div>
-    <div v-if="blocks" class="w-full p-4 sm:p-6">
+    <div v-if="note" class="w-full p-4 sm:p-6">
+        <Saved :show="saved" />
+        <!-- Actions -->
+        <div class="mb-6 flex w-full justify-between">
+            <Button
+                class="border border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800"
+                @click="handleBack"
+            >
+                ← Back
+            </Button>
+            <Button
+                class="border border-red-500/30 bg-red-950/40 text-red-400 hover:bg-red-950/70"
+                @click="handleDelete"
+            >
+                Delete
+            </Button>
+        </div>
         <!-- Header -->
         <div class="mb-6">
             <input
@@ -131,7 +126,6 @@ onMounted(() => {
                 placeholder="Note title"
                 @blur="handleChange"
             />
-
             <textarea
                 v-model="description"
                 rows="2"
@@ -140,25 +134,20 @@ onMounted(() => {
                 @blur="handleChange"
             />
         </div>
-        <!-- Blocks -->
-        <div class="space-y-1">
-            <template v-for="(block, index) in blocks" :key="block.id">
-                <noteTextBlock
-                    :uuid="block.id"
-                    :content="block.content"
-                    @drag-start="handleDragStart(index)"
-                    @drag-over="handleDragOver(index)"
-                    @drag-end="handleDragEnd"
-                    @drop="handleDrop(index)"
-                />
-            </template>
-            <Button
-                class="mt-2 border border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800"
-                @click="handleAddText"
-            >
-                + Text
-            </Button>
-        </div>
+        <ImageImportCard
+            v-if="pendingImage"
+            :file="pendingImage"
+            @cancel="pendingImage = null"
+            @insert="handleImageInsert"
+        />
+        <!-- Markdown editor goes here -->
+        <textarea
+            v-model="content"
+            class="min-h-[60vh] w-full resize-none rounded-md bg-slate-950 p-4 text-sm leading-relaxed text-white outline-none"
+            placeholder="Start writing..."
+            @paste="handlePaste"
+            @blur="handleChange"
+        />
     </div>
     <div v-else class="p-6 text-sm text-slate-500">Loading...</div>
 </template>

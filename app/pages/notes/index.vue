@@ -1,4 +1,7 @@
 <script setup lang="ts">
+definePageMeta({
+    middleware: "auth",
+})
 const notes = ref([]);
 const search = ref("");
 async function getNotes() {
@@ -15,6 +18,23 @@ const filteredNotes = computed(() => {
             note.description.toLowerCase().includes(query),
     );
 });
+async function handleNewDraft() {
+    try {
+        const note = await $fetch("/api/notes", {
+            method: "POST",
+            body: {
+                title: "New Draft",
+                description: "",
+                category: "",
+                content: "",
+            },
+        });
+
+        await navigateTo(`/notes/${note.id}`);
+    } catch (error) {
+        console.error("Failed to create note:", error);
+    }
+}
 onMounted(() => {
     getNotes();
 });
@@ -41,7 +61,8 @@ function openNote(uuid: string) {
                 class="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white placeholder:text-slate-600 outline-none transition focus:border-[#E49C1B] focus:ring-1 focus:ring-[#E49C1B] sm:flex-1"
             />
             <Button
-                class=" px-3 bg-[#E49C1B] font-medium text-slate-950 hover:bg-[#f0aa24]"
+                class="px-3 bg-[#E49C1B] font-medium text-slate-950 hover:bg-[#f0aa24]"
+                @click="handleNewDraft"
             >
                 + New Draft
             </Button>

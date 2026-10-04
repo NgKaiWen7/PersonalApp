@@ -1,4 +1,7 @@
 <script setup lang="ts">
+definePageMeta({
+    middleware: "auth",
+})
 const today = new Date();
 const selectedDate = ref(today);
 const saved = ref(false);

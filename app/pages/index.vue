@@ -1,3 +1,8 @@
+<script setup lang="ts">
+definePageMeta({
+    middleware: "auth",
+})
+</script>
 <template>
   <main class="flex min-h-screen items-center justify-center bg-slate-950 p-8">
     <section class="max-w-2xl text-center">
