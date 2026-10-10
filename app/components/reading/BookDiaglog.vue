@@ -70,6 +70,7 @@ async function handlePost() {
     formData.append("description", description.value);
     if (file.value) {
         formData.append("file", file.value);
+        formData.append("filename", file.value?.name);
     }
     try {
         const result = await $fetch<{ id: string; source: string }>(

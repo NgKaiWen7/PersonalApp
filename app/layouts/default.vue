@@ -15,8 +15,8 @@ import {
     SidebarTrigger,
     SidebarRail,
 } from "@/components/ui/sidebar";
-
-import { Home, CheckSquare, Dumbbell, BookOpen, FileText } from "@lucide/vue";
+import { Button } from "@/components/ui/button";
+import { Home, CheckSquare, Dumbbell, BookOpen, FileText, LogOut } from "@lucide/vue";
 
 const navigation = [
     { title: "Home", url: "/", icon: Home },
@@ -93,11 +93,9 @@ async function handleLogout() {
                     <Button
                         variant="ghost"
                         class="w-full justify-start gap-2 text-neutral-400 hover:bg-white/[0.06] hover:text-white"
-                        :disabled="loggingOut"
                         @click="handleLogout"
                     >
                         <LogOut class="size-4" />
-                        {{ loggingOut ? "Signing out..." : "Log out" }}
                     </Button>
                 </SidebarFooter>
 

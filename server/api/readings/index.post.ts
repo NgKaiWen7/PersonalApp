@@ -20,6 +20,7 @@ export default defineEventHandler(async (event) => {
   const category = getField("category");
   const status = getField("status");
   const description = getField("description");
+  const orifilename = getField("filename");
 
   if (!title) {
     throw createError({
@@ -34,7 +35,7 @@ export default defineEventHandler(async (event) => {
   if (file) {
     const uploadDir = "/data";
     await mkdir(uploadDir, { recursive: true });
-    const extension = extname(file.name);
+    const extension = extname(orifilename);
 
     const filename =
       createHash("md5").update(file.data).digest("hex") + extension;
@@ -42,6 +43,7 @@ export default defineEventHandler(async (event) => {
 
     await writeFile(filePath, file.data);
     source = filePath;
+    console.log(extension);
   }
   const result = await pool2.query<{ id: string; source: string }>(
     `

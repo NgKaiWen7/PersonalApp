@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 import {
     Card,
@@ -9,10 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-    Alert,
-    AlertDescription,
-} from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 definePageMeta({ layout: "login" });
 
@@ -50,8 +46,7 @@ async function handleSubmit() {
 
         await router.push("/");
     } catch (err: any) {
-        error.value =
-            err?.data?.message || "Invalid username or password!";
+        error.value = err?.data?.message || "Invalid username or password!";
     } finally {
         loading.value = false;
     }
@@ -82,20 +77,14 @@ async function handleSubmit() {
 
             <CardContent>
                 <form class="space-y-5" @submit.prevent="handleSubmit">
-                    <Alert
-                        v-if="error"
-                        variant="destructive"
-                    >
+                    <Alert v-if="error" variant="destructive">
                         <AlertDescription>
                             {{ error }}
                         </AlertDescription>
                     </Alert>
 
                     <div class="space-y-2">
-                        <label
-                            for="username"
-                            class="text-sm font-medium"
-                        >
+                        <label for="username" class="text-sm font-medium">
                             Username
                         </label>
 
@@ -111,10 +100,7 @@ async function handleSubmit() {
                     </div>
 
                     <div class="space-y-2">
-                        <label
-                            for="password"
-                            class="text-sm font-medium"
-                        >
+                        <label for="password" class="text-sm font-medium">
                             Password
                         </label>
 
@@ -134,11 +120,7 @@ async function handleSubmit() {
                         :disabled="loading"
                         class="w-full bg-[#E49C1B] text-[#191A33] hover:bg-[#E49C1B]/90"
                     >
-                        {{
-                            loading
-                                ? "Signing In..."
-                                : "Sign In"
-                        }}
+                        {{ loading ? "Signing In..." : "Sign In" }}
                     </Button>
                 </form>
             </CardContent>
