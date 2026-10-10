@@ -1,186 +1,255 @@
 <script setup lang="ts">
-definePageMeta({
-    middleware: "auth",
-})
+import { computed, ref } from "vue";
+import { BookOpen, Search } from "@lucide/vue";
 
-const books = ref([
-    {
-        id: 1,
-        title: "Designing Data-Intensive Applications",
-        author: "Martin Kleppmann",
-        progress: 68,
-        status: "Reading",
-        lastRead: "Today",
-    },
-    {
-        id: 2,
-        title: "Computer Systems: A Programmer's Perspective",
-        author: "Randal E. Bryant, David R. O'Hallaron",
-        progress: 42,
-        status: "Reading",
-        lastRead: "Yesterday",
-    },
-    {
-        id: 3,
-        title: "The Art of Computer Programming",
-        author: "Donald E. Knuth",
-        progress: 12,
-        status: "Reading",
-        lastRead: "Sep 29",
-    },
-])
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 
-const filter = ref("All")
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import BookDiaglog from "@/components/reading/BookDiaglog.vue";
+
+definePageMeta({ middleware: "auth" });
+
+type BookStatus = "Reading" | "Finished" | "Want to Read";
+
+type Book = {
+    id: number;
+    title: string;
+    category: string[];
+    status: string;
+    lastRead: string;
+    description: string;
+};
+const {
+    data: books,
+    pending,
+    error,
+    refresh,
+} = await useFetch<Book[]>("/api/readings", {
+    default: () => [],
+});
+
+const filter = ref("All");
+const search = ref("");
+
+const filters = ["All", "Reading", "Want to Read", "Finished"];
 
 const filteredBooks = computed(() => {
-    if (filter.value === "Reading") {
-        return books.value.filter((book) => book.status === "Reading")
-    }
+    return books.value.filter((book) => {
+        const matchesStatus =
+            filter.value === "All" || book.status === filter.value;
 
-    if (filter.value === "Finished") {
-        return books.value.filter((book) => book.status === "Finished")
-    }
+        const query = search.value.trim().toLowerCase();
 
-    return books.value
-})
+        const matchesSearch =
+            !query ||
+            book.title.toLowerCase().includes(query) ||
+            book.author.toLowerCase().includes(query);
+
+        return matchesStatus && matchesSearch;
+    });
+});
+
+function statusClass(status: BookStatus) {
+    switch (status) {
+        case "Reading":
+            return "border-[#C5A24A]/30 bg-[#C5A24A]/10 text-[#C5A24A]";
+        case "Finished":
+            return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
+        case "Want to Read":
+            return "border-blue-500/30 bg-blue-500/10 text-blue-400";
+    }
+}
+
+function handleAddBook(book: { title: string; author: string }) {
+    books.value.push({
+        id: Math.max(0, ...books.value.map((book) => book.id)) + 1,
+        title: book.title,
+        author: book.author,
+        status: "Want to Read",
+        lastRead: "Not started",
+        progress: 0,
+    });
+}
+
+function handleEditBook(updatedBook: Book) {
+    const index = books.value.findIndex((book) => book.id === updatedBook.id);
+
+    if (index !== -1) {
+        books.value[index] = {
+            ...books.value[index],
+            ...updatedBook,
+        };
+    }
+}
 </script>
 
 <template>
-    <div class="min-h-screen bg-slate-950 text-white">
-        <!-- Header -->
-        <header
-            class="flex h-16 items-center justify-between border-b border-slate-800 px-6"
+    <div class="mx-auto w-full max-w-7xl space-y-8 text-white">
+        <p v-if="pending">Loading books...</p>
+
+        <p v-else-if="error">Failed to load books: {{ error.message }}</p>
+
+        <p v-else-if="books.length === 0">No books found.</p>
+        <!-- Page heading -->
+        <div
+            class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"
         >
-            <div>
-                <h1 class="text-xl font-semibold">
-                    Reading
-                </h1>
-
-                <p class="text-sm text-slate-500">
-                    Books and reading progress
-                </p>
-            </div>
-
-            <button
-                class="rounded-md bg-[#E49C1B] px-4 py-2 text-sm font-medium text-slate-950 transition hover:opacity-90"
+            <BookDiaglog @add="handleAddBook" mode="add" />
+        </div>
+        <!-- Reading table -->
+        <section
+            class="overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.02]"
+        >
+            <div
+                class="flex flex-col gap-4 border-b border-white/[0.08] p-4 sm:flex-row sm:items-center sm:justify-between"
             >
-                + Add Book
-            </button>
-        </header>
-
-        <!-- Content -->
-        <main class="mx-auto max-w-5xl p-6">
-            <!-- Stats -->
-            <div class="mb-6 grid grid-cols-3 gap-3">
-                <div class="rounded-lg border border-slate-800 bg-slate-900 p-4">
-                    <div class="text-xs text-slate-500">
-                        Reading
-                    </div>
-
-                    <div class="mt-1 text-2xl font-semibold">
-                        3
-                    </div>
-                </div>
-
-                <div class="rounded-lg border border-slate-800 bg-slate-900 p-4">
-                    <div class="text-xs text-slate-500">
-                        Finished
-                    </div>
-
-                    <div class="mt-1 text-2xl font-semibold">
-                        12
-                    </div>
-                </div>
-
-                <div class="rounded-lg border border-slate-800 bg-slate-900 p-4">
-                    <div class="text-xs text-slate-500">
-                        This month
-                    </div>
-
-                    <div class="mt-1 text-2xl font-semibold">
-                        4
-                    </div>
+                <div class="relative w-full sm:max-w-xs">
+                    <Search
+                        class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-neutral-500"
+                    />
+                    <Input
+                        v-model="search"
+                        placeholder="Search books or authors..."
+                        class="border-white/[0.1] bg-black pl-9 text-white placeholder:text-neutral-600 focus-visible:ring-[#C5A24A]"
+                    />
                 </div>
             </div>
 
-            <!-- Filter -->
-            <div class="mb-4 flex items-center gap-1">
-                <button
-                    v-for="item in ['All', 'Reading', 'Finished']"
+            <!-- Status filters -->
+            <div
+                class="flex gap-2 overflow-x-auto border-b border-white/[0.08] px-4 py-3"
+            >
+                <Button
+                    v-for="item in filters"
                     :key="item"
-                    class="rounded-md px-3 py-1.5 text-sm transition"
+                    size="sm"
+                    :variant="filter === item ? 'secondary' : 'ghost'"
                     :class="
                         filter === item
-                            ? 'bg-slate-800 text-white'
-                            : 'text-slate-500 hover:text-white'
+                            ? 'shrink-0 bg-white/[0.1] text-[#C5A24A] hover:bg-white/[0.15]'
+                            : 'shrink-0 text-neutral-400 hover:bg-white/[0.05] hover:text-white'
                     "
                     @click="filter = item"
                 >
                     {{ item }}
-                </button>
+                </Button>
             </div>
 
-            <!-- Books -->
-            <div class="space-y-3">
-                <div
-                    v-for="book in filteredBooks"
-                    :key="book.id"
-                    class="rounded-lg border border-slate-800 bg-slate-900 p-5 transition hover:border-slate-700"
-                >
-                    <div class="flex items-start justify-between gap-6">
-                        <div class="min-w-0">
-                            <h2 class="truncate text-base font-medium">
-                                {{ book.title }}
-                            </h2>
-
-                            <p class="mt-1 text-sm text-slate-500">
-                                {{ book.author }}
-                            </p>
-                        </div>
-
-                        <span
-                            class="shrink-0 rounded-full bg-slate-800 px-2.5 py-1 text-xs text-slate-400"
+            <div class="overflow-x-auto">
+                <Table>
+                    <TableHeader>
+                        <TableRow
+                            class="border-white/[0.08] hover:bg-transparent"
                         >
-                            {{ book.lastRead }}
-                        </span>
-                    </div>
+                            <TableHead
+                                class="min-w-[280px] pl-5 text-neutral-500"
+                            >
+                                Book
+                            </TableHead>
+                            <TableHead class="min-w-[120px] text-neutral-500">
+                                Category
+                            </TableHead>
+                            <TableHead
+                                class="hidden min-w-[130px] text-neutral-500 md:table-cell"
+                            >
+                                Status
+                            </TableHead>
 
-                    <!-- Progress -->
-                    <div class="mt-5">
-                        <div class="mb-2 flex justify-between text-xs">
-                            <span class="text-slate-500">
-                                Progress
-                            </span>
+                            <TableHead
+                                class="hidden min-w-[120px] text-neutral-500 md:table-cell"
+                            >
+                                Last read
+                            </TableHead>
+                            <TableHead class="w-12" />
+                        </TableRow>
+                    </TableHeader>
 
-                            <span class="text-slate-400">
-                                {{ book.progress }}%
-                            </span>
-                        </div>
-
-                        <div class="h-1.5 overflow-hidden rounded-full bg-slate-800">
-                            <div
-                                class="h-full rounded-full bg-[#E49C1B]"
-                                :style="{ width: `${book.progress}%` }"
-                            />
-                        </div>
-                    </div>
-
-                    <!-- Actions -->
-                    <div class="mt-4 flex items-center justify-between">
-                        <button
-                            class="text-sm text-[#E49C1B] hover:underline"
+                    <TableBody>
+                        <TableRow
+                            v-for="book in filteredBooks"
+                            :key="book.id"
+                            class="border-white/[0.06] transition-colors hover:bg-white/[0.025]"
                         >
-                            Continue reading
-                        </button>
+                            <TableCell class="py-4 pl-5">
+                                <div class="flex items-start gap-3">
+                                    <div
+                                        class="flex size-10 shrink-0 items-center justify-center rounded-lg border border-[#C5A24A]/20 bg-[#C5A24A]/[0.08]"
+                                    >
+                                        <BookOpen
+                                            class="size-5 text-[#C5A24A]"
+                                        />
+                                    </div>
 
-                        <button
-                            class="text-sm text-slate-500 hover:text-white"
-                        >
-                            Edit
-                        </button>
-                    </div>
-                </div>
+                                    <div class="min-w-0">
+                                        <p
+                                            class="font-medium leading-5 text-neutral-100"
+                                        >
+                                            {{ book.title }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </TableCell>
+                            <TableCell class="hidden md:table-cell">
+                                <Badge
+                                    variant="outline"
+                                    :class="statusClass(book.status)"
+                                >
+                                    {{ book.status }}
+                                </Badge>
+                            </TableCell>
+
+                            <TableCell
+                                class="hidden text-sm text-neutral-400 md:table-cell"
+                            >
+                                {{ book.category }}
+                            </TableCell>
+
+                            <TableCell
+                                class="hidden text-sm text-neutral-400 md:table-cell"
+                            >
+                                {{ book.lastRead }}
+                            </TableCell>
+                            <TableCell>
+                                <div
+                                    class="flex items-center justify-end gap-1"
+                                >
+                                    <BookDiaglog
+                                        mode="edit"
+                                        :id="book.id"
+                                        :title="book.title"
+                                        :category="book.category"
+                                        :status="book.status"
+                                        @book="handleEditBook"
+                                    />
+                                </div>
+                            </TableCell>
+                        </TableRow>
+
+                        <TableRow v-if="filteredBooks.length === 0">
+                            <TableCell colspan="5" class="h-32 text-center">
+                                <div
+                                    class="flex flex-col items-center gap-2 text-neutral-500"
+                                >
+                                    <BookOpen class="size-6" />
+                                    <p class="text-sm">No books found.</p>
+                                    <p class="text-xs">
+                                        Try another search or status filter.
+                                    </p>
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
             </div>
-        </main>
+        </section>
     </div>
 </template>

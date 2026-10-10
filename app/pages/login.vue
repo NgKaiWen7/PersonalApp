@@ -1,17 +1,15 @@
 <script setup lang="ts">
-definePageMeta({
-  layout: "login",
-})
-const username = ref("")
-const password = ref("")
-const error = ref("")
-const loading = ref(false)
+definePageMeta({ layout: "login" });
+const username = ref("");
+const password = ref("");
+const error = ref("");
+const loading = ref(false);
 
-const router = useRouter()
+const router = useRouter();
 
 async function handleSubmit() {
-    error.value = ""
-    loading.value = true
+    error.value = "";
+    loading.value = true;
 
     try {
         await $fetch("/api/auth/", {
@@ -20,15 +18,13 @@ async function handleSubmit() {
                 username: username.value,
                 password: password.value,
             },
-        })
+        });
 
-        await router.push("/")
+        await router.push("/");
     } catch (err: any) {
-        error.value =
-            err?.data?.message ||
-            "Invalid username or password!"
+        error.value = err?.data?.message || "Invalid username or password!";
     } finally {
-        loading.value = false
+        loading.value = false;
     }
 }
 </script>
@@ -38,9 +34,7 @@ async function handleSubmit() {
         <form class="login-form" @submit.prevent="handleSubmit">
             <h2>Login Required</h2>
 
-            <p>
-                Please enter your credentials to access your dashboard.
-            </p>
+            <p>Please enter your credentials to access your dashboard.</p>
 
             <div v-if="error" class="login-error">
                 {{ error }}

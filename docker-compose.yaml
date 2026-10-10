@@ -1,4 +1,22 @@
 services:
+  database:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - personal_postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
   nuxt:
     image: node:22-bookworm
     working_dir: /app
@@ -12,23 +30,7 @@ services:
       - "3001:3001"
     env_file:
       - .env
-  postgres:
-    image: postgres:18
     restart: unless-stopped
-    environment:
-      POSTGRES_DB: filemanager
-      POSTGRES_USER: filemanager
-      POSTGRES_PASSWORD: filemanager
-    ports:
-      - "5433:5432"
-    volumes:
-      -   personal_postgres_data:/var/lib/postgresql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U filemanager -d filemanager"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
 volumes:
   node_modules:
   personal_postgres_data:
