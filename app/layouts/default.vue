@@ -1,113 +1,122 @@
 <script setup lang="ts">
+const router = useRouter();
 import {
-  SidebarProvider,
-  Sidebar,
-  SidebarHeader,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarInset,
-  SidebarTrigger,
-  SidebarRail,
-} from "@/components/ui/sidebar"
+    SidebarProvider,
+    Sidebar,
+    SidebarHeader,
+    SidebarContent,
+    SidebarFooter,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarMenu,
+    SidebarMenuItem,
+    SidebarMenuButton,
+    SidebarInset,
+    SidebarTrigger,
+    SidebarRail,
+} from "@/components/ui/sidebar";
 
-import {
-  Home,
-  CheckSquare,
-  Dumbbell,
-  BookOpen,
-  FileText,
-} from "@lucide/vue"
+import { Home, CheckSquare, Dumbbell, BookOpen, FileText } from "@lucide/vue";
 
 const navigation = [
-  { title: "Home", url: "/", icon: Home },
-  { title: "TO DO", url: "/todo", icon: CheckSquare },
-  { title: "Workouts", url: "/workout", icon: Dumbbell },
-  { title: "Readings", url: "/readings", icon: BookOpen },
-  { title: "Notes", url: "/notes", icon: FileText },
-]
+    { title: "Home", url: "/", icon: Home },
+    { title: "TO DO", url: "/todo", icon: CheckSquare },
+    { title: "Workouts", url: "/workout", icon: Dumbbell },
+    { title: "Readings", url: "/readings", icon: BookOpen },
+    { title: "Notes", url: "/notes", icon: FileText },
+];
+async function handleLogout() {
+    try {
+        await $fetch("/api/auth/logout", { method: "POST" });
+        await router.replace("/login");
+    } catch (error) {
+        console.error("Logout failed:", error);
+    }
+}
 </script>
 
 <template>
-  <div class="min-h-screen bg-black text-white">
-    <SidebarProvider>
-      <Sidebar
-        collapsible="offcanvas"
-        variant="sidebar"
-        class="border-white/[0.08] bg-black"
-      >
-        <!-- Header -->
-        <SidebarHeader class="border-b border-white/[0.08] p-3">
-          <div class="flex items-center gap-2 px-1 py-2">
-            <span class="shrink-0 text-2xl">🦜</span>
+    <div class="min-h-screen bg-black text-white">
+        <SidebarProvider>
+            <Sidebar
+                collapsible="offcanvas"
+                variant="sidebar"
+                class="border-white/[0.08] bg-black"
+            >
+                <!-- Header -->
+                <SidebarHeader class="border-b border-white/[0.08] p-3">
+                    <div class="flex items-center gap-2 px-1 py-2">
+                        <span class="shrink-0 text-2xl">🦜</span>
 
-            <div class="grid min-w-0 flex-1 text-left">
-              <span class="truncate text-sm font-semibold">
-                Personal App
-              </span>
-              <span class="truncate text-xs text-neutral-500">
-                Knowledge & Productivity
-              </span>
-            </div>
-          </div>
-        </SidebarHeader>
+                        <div class="grid min-w-0 flex-1 text-left">
+                            <span class="truncate text-sm font-semibold">
+                                Personal App
+                            </span>
+                            <span class="truncate text-xs text-neutral-500">
+                                Knowledge & Productivity
+                            </span>
+                        </div>
+                    </div>
+                </SidebarHeader>
 
-        <!-- Navigation -->
-        <SidebarContent class="bg-black">
-          <SidebarGroup>
-            <SidebarGroupContent>
-              <SidebarMenu class="gap-2">
-                <SidebarMenuItem
-                  v-for="item in navigation"
-                  :key="item.url"
-                >
-                  <SidebarMenuButton
-                    as-child
-                    :tooltip="item.title"
-                    class="h-11 text-base text-neutral-300 hover:bg-white/[0.06] hover:text-white data-[active=true]:bg-white/[0.08] data-[active=true]:text-[#C5A24A]"
-                  >
-                    <NuxtLink
-                      :to="item.url"
-                      active-class="text-[#C5A24A]"
-                      exact-active-class="bg-white/[0.08] text-[#C5A24A]"
+                <!-- Navigation -->
+                <SidebarContent class="bg-black">
+                    <SidebarGroup>
+                        <SidebarGroupContent>
+                            <SidebarMenu class="gap-2">
+                                <SidebarMenuItem
+                                    v-for="item in navigation"
+                                    :key="item.url"
+                                >
+                                    <SidebarMenuButton
+                                        as-child
+                                        :tooltip="item.title"
+                                        class="h-11 text-base text-neutral-300 hover:bg-white/[0.06] hover:text-white data-[active=true]:bg-white/[0.08] data-[active=true]:text-[#C5A24A]"
+                                    >
+                                        <NuxtLink
+                                            :to="item.url"
+                                            active-class="text-[#C5A24A]"
+                                            exact-active-class="bg-white/[0.08] text-[#C5A24A]"
+                                        >
+                                            <component :is="item.icon" />
+                                            <span>{{ item.title }}</span>
+                                        </NuxtLink>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                </SidebarContent>
+
+                <!-- Footer -->
+                <SidebarFooter class="border-t border-white/[0.08] p-3">
+                    <Button
+                        variant="ghost"
+                        class="w-full justify-start gap-2 text-neutral-400 hover:bg-white/[0.06] hover:text-white"
+                        :disabled="loggingOut"
+                        @click="handleLogout"
                     >
-                      <component :is="item.icon" />
-                      <span>{{ item.title }}</span>
-                    </NuxtLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarContent>
+                        <LogOut class="size-4" />
+                        {{ loggingOut ? "Signing out..." : "Log out" }}
+                    </Button>
+                </SidebarFooter>
 
-        <!-- Footer -->
-        <SidebarFooter class="border-t border-white/[0.08] p-3">
-          <p class="truncate text-xs text-neutral-600">
-            Stay curious.
-          </p>
-        </SidebarFooter>
+                <!-- Desktop collapse control -->
+                <SidebarRail />
+            </Sidebar>
 
-        <!-- Desktop collapse control -->
-        <SidebarRail />
-      </Sidebar>
+            <!-- Main content -->
+            <SidebarInset class="min-w-0 bg-black text-white">
+                <header class="flex h-16 items-center gap-3 px-6">
+                    <SidebarTrigger
+                        class="shrink-0 text-white hover:bg-white/[0.06] hover:text-[#C5A24A]"
+                    />
+                </header>
 
-      <!-- Main content -->
-      <SidebarInset class="min-w-0 bg-black text-white">
-        <header class="flex h-16 items-center gap-3 px-6">
-          <SidebarTrigger
-            class="shrink-0 text-white hover:bg-white/[0.06] hover:text-[#C5A24A]"
-          />
-        </header>
-
-        <main class="min-w-0 flex-1 p-4 md:p-6">
-          <slot />
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
-  </div>
+                <main class="min-w-0 flex-1 p-4 md:p-6">
+                    <slot />
+                </main>
+            </SidebarInset>
+        </SidebarProvider>
+    </div>
 </template>
