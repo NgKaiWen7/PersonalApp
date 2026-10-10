@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { Plus } from "@lucide/vue";
+import { Plus, MoreHorizontal } from "@lucide/vue";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
 import {
     Dialog,
     DialogContent,
@@ -23,26 +24,39 @@ import { BookCategories } from "@/composables/BookCategories";
 
 const emit = defineEmits<{
     book: [book: { title: string; category: string; description: string }];
+    delete: [id: string];
 }>();
 const props = defineProps<{
     mode: "add" | "edit";
-    id: number;
+    id?: string;
     title?: string;
-    category?: string;
+    category?: string[];
     description?: string;
+    status?: string;
 }>();
 const categories = BookCategories();
+const statuses = ["To Read", "Reading", "Completed", "On Hold"];
 const open = ref(false);
 const title = ref(props.title);
 const category = ref(props.category);
 const description = ref(props.description);
+const status = ref(props.status ?? "To Read");
 const file = ref<File | null>(null);
 
 function handleFileChange(event: Event) {
     const input = event.target as HTMLInputElement;
     file.value = input.files?.[0] ?? null;
 }
-async function submit() {
+async function handleSubmit() {
+    if (props.mode == "add") {
+        await handlePost();
+    } else if (props.mode == "edit") {
+        await handlePatch();
+    } else {
+        throw new Error("Method not supported");
+    }
+}
+async function handlePost() {
     const fileName = file.value?.name.replace(/\.[^/.]+$/, "").trim() ?? "";
     const bookTitle = title.value || fileName;
 
@@ -50,34 +64,67 @@ async function submit() {
         console.error("Please enter a book title or select a book file.");
         return;
     }
-
     const formData = new FormData();
-
     formData.append("title", bookTitle);
     formData.append("category", JSON.stringify(category.value));
     formData.append("description", description.value);
-
     if (file.value) {
         formData.append("file", file.value);
     }
-
-  try {
-    console.log(formData)
-        const result = await $fetch<{ id: string; source: string }>("/api/readings", {
-            method: "POST",
-            body: formData,
-        });
-
+    try {
+        const result = await $fetch<{ id: string; source: string }>(
+            "/api/readings",
+            {
+                method: "POST",
+                body: formData,
+            },
+        );
         emit("book", {
             id: result.id,
             title: bookTitle,
             category: category.value,
             description: description.value,
+            status: status.value,
         });
-
         open.value = false;
     } catch (error) {
         console.error("Failed to create book:", error);
+    }
+}
+async function handleDelete() {
+    if (props.id == null) {
+        open.value = false;
+        return;
+    }
+    try {
+        await $fetch(`/api/readings/${props.id}`, { method: "DELETE" });
+        open.value = false;
+        emit("delete", {
+            id: props.id,
+        });
+    } catch (error) {
+        console.error("Failed to delete book:", error);
+    }
+}
+async function handlePatch() {
+    if (props.id == null) {
+        open.value = false;
+        return;
+    }
+    try {
+        await $fetch(`/api/readings/${props.id}`, {
+            method: "PATCH",
+            body: JSON.stringify({
+                title: title.value,
+                category: category.value,
+                description: description.value,
+                status: status.value,
+            }),
+        });
+        emit("book");
+        open.value = false;
+    } catch (error) {
+        console.error("Failed to patch book:", error);
     }
 }
 </script>
@@ -180,6 +227,26 @@ async function submit() {
                     </Select>
                 </div>
                 <div class="space-y-2">
+                    <label class="text-sm font-medium"> Status </label>
+                    <Select v-model="status">
+                        <SelectTrigger
+                            class="border-white/[0.1] bg-black text-white focus:ring-[#C5A24A]"
+                        >
+                            <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+
+                        <SelectContent>
+                            <SelectItem
+                                v-for="item in statuses"
+                                :key="item"
+                                :value="item"
+                            >
+                                {{ item }}
+                            </SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div class="space-y-2">
                     <label class="text-sm font-medium"> Description </label>
                     <Input
                         v-model="description"
@@ -198,10 +265,16 @@ async function submit() {
                         Cancel
                     </Button>
                     <Button
-                        @click="submit"
+                        @click="handleSubmit"
                         class="bg-[#d4b45e] text-black hover:bg-[#d4b45e]"
                     >
                         Save
+                    </Button>
+                    <Button
+                        @click="handleDelete"
+                        class="bg-[#d4b45e] text-black hover:bg-[#d4b45e]"
+                    >
+                        Delete
                     </Button>
                 </DialogFooter>
             </form>

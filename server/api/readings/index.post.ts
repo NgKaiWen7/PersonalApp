@@ -1,10 +1,9 @@
 import { pool2 } from "../../utils/db";
 import { mkdir, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { extname, join } from "node:path";
 import { createHash } from "node:crypto";
 
 export default defineEventHandler(async (event) => {
-  console.log("hi")
   const parts = await readMultipartFormData(event);
 
   if (!parts) {
@@ -35,10 +34,10 @@ export default defineEventHandler(async (event) => {
   if (file) {
     const uploadDir = "/data";
     await mkdir(uploadDir, { recursive: true });
+    const extension = extname(file.name);
 
-    const filename = createHash("md5")
-      .update(file.data)
-      .digest("hex");
+    const filename =
+      createHash("md5").update(file.data).digest("hex") + extension;
     const filePath = join(uploadDir, filename);
 
     await writeFile(filePath, file.data);

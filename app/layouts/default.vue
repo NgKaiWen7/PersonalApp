@@ -23,8 +23,6 @@ import {
   FileText,
 } from "@lucide/vue"
 
-const { data: quote } = await useFetch("/api/quote")
-
 const navigation = [
   { title: "Home", url: "/", icon: Home },
   { title: "TO DO", url: "/todo", icon: CheckSquare },
@@ -104,27 +102,6 @@ const navigation = [
           <SidebarTrigger
             class="shrink-0 text-white hover:bg-white/[0.06] hover:text-[#C5A24A]"
           />
-
-          <Transition
-            appear
-            enter-active-class="transition-all duration-[1200ms] ease-out"
-            enter-from-class="translate-x-[-16px] opacity-0"
-            enter-to-class="translate-x-0 opacity-100"
-          >
-            <div
-              v-if="quote"
-              class="min-w-0 flex-1 overflow-x-auto scrollbar-none"
-            >
-              <p
-                class="w-max whitespace-nowrap text-sm font-semibold tracking-wide text-[#C5A24A]"
-              >
-                {{ quote.q }}
-                <span class="text-neutral-600">
-                  — {{ quote.a }}
-                </span>
-              </p>
-            </div>
-          </Transition>
         </header>
 
         <main class="min-w-0 flex-1 p-4 md:p-6">

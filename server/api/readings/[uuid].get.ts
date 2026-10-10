@@ -20,12 +20,17 @@ export default defineEventHandler(async (event) => {
     [id],
   );
 
-  if (result.rows.length === 0) {
+  const book = result.rows[0];
+
+  if (!book) {
     throw createError({
       statusCode: 404,
       statusMessage: "Book not found",
     });
   }
 
-  return result.rows[0];
+  return {
+    ...book,
+    fileUrl: `/api/readings/file/${id}`,
+  };
 });

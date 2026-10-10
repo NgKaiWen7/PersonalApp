@@ -1,29 +1,40 @@
-
 import { pool2 } from "../../utils/db";
-import type { Book } from "~~/shared/types/book";
 
-export default defineEventHandler(async (event): Promise<Book> => {
-  const body = await readBody<Book>(event);
+export default defineEventHandler(async (event) => {
+  const body = await readBody(event);
+  const id = getRouterParam(event, "uuid");
 
-  const result = await pool2.query<{uuid: string}>(
+  if (!id) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Book UUID is required",
+    });
+  }
+  const result = await pool2.query(
     `
     UPDATE books SET
       title = $1,
       category = $2,
       status = $3,
       description = $4
-    WHERE uuid == $5
+    WHERE id = $5
     `,
     [
       body.title,
-      body.category,
+      body.category ? [body.category] : [],
       body.status,
       body.description,
-      body.id,
+      id,
     ],
   );
 
-  setResponseStatus(event, 201);
+  if (result.rowCount === 0) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: "Book not found",
+    });
+  }
 
-  return result.rows[0];
+  setResponseStatus(event, 204);
+  return;
 });

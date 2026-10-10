@@ -18,7 +18,7 @@ import BookDiaglog from "@/components/reading/BookDiaglog.vue";
 
 definePageMeta({ middleware: "auth" });
 
-type BookStatus = "Reading" | "Finished" | "Want to Read";
+type BookStatus = "Reading" | "Finished" | "To Read";
 
 type Book = {
     id: number;
@@ -40,7 +40,7 @@ const {
 const filter = ref("All");
 const search = ref("");
 
-const filters = ["All", "Reading", "Want to Read", "Finished"];
+const filters = ["All", "Reading", "To Read", "Finished"];
 
 const filteredBooks = computed(() => {
     return books.value.filter((book) => {
@@ -64,31 +64,20 @@ function statusClass(status: BookStatus) {
             return "border-[#C5A24A]/30 bg-[#C5A24A]/10 text-[#C5A24A]";
         case "Finished":
             return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
-        case "Want to Read":
+        case "To Read":
             return "border-blue-500/30 bg-blue-500/10 text-blue-400";
     }
 }
 
-function handleAddBook(book: { title: string; author: string }) {
-    books.value.push({
-        id: Math.max(0, ...books.value.map((book) => book.id)) + 1,
-        title: book.title,
-        author: book.author,
-        status: "Want to Read",
-        lastRead: "Not started",
-        progress: 0,
-    });
+async function handleAddBook() {
+    await refresh();
 }
 
-function handleEditBook(updatedBook: Book) {
-    const index = books.value.findIndex((book) => book.id === updatedBook.id);
-
-    if (index !== -1) {
-        books.value[index] = {
-            ...books.value[index],
-            ...updatedBook,
-        };
-    }
+async function handleEditBook() {
+    await refresh();
+}
+async function handleDeleteBook() {
+    await refresh();
 }
 </script>
 
@@ -184,9 +173,15 @@ function handleEditBook(updatedBook: Book) {
                                     <div
                                         class="flex size-10 shrink-0 items-center justify-center rounded-lg border border-[#C5A24A]/20 bg-[#C5A24A]/[0.08]"
                                     >
-                                        <BookOpen
-                                            class="size-5 text-[#C5A24A]"
-                                        />
+                                        <NuxtLink
+                                            :to="`/readings/${book.id}`"
+                                            class="flex size-10 shrink-0 items-center justify-center rounded-lg border border-[#C5A24A]/20 bg-[#C5A24A]/[0.08] transition-colors hover:bg-[#C5A24A]/[0.18]"
+                                            title="Open reading workspace"
+                                        >
+                                            <BookOpen
+                                                class="size-5 text-[#C5A24A]"
+                                            />
+                                        </NuxtLink>
                                     </div>
 
                                     <div class="min-w-0">
@@ -206,13 +201,18 @@ function handleEditBook(updatedBook: Book) {
                                     {{ book.status }}
                                 </Badge>
                             </TableCell>
-
-                            <TableCell
-                                class="hidden text-sm text-neutral-400 md:table-cell"
-                            >
-                                {{ book.category }}
+                            <TableCell class="hidden md:table-cell">
+                                <div class="flex flex-wrap gap-1.5">
+                                    <Badge
+                                        v-for="category in book.category"
+                                        :key="category"
+                                        variant="secondary"
+                                        class="text-xs"
+                                    >
+                                        {{ category }}
+                                    </Badge>
+                                </div>
                             </TableCell>
-
                             <TableCell
                                 class="hidden text-sm text-neutral-400 md:table-cell"
                             >
@@ -229,6 +229,7 @@ function handleEditBook(updatedBook: Book) {
                                         :category="book.category"
                                         :status="book.status"
                                         @book="handleEditBook"
+                                        @delete="handleDeleteBook"
                                     />
                                 </div>
                             </TableCell>
