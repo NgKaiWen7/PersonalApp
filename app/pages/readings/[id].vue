@@ -1,47 +1,47 @@
-
 <script setup lang="ts">
+
 const route = useRoute();
 
 const id = computed(() => String(route.params.id));
-const fileUrl = computed(() => `/api/readings/file/${id.value}`);
+
+const {
+    data: chapters,
+    status,
+    error,
+} = await useFetch(() => `/api/readings/chapter/${id.value}`);
+
+const selectedChapterId = ref<string | null>(null);
+
+function openChapter(chapterId: string) {
+    selectedChapterId.value = chapterId;
+}
+
+function backToChapters() {
+    selectedChapterId.value = null;
+}
 </script>
 
 <template>
-  <div class="flex h-screen flex-col overflow-hidden bg-[#191A33] text-white">
-    <header
-      class="flex h-12 shrink-0 items-center justify-between border-b border-white/10 px-4"
-    >
-      <NuxtLink
-        to="/readings"
-        class="flex items-center gap-2 text-sm text-white/60 transition hover:text-white"
-      >
-        <Icon name="lucide:arrow-left" class="size-4" />
-        Readings
-      </NuxtLink>
+    <div class="flex h-screen flex-col overflow-hidden bg-[#191A33] text-white">
+        <template v-if="!selectedChapterId">
+            <!-- Chapter list -->
+            <div
+                v-for="chapter in chapters"
+                :key="chapter.id"
+                class="cursor-pointer rounded-lg border border-white/10 bg-white/5 p-4 transition hover:bg-white/10"
+                @click="openChapter(chapter.id)"
+            >
+                <h2 class="font-medium">{{ chapter.title }}</h2>
+                <p class="mt-1 text-sm text-gray-400">
+                    Chapter {{ chapter.chapter_number }}
+                </p>
+            </div>
+        </template>
 
-      <span class="text-xs text-white/40">PDF Reader</span>
-
-      <a
-        :href="fileUrl"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-sm text-white/60 transition hover:text-[#E49C1B]"
-      >
-        Open in new tab
-      </a>
-    </header>
-
-
-    <main class="min-h-0 flex-1 overflow-hidden">
-      <div class="h-full w-full overflow-auto overscroll-contain">
-        <iframe
-          :src="fileUrl"
-          class="h-full w-full border-0"
-          title="PDF Reader"
-          style="touch-action: pan-y"
+        <ReadingMemoryCardPage
+            v-else
+            :chapter-id="selectedChapterId"
+            @back="backToChapters"
         />
-      </div>
-    </main>
-
-  </div>
+    </div>
 </template>
