@@ -35,9 +35,7 @@ export default defineEventHandler(async (event) => {
   const result = await pool2.query(
     `
     SELECT
-      mc.*,
-      bchap.title AS chapter,
-      bchunk.position
+      mc.*
     FROM book_chapters bchap
     JOIN book_chunks bchunk ON bchap.id = bchunk.chapter_id
     JOIN memory_cards mc ON bchunk.id = mc.chunk_id

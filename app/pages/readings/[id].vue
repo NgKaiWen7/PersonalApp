@@ -1,50 +1,61 @@
 <script setup lang="ts">
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+
 const route = useRoute();
 
 const id = computed(() => String(route.params.id));
-
-const {
-    data: chapters,
-    status,
-    error,
-} = await useFetch(() => `/api/readings/chapter/${id.value}`);
-
-const selectedChapterId = ref<string | null>(null);
-
-function openChapter(chapterId: string) {
-    selectedChapterId.value = chapterId;
-}
-
-function backToChapters() {
-    selectedChapterId.value = null;
-}
 </script>
-
 <template>
-    <div class="flex h-screen flex-col overflow-hidden bg-[#191A33] text-white">
-        <template v-if="!selectedChapterId">
-            <div class="flex-1 space-y-3 overflow-y-auto p-6">
-                <!-- Chapter list -->
-                <div
-                    v-for="chapter in chapters"
-                    :key="chapter.id"
-                    class="cursor-pointer rounded-lg border border-white/10 bg-white/5 p-4 transition hover:bg-white/10"
-                    :chapter-id="selectedChapterId"
-                    @back="backToChapters"
-                    @click="openChapter(chapter.id)"
-                >
-                    <h2 class="font-medium">{{ chapter.title }}</h2>
-                    <p class="mt-1 text-sm text-gray-400">
-                        Chapter {{ chapter.chapter_number }}
-                    </p>
-                </div>
-            </div>
-        </template>
+    <div class="min-h-screen bg-[#0D0D0B] text-amber-50">
+        <!-- Back navigation -->
+        <div class="px-6 pt-6 md:px-8">
+            <NuxtLink
+                to="/readings"
+                class="inline-flex items-center gap-2 text-sm text-stone-400 transition-colors hover:text-amber-300"
+            >
+                <span class="text-amber-500">←</span>
+                <span>Back to Readings</span>
+            </NuxtLink>
+        </div>
 
-        <ReadingMemoryCardPage
-            v-else
-            :chapter-id="selectedChapterId"
-            @back="backToChapters"
-        />
+        <!-- Main content -->
+        <div class="flex flex-col gap-6 p-6 md:p-8">
+            <Tabs default-value="chat" class="flex w-full flex-col gap-6">
+                <!-- Tab navigation -->
+                <TabsList
+                    class="flex h-auto w-full justify-start gap-2 rounded-xl border border-amber-500/20 bg-[#171610] p-2"
+                >
+                    <TabsTrigger
+                        value="chat"
+                        class="flex-1 rounded-lg px-5 py-3 text-sm font-medium text-stone-400 transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-[#3A3020] data-[state=active]:to-[#242016] data-[state=active]:text-amber-200 data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-amber-500/30"
+                    >
+                        Chat
+                    </TabsTrigger>
+
+                    <TabsTrigger
+                        value="memory-card"
+                        class="flex-1 rounded-lg px-5 py-3 text-sm font-medium text-stone-400 transition-all data-[state=active]:bg-gradient-to-br data-[state=active]:from-[#3A3020] data-[state=active]:to-[#242016] data-[state=active]:text-amber-200 data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-amber-500/30"
+                    >
+                        Memory Cards
+                    </TabsTrigger>
+                </TabsList>
+
+                <!-- Chat tab -->
+                <TabsContent
+                    value="chat"
+                    class="mt-0 flex-1 rounded-2xl border border-amber-500/20 bg-gradient-to-br from-[#191810] to-[#0D0D0B] p-4 shadow-lg shadow-black/20 focus-visible:outline-none md:p-6"
+                >
+                    <ReadingMemoryCardPage :book-id="id" />
+                </TabsContent>
+
+                <!-- Memory card tab -->
+                <TabsContent
+                    value="memory-card"
+                    class="mt-0 flex-1 rounded-2xl border border-amber-500/20 bg-gradient-to-br from-[#191810] to-[#0D0D0B] p-4 shadow-lg shadow-black/20 focus-visible:outline-none md:p-6"
+                >
+                    <ReadingMemoryCardPage :book-id="id" />
+                </TabsContent>
+            </Tabs>
+        </div>
     </div>
 </template>
