@@ -6,7 +6,7 @@ const props = defineProps<{
   chapter: string
   chunkNumber: number
   question: string
-  keypoints: string[]
+  keypoint: string
   answer: string
 }>()
 
@@ -38,11 +38,12 @@ const flipped = ref(false)
           Key Points
         </p>
 
-        <ul class="mb-5 list-inside list-disc space-y-1 text-sm">
-          <li v-for="(point, index) in keypoints" :key="index">
-            {{ point }}
-          </li>
-        </ul>
+        <p class="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          Keypoint
+        </p>
+        <p class="text-sm leading-relaxed">
+          {{ keypoint }}
+        </p>
 
         <p class="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
           Answer

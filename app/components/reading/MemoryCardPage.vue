@@ -60,6 +60,10 @@ watch(
         flippedCards.value = new Set();
     },
 );
+
+const emit = defineEmits<{
+  back: []
+}>()
 </script>
 
 <template>
@@ -68,7 +72,7 @@ watch(
         <header class="flex items-center gap-4 border-b border-white/10 p-6">
             <button
                 class="text-sm text-gray-400 hover:text-white"
-                @click="navigateTo('/readings')"
+                @click="emit('back')"
             >
                 ← Readings
             </button>
@@ -136,16 +140,9 @@ watch(
                             Key Points
                         </p>
 
-                        <ul
-                            class="mb-5 list-inside list-disc space-y-2 text-sm leading-relaxed text-gray-200"
-                        >
-                            <li
-                                v-for="(point, index) in card.keypoints"
-                                :key="index"
-                            >
-                                {{ point }}
-                            </li>
-                        </ul>
+                        <p class="text-sm leading-relaxed text-gray-300">
+                            {{ card.keypoint }}
+                        </p>
 
                         <p
                             class="mb-2 text-xs font-semibold uppercase tracking-wider text-amber-400"
