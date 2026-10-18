@@ -1,23 +1,48 @@
 <script setup lang="ts">
-definePageMeta({
-    middleware: "auth",
-})
-const notes = ref([]);
+definePageMeta({ middleware: "auth" });
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationNext,
+    PaginationPrevious,
+} from "~/components/ui/pagination";
 const search = ref("");
-async function getNotes() {
-    notes.value = await $fetch("/api/notes");
+const page = ref(1);
+const limit = ref(20);
+
+interface Note {
+    id: string;
+    uuid: string;
+    title: string;
+    description: string;
 }
-const filteredNotes = computed(() => {
-    const query = search.value.toLowerCase().trim();
-    if (!query) {
-        return notes;
-    }
-    return notes.filter(
-        (note) =>
-            note.title.toLowerCase().includes(query) ||
-            note.description.toLowerCase().includes(query),
-    );
+interface NotesResponse {
+    items: Note[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+}
+const {
+    data: notesResponse,
+    refresh,
+} = await useFetch<NotesResponse>("/api/notes", {
+    query: { search, page, limit },
+    default: () => ({
+        items: [],
+        total: 0,
+        page: 1,
+        limit: 10,
+        totalPages: 0,
+    }),
 });
+
+const notes = computed(() => notesResponse.value.items);
+const total = computed(() => notesResponse.value.total);
+const totalPages = computed(() => notesResponse.value.totalPages);
+
 async function handleNewDraft() {
     try {
         const note = await $fetch("/api/notes", {
@@ -35,11 +60,11 @@ async function handleNewDraft() {
         console.error("Failed to create note:", error);
     }
 }
-onMounted(() => {
-    getNotes();
-});
 function openNote(uuid: string) {
-  navigateTo(`/notes/${uuid}`)
+    navigateTo(`/notes/${uuid}`);
+}
+function changePage(newPage: number) {
+    page.value = newPage;
 }
 </script>
 <template>
@@ -77,5 +102,51 @@ function openNote(uuid: string) {
                 @click="openNote(note.id)"
             />
         </div>
+    </div>
+    <!-- Pagination -->
+    <div
+        v-if="totalPages > 0"
+        class="mt-6 flex flex-col items-center justify-between gap-4 border-t border-slate-800 pt-4 sm:flex-row"
+    >
+        <p class="text-sm text-slate-500">
+            {{ notesResponse.total }} notes · Page {{ page }} of
+            {{ totalPages }}
+        </p>
+
+        <Pagination
+            :items-per-page="10"
+            :total="notesResponse.total"
+            :sibling-count="1"
+            :default-page="1"
+            :page="page"
+            @update:page="changePage"
+        >
+            <PaginationContent v-slot="{ items }" class="gap-1.5">
+                <PaginationPrevious
+                    class="border border-[#332D20] bg-[#191A33] text-slate-300 transition hover:bg-[#252640] hover:text-[#E49C1B] [&_svg]:size-4"
+                />
+
+                <template v-for="(item, index) in items" :key="index">
+                    <PaginationItem
+                        v-if="item.type === 'page'"
+                        :value="item.value"
+                        :is-active="item.value === page"
+                        class="h-9 min-w-9 rounded-md border border-[#332D20] bg-[#191A33] text-sm text-slate-300 transition hover:border-[#E49C1B]/60 hover:bg-[#252640] hover:text-[#E49C1B] data-[active=true]:border-[#E49C1B] data-[active=true]:bg-[#E49C1B] data-[active=true]:font-semibold data-[active=true]:text-[#191A33] data-[active=true]:shadow-[0_0_10px_rgba(228,156,27,0.12)]"
+                    >
+                        {{ item.value }}
+                    </PaginationItem>
+
+                    <PaginationEllipsis
+                        v-else
+                        :index="index"
+                        class="text-slate-500"
+                    />
+                </template>
+
+                <PaginationNext
+                    class="border border-[#332D20] bg-[#191A33] text-slate-300 transition hover:bg-[#252640] hover:text-[#E49C1B] [&_svg]:size-4"
+                />
+            </PaginationContent>
+        </Pagination>
     </div>
 </template>
