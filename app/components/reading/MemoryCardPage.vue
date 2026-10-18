@@ -58,7 +58,7 @@ const {
     () => `/api/readings/memorycard/${props.bookId}`,
 );
 
-const memorycards = computed(() => memory_card_response.value?.items ?? []);
+const memorycards = ref<MemoryCard[]>([]);
 async function loadMemoryCards() {
     const { items, total, page, limit, totalPages } =
         await $fetch<MemoryCardResponse>(

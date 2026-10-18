@@ -11,16 +11,17 @@ export default defineEventHandler(async (event) => {
   }
 
   const query = getQuery(event);
-  const chapterId = query.chapter_id
-    ? String(query.chapter_id)
-    : null;
+  const chapterId = query.chapter_id ? String(query.chapter_id) : null;
 
   const search = String(query.search ?? "").trim();
   const pattern = `%${search}%`;
-  console.log(pattern)
+  console.log(pattern);
 
   const page = Math.max(1, Math.floor(Number(query.page) || 1));
-  const limit = Math.min(100, Math.max(1, Math.floor(Number(query.limit) || 10)));
+  const limit = Math.min(
+    100,
+    Math.max(1, Math.floor(Number(query.limit) || 10)),
+  );
   const offset = (page - 1) * limit;
 
   let filterSql: string;
