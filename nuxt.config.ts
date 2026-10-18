@@ -12,6 +12,19 @@ export default defineNuxtConfig({
     server: {
       allowedHosts: ["nkwzotero.uk"],
     },
+    optimizeDeps: {
+      include: [
+        "@lucide/vue",
+        "@vueuse/core",
+        "class-variance-authority",
+        "clsx",
+        "cn",
+        "dompurify",
+        "marked",
+        "reka-ui",
+        "tailwind-merge",
+      ],
+    },
   },
 
   css: ["~/assets/css/tailwind.css"],
