@@ -1,8 +1,19 @@
 <script setup lang="ts">
 const props = defineProps<{ bookId: string }>();
 import MemoryCard from "./MemoryCard.vue";
-const page = ref(1);
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination";
+const searchQuery = ref("");
+const currentPage = ref(1);
 const pageSize = 10;
+const totalCards = ref(0);
+
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -39,16 +50,48 @@ const {
     error,
 } = await useFetch<Chapter[]>(() => `/api/readings/chapter/${props.bookId}`);
 const selectedChapter = ref<string | null>(null);
-const memorycards = ref<MemoryCard[]>([]);
+const {
+    data: memory_card_response,
+    status: status1,
+    error: error1,
+} = await useFetch<MemoryCardResponse>(
+    () => `/api/readings/memorycard/${props.bookId}`,
+);
+
+const memorycards = computed(() => memory_card_response.value?.items ?? []);
+async function loadMemoryCards() {
+    const { items, total, page, limit, totalPages } =
+        await $fetch<MemoryCardResponse>(
+            `/api/readings/memorycard/${props.bookId}`,
+            {
+                query: {
+                    chapter_id: selectedChapter.value || undefined,
+                    page: currentPage.value,
+                    search: searchQuery.value.trim() || undefined,
+                },
+            },
+        );
+    memorycards.value = items;
+    totalCards.value = total;
+}
+
+let searchTimeout: ReturnType<typeof setTimeout> | undefined;
+watch(searchQuery, () => {
+    clearTimeout(searchTimeout);
+
+    currentPage.value = 1;
+
+    searchTimeout = setTimeout(() => {
+        loadMemoryCards();
+    }, 300);
+});
+watch(currentPage, async () => {
+    await loadMemoryCards();
+});
 
 async function selectChapter(chapterId: string) {
     selectedChapter.value = chapterId;
-    const { data, error } = await useFetch<MemoryCardResponse>(
-        `/api/readings/memorycard/${chapterId}`,
-    );
-
-    if (error.value || !data.value) return;
-    memorycards.value = data.value?.items ?? [];
+    await loadMemoryCards();
 }
 </script>
 <template>
@@ -57,16 +100,18 @@ async function selectChapter(chapterId: string) {
         <div
             class="flex flex-col gap-4 border-b border-amber-500/20 pb-6 sm:flex-row sm:items-center sm:justify-between"
         >
-            <div class="space-y-1">
-                <h2
-                    class="text-2xl font-semibold tracking-wide text-amber-50"
+            <div class="w-full max-w-xl">
+                <div
+                    class="flex items-center gap-3 rounded-xl border border-amber-500/30 bg-gradient-to-br from-[#242016] to-[#171610] px-4 py-3 shadow-sm transition-colors focus-within:border-amber-400/60 focus-within:ring-2 focus-within:ring-amber-500/20"
                 >
-                    Study Cards
-                </h2>
-
-                <p class="text-sm text-stone-400">
-                    Review your knowledge, one concept at a time.
-                </p>
+                    <Search class="size-5 shrink-0 text-amber-500/70" />
+                    <input
+                        v-model="searchQuery"
+                        type="text"
+                        placeholder="Search memory cards..."
+                        class="w-full bg-transparent text-sm text-amber-50 outline-none placeholder:text-stone-500"
+                    />
+                </div>
             </div>
 
             <!-- Chapter selector -->
@@ -92,9 +137,7 @@ async function selectChapter(chapterId: string) {
                         Select a chapter
                     </div>
 
-                    <DropdownMenuSeparator
-                        class="bg-amber-500/20"
-                    />
+                    <DropdownMenuSeparator class="bg-amber-500/20" />
 
                     <DropdownMenuItem
                         v-for="item in chapters"
@@ -109,14 +152,47 @@ async function selectChapter(chapterId: string) {
         </div>
 
         <!-- Memory cards -->
-        <div
-            class="flex flex-wrap items-stretch justify-center gap-6"
-        >
+        <div class="flex flex-wrap items-stretch justify-center gap-6">
             <MemoryCard
                 v-for="card in memorycards"
                 :key="card.id"
                 :card="card"
             />
+        </div>
+        <!-- Pagination -->
+        <div
+            class="mt-8 flex w-full min-w-0 max-w-full justify-center overflow-x-auto"
+        >
+            <Pagination
+                v-model:page="currentPage"
+                :items-per-page="pageSize"
+                :total="totalCards"
+                :sibling-count="1"
+                show-edges
+                class="max-w-full"
+            >
+                <PaginationContent v-slot="{ items }" class="flex-nowrap">
+                    <PaginationPrevious
+                        class="shrink-0 border-amber-500/30 text-amber-200 hover:bg-amber-400/10 hover:text-amber-100"
+                    />
+
+                    <template v-for="(item, index) in items" :key="index">
+                        <PaginationItem
+                            v-if="item.type === 'page'"
+                            :value="item.value"
+                            class="shrink-0 border-amber-500/30 text-amber-200 data-[active=true]:border-amber-400/60 data-[active=true]:bg-[#3A3020] data-[active=true]:text-amber-100"
+                        >
+                            {{ item.value }}
+                        </PaginationItem>
+
+                        <PaginationEllipsis v-else />
+                    </template>
+
+                    <PaginationNext
+                        class="shrink-0 border-amber-500/30 text-amber-200 hover:bg-amber-400/10 hover:text-amber-100"
+                    />
+                </PaginationContent>
+            </Pagination>
         </div>
     </div>
 </template>
