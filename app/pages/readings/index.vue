@@ -1,256 +1,132 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { BookOpen, Search } from "@lucide/vue";
-
-import { Button } from "@/components/ui/button";
+import { Search, Layers } from "@lucide/vue";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
-import BookDiaglog from "@/components/reading/BookDiaglog.vue";
 
 definePageMeta({ middleware: "auth" });
 
-type BookStatus = "Reading" | "Finished" | "To Read";
-
-type Book = {
-    id: number;
-    title: string;
-    category: string[];
-    status: string;
-    lastRead: string;
-    description: string;
+type CardDeck = {
+    id: string;
+    source_id: string;
+    title: string | null;
+    system_prompt: string;
+    created_at: string;
 };
+
 const {
-    data: books,
+    data: cardDecks,
     pending,
     error,
-    refresh,
-} = await useFetch<Book[]>("/api/readings", {
+} = await useFetch<CardDeck[]>("/api/readings", {
     default: () => [],
 });
 
-const filter = ref("All");
 const search = ref("");
 
-const filters = ["All", "Reading", "To Read", "Finished"];
+const filteredDecks = computed(() => {
+    const query = search.value.trim().toLowerCase();
 
-const filteredBooks = computed(() => {
-    return books.value.filter((book) => {
-        const matchesStatus =
-            filter.value === "All" || book.status === filter.value;
+    if (!query) return cardDecks.value;
 
-        const query = search.value.trim().toLowerCase();
-
-        const matchesSearch =
-            !query ||
-            book.title.toLowerCase().includes(query) ||
-            book.author.toLowerCase().includes(query);
-
-        return matchesStatus && matchesSearch;
-    });
+    return cardDecks.value.filter((deck) =>
+        [
+            deck.title,
+            deck.id,
+            deck.source_id,
+            deck.system_prompt,
+        ].some((value) => value?.toLowerCase().includes(query)),
+    );
 });
 
-function statusClass(status: BookStatus) {
-    switch (status) {
-        case "Reading":
-            return "border-[#C5A24A]/30 bg-[#C5A24A]/10 text-[#C5A24A]";
-        case "Finished":
-            return "border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
-        case "To Read":
-            return "border-blue-500/30 bg-blue-500/10 text-blue-400";
-    }
-}
-
-async function handleAddBook() {
-    await refresh();
-}
-
-async function handleEditBook() {
-    await refresh();
-}
-async function handleDeleteBook() {
-    await refresh();
+function formatDate(value: string) {
+    return new Date(value).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+    });
 }
 </script>
 
 <template>
-    <div class="mx-auto w-full max-w-7xl space-y-8 text-white">
-        <p v-if="pending">Loading books...</p>
+    <div class="mx-auto w-full max-w-7xl space-y-6 text-white">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-semibold">Card Decks</h1>
+                <p class="mt-1 text-sm text-neutral-400">
+                    {{ cardDecks.length }} learning collections
+                </p>
+            </div>
 
-        <p v-else-if="error">Failed to load books: {{ error.message }}</p>
-
-        <p v-else-if="books.length === 0">No books found.</p>
-        <!-- Page heading -->
-        <div
-            class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"
-        >
-            <BookDiaglog @add="handleAddBook" mode="add" />
+            <div class="relative w-full sm:max-w-xs">
+                <Search
+                    class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-neutral-500"
+                />
+                <Input
+                    v-model="search"
+                    placeholder="Search card decks..."
+                    class="border-white/10 bg-white/[0.04] pl-9 text-white placeholder:text-neutral-500"
+                />
+            </div>
         </div>
-        <!-- Reading table -->
-        <section
-            class="overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.02]"
+
+        <p v-if="pending" class="text-sm text-neutral-400">
+            Loading card decks...
+        </p>
+
+        <p v-else-if="error" class="text-sm text-red-400">
+            Failed to load card decks: {{ error.message }}
+        </p>
+
+        <div
+            v-else-if="filteredDecks.length"
+            class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
         >
-            <div
-                class="flex flex-col gap-4 border-b border-white/[0.08] p-4 sm:flex-row sm:items-center sm:justify-between"
+            <NuxtLink
+                v-for="deck in filteredDecks"
+                :key="deck.id"
+                :to="`/readings/${deck.id}`"
+                class="block rounded-xl border border-white/[0.08] bg-white/[0.025] p-5 transition-all hover:border-[#C5A24A]/40 hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A24A]"
             >
-                <div class="relative w-full sm:max-w-xs">
-                    <Search
-                        class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-neutral-500"
-                    />
-                    <Input
-                        v-model="search"
-                        placeholder="Search books or authors..."
-                        class="border-white/[0.1] bg-black pl-9 text-white placeholder:text-neutral-600 focus-visible:ring-[#C5A24A]"
-                    />
+                <div class="mb-4 flex items-center gap-3">
+                    <div
+                        class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#C5A24A]/10"
+                    >
+                        <Layers class="size-5 text-[#C5A24A]" />
+                    </div>
+
+                    <div class="min-w-0 flex-1">
+                        <h2 class="truncate font-medium text-neutral-100">
+                            {{ deck.title || "Untitled deck" }}
+                        </h2>
+                        <p class="text-xs text-neutral-500">
+                            {{ formatDate(deck.created_at) }}
+                        </p>
+                    </div>
+                    <span class="text-xs text-neutral-500">↗</span>
                 </div>
-            </div>
 
-            <!-- Status filters -->
-            <div
-                class="flex gap-2 overflow-x-auto border-b border-white/[0.08] px-4 py-3"
-            >
-                <Button
-                    v-for="item in filters"
-                    :key="item"
-                    size="sm"
-                    :variant="filter === item ? 'secondary' : 'ghost'"
-                    :class="
-                        filter === item
-                            ? 'shrink-0 bg-white/[0.1] text-[#C5A24A] hover:bg-white/[0.15]'
-                            : 'shrink-0 text-neutral-400 hover:bg-white/[0.05] hover:text-white'
-                    "
-                    @click="filter = item"
+                <p class="mb-3 text-xs text-neutral-500">
+                    Source ID: {{ deck.source_id }}
+                </p>
+
+                <p
+                    class="break-words whitespace-pre-wrap text-sm leading-relaxed text-neutral-300"
                 >
-                    {{ item }}
-                </Button>
-            </div>
+                    {{ deck.system_prompt }}
+                </p>
 
-            <div class="overflow-x-auto">
-                <Table>
-                    <TableHeader>
-                        <TableRow
-                            class="border-white/[0.08] hover:bg-transparent"
-                        >
-                            <TableHead
-                                class="min-w-[280px] pl-5 text-neutral-500"
-                            >
-                                Book
-                            </TableHead>
-                            <TableHead class="min-w-[120px] text-neutral-500">
-                                Category
-                            </TableHead>
-                            <TableHead
-                                class="hidden min-w-[130px] text-neutral-500 md:table-cell"
-                            >
-                                Status
-                            </TableHead>
+                <p class="mt-4 break-all text-[11px] text-neutral-600">
+                    {{ deck.id }}
+                </p>
+            </NuxtLink>
+        </div>
 
-                            <TableHead
-                                class="hidden min-w-[120px] text-neutral-500 md:table-cell"
-                            >
-                                Last read
-                            </TableHead>
-                            <TableHead class="w-12" />
-                        </TableRow>
-                    </TableHeader>
-
-                    <TableBody>
-                        <TableRow
-                            v-for="book in filteredBooks"
-                            :key="book.id"
-                            class="border-white/[0.06] transition-colors hover:bg-white/[0.025]"
-                        >
-                            <TableCell class="py-4 pl-5">
-                                <div class="flex items-start gap-3">
-                                    <div
-                                        class="flex size-10 shrink-0 items-center justify-center rounded-lg border border-[#C5A24A]/20 bg-[#C5A24A]/[0.08]"
-                                    >
-                                        <NuxtLink
-                                            :to="`/readings/${book.id}`"
-                                            class="flex size-10 shrink-0 items-center justify-center rounded-lg border border-[#C5A24A]/20 bg-[#C5A24A]/[0.08] transition-colors hover:bg-[#C5A24A]/[0.18]"
-                                            title="Open reading workspace"
-                                        >
-                                            <BookOpen
-                                                class="size-5 text-[#C5A24A]"
-                                            />
-                                        </NuxtLink>
-                                    </div>
-
-                                    <div class="min-w-0">
-                                        <p
-                                            class="font-medium leading-5 text-neutral-100"
-                                        >
-                                            {{ book.title }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </TableCell>
-                            <TableCell class="hidden md:table-cell">
-                                <Badge
-                                    variant="outline"
-                                    :class="statusClass(book.status)"
-                                >
-                                    {{ book.status }}
-                                </Badge>
-                            </TableCell>
-                            <TableCell class="hidden md:table-cell">
-                                <div class="flex flex-wrap gap-1.5">
-                                    <Badge
-                                        v-for="category in book.category"
-                                        :key="category"
-                                        variant="secondary"
-                                        class="text-xs"
-                                    >
-                                        {{ category }}
-                                    </Badge>
-                                </div>
-                            </TableCell>
-                            <TableCell
-                                class="hidden text-sm text-neutral-400 md:table-cell"
-                            >
-                                {{ book.lastRead }}
-                            </TableCell>
-                            <TableCell>
-                                <div
-                                    class="flex items-center justify-end gap-1"
-                                >
-                                    <BookDiaglog
-                                        mode="edit"
-                                        :id="book.id"
-                                        :title="book.title"
-                                        :category="book.category"
-                                        :status="book.status"
-                                        @book="handleEditBook"
-                                        @delete="handleDeleteBook"
-                                    />
-                                </div>
-                            </TableCell>
-                        </TableRow>
-
-                        <TableRow v-if="filteredBooks.length === 0">
-                            <TableCell colspan="5" class="h-32 text-center">
-                                <div
-                                    class="flex flex-col items-center gap-2 text-neutral-500"
-                                >
-                                    <BookOpen class="size-6" />
-                                    <p class="text-sm">No books found.</p>
-                                    <p class="text-xs">
-                                        Try another search or status filter.
-                                    </p>
-                                </div>
-                            </TableCell>
-                        </TableRow>
-                    </TableBody>
-                </Table>
-            </div>
-        </section>
+        <div
+            v-else
+            class="flex flex-col items-center justify-center rounded-xl border border-white/[0.08] py-16 text-neutral-500"
+        >
+            <Layers class="mb-3 size-8" />
+            <p class="text-sm">No card decks found.</p>
+        </div>
     </div>
 </template>

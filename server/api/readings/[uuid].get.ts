@@ -13,8 +13,8 @@ export default defineEventHandler(async (event) => {
 
   const result = await pool2.query<BookListItem>(
     `
-    SELECT id, title, category, status, description, source
-    FROM books
+    SELECT *
+    FROM card_decks
     WHERE id = $1
     `,
     [id],

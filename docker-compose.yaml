@@ -21,7 +21,7 @@ services:
   nuxt:
     image: node:22-bookworm
     working_dir: /app
-    command: ["sh", "-c", "npm run build && nodejs .output/server/index.mjs"]
+    command: ["sh", "-c", "npm install && npm run build && nodejs .output/server/index.mjs"]
     volumes:
       - .:/app
       - node_modules:/app/node_modules

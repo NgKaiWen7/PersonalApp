@@ -28,9 +28,7 @@ export default defineEventHandler(async (event) => {
       cards.content,
       cards.image_path
     FROM cards
-    JOIN card_decks
-      ON cards.deck_id = card_decks.id
-    WHERE card_decks.source_id = $1
+    WHERE cards.deck_id = $1
       AND cards.image_path IS NOT NULL
       AND (
         cards.title ILIKE $2
@@ -46,9 +44,7 @@ export default defineEventHandler(async (event) => {
     `
     SELECT COUNT(*) AS total
     FROM cards
-    JOIN card_decks
-      ON cards.deck_id = card_decks.id
-    WHERE card_decks.source_id = $1
+    WHERE cards.deck_id = $1
       AND cards.image_path IS NOT NULL
       AND (
         cards.title ILIKE $2
