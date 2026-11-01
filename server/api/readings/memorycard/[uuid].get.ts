@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
         cards.title ILIKE $2
         OR cards.content ILIKE $2
       )
-    ORDER BY cards.title ASC, cards.id ASC
+    ORDER BY cards.created_at ASC
     LIMIT $3 OFFSET $4
     `,
     [id, pattern, limit, offset],

@@ -69,26 +69,28 @@ const renderedContent = computed(() =>
                 </DialogTitle>
             </DialogHeader>
 
-            <div class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
-                <!-- Image -->
-                <div
-                    v-if="imagePath"
-                    class="flex min-h-[60vh] flex-1 items-center justify-center overflow-hidden rounded-lg bg-[#111111]"
-                >
-                    <img
-                        :src="imagePath"
-                        :alt="title"
-                        class="h-full w-full cursor-zoom-in object-contain"
-                        loading="lazy"
-                        @click="previewOpen = true"
+            <div class="min-h-0 flex-1 overflow-y-auto">
+                <div class="flow-root">
+                    <!-- Floating Image -->
+                    <div
+                        v-if="imagePath"
+                        class="float-left mb-4 mr-6 min-w-[220px] rounded-lg bg-[#111111] p-2"
+                    >
+                        <img
+                            :src="imagePath"
+                            :alt="title"
+                            class="max-h-[60vh] w-full cursor-zoom-in object-contain"
+                            loading="lazy"
+                            @click="previewOpen = true"
+                        />
+                    </div>
+
+                    <!-- Markdown Content -->
+                    <div
+                        class="markdown-content text-sm leading-7 text-gray-300"
+                        v-html="renderedContent"
                     />
                 </div>
-
-                <!-- Markdown Content -->
-                <div
-                    class="markdown-content shrink-0 text-sm leading-7 text-gray-300"
-                    v-html="renderedContent"
-                />
             </div>
         </DialogContent>
     </Dialog>
