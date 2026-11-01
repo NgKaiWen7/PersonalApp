@@ -1,4 +1,5 @@
-// server/api/readings/memorycard/[uuid].get.ts
+import { pool2 } from "../../../utils/db";
+import type { Card, CardsResponse } from "#shared/types/card";
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, "uuid");
@@ -11,73 +12,63 @@ export default defineEventHandler(async (event) => {
   }
 
   const query = getQuery(event);
-  const chapterId = query.chapter_id ? String(query.chapter_id) : null;
 
   const search = String(query.search ?? "").trim();
-  const pattern = `%${search}%`;
-  console.log(pattern);
-
-  const page = Math.max(1, Math.floor(Number(query.page) || 1));
-  const limit = Math.min(
-    100,
-    Math.max(1, Math.floor(Number(query.limit) || 10)),
-  );
+  const page = Math.max(1, Number(query.page) || 1);
+  const limit = Math.min(100, Math.max(1, Number(query.limit) || 20));
   const offset = (page - 1) * limit;
 
-  let filterSql: string;
-  let filterId: string;
+  const pattern = `%${search}%`;
 
-  if (chapterId) {
-    filterSql = "bchap.id = $1";
-    filterId = chapterId;
-  } else {
-    filterSql = "bchap.book_id = $1";
-    filterId = id;
-  }
-
-  const countResult = await pool2.query(
+  const result = await pool2.query<Card>(
     `
-    SELECT COUNT(*)::int AS total
-    FROM book_chapters bchap
-    JOIN book_chunks bchunk ON bchap.id = bchunk.chapter_id
-    JOIN memory_cards mc ON bchunk.id = mc.chunk_id
-    WHERE ${filterSql}
+    SELECT
+      cards.id AS uuid,
+      cards.title,
+      cards.content,
+      cards.image_path
+    FROM cards
+    JOIN card_decks
+      ON cards.deck_id = card_decks.id
+    WHERE card_decks.source_id = $1
+      AND cards.image_path IS NOT NULL
       AND (
-        $2 = ''
-        OR mc.question ILIKE $3
-        OR mc.answer ILIKE $3
-        OR mc.keypoint ILIKE $3
+        cards.title ILIKE $2
+        OR cards.content ILIKE $2
       )
+    ORDER BY cards.title ASC, cards.id ASC
+    LIMIT $3 OFFSET $4
     `,
-    [filterId, search, pattern],
+    [id, pattern, limit, offset],
   );
 
-  const total = countResult.rows[0].total;
-
-  const result = await pool2.query(
+  const countResult = await pool2.query<{ total: string }>(
     `
-    SELECT mc.*
-    FROM book_chapters bchap
-    JOIN book_chunks bchunk ON bchap.id = bchunk.chapter_id
-    JOIN memory_cards mc ON bchunk.id = mc.chunk_id
-    WHERE ${filterSql}
+    SELECT COUNT(*) AS total
+    FROM cards
+    JOIN card_decks
+      ON cards.deck_id = card_decks.id
+    WHERE card_decks.source_id = $1
+      AND cards.image_path IS NOT NULL
       AND (
-        $2 = ''
-        OR mc.question ILIKE $3
-        OR mc.answer ILIKE $3
-        OR mc.keypoint ILIKE $3
+        cards.title ILIKE $2
+        OR cards.content ILIKE $2
       )
-    ORDER BY bchunk.position, mc.id
-    LIMIT $4 OFFSET $5
     `,
-    [filterId, search, pattern, limit, offset],
+    [id, pattern],
   );
+
+  const total = Number(countResult.rows[0].total);
 
   return {
-    items: result.rows,
-    total,
-    page,
-    limit,
-    totalPages: Math.ceil(total / limit),
+    data: result.rows,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+      hasNextPage: page * limit < total,
+      hasPreviousPage: page > 1,
+    },
   };
 });
