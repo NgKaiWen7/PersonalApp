@@ -32,6 +32,8 @@ services:
     env_file:
       - .env
     restart: unless-stopped
+    environment:
+      - TZ=Asia/Singapore
 volumes:
   node_modules:
   personal_postgres_data:
