@@ -2,6 +2,7 @@
 import { computed, ref } from "vue";
 import { marked } from "marked";
 import DOMPurify from "isomorphic-dompurify";
+import { Heart, BookText } from '@lucide/vue';
 
 import { Card } from "@/components/ui/card";
 import {
@@ -30,9 +31,9 @@ const renderedContent = computed(() =>
     <Dialog v-model:open="open">
         <DialogTrigger as-child>
             <Card
-                class="group w-full max-w-md cursor-pointer overflow-hidden rounded-xl border border-gray-700 bg-[#1c1c1c] text-white transition-colors hover:border-gray-500"
+                class="group w-full cursor-pointer overflow-hidden rounded-xl border border-gray-700 bg-[#1c1c1c] text-white transition-colors hover:border-gray-500"
             >
-                <div class="p-3">
+                <CardContent class="p-3">
                     <!-- Image Preview -->
                     <div
                         v-if="imagePath"
@@ -45,30 +46,32 @@ const renderedContent = computed(() =>
                             loading="lazy"
                         />
                     </div>
+                </CardContent>
 
-                    <!-- Title -->
-                    <div class="px-2 pb-2 pt-4">
-                        <h3 class="text-lg font-semibold">
-                            {{ title }}
-                        </h3>
-
-                        <p class="mt-2 line-clamp-2 text-sm text-gray-400">
-                            {{ content }}
-                        </p>
-                    </div>
-                </div>
+                <CardHeader class="px-5 pb-4 pt-0">
+                    <h3 class="text-lg font-semibold">
+                        {{ title }}
+                    </h3>
+                    <p class="line-clamp-2 text-sm text-gray-400">
+                        {{ content }}
+                    </p>
+                </CardHeader>
             </Card>
         </DialogTrigger>
 
         <DialogContent
             class="overflow-y-auto scrollbar-none !left-[50%] !top-[50%] !h-[90vh] !w-[95vw] !max-w-[95vw] !translate-x-[-50%] !translate-y-[-50%] flex flex-col overflow-hidden border border-gray-700 bg-[#1c1c1c] p-6 text-white"
         >
-            <DialogHeader class="shrink-0">
+            <DialogHeader class="flex shrink-0 flex-row items-center justify-between pr-10">
                 <DialogTitle class="text-xl font-semibold">
                     {{ title }}
                 </DialogTitle>
-            </DialogHeader>
 
+                <div class="flex items-center gap-3">
+                    <BookText class="size-5 cursor-pointer" />
+                    <Heart class="size-5 cursor-pointer" />
+                </div>
+            </DialogHeader>
             <div class="min-h-0 flex-1 overflow-y-auto">
                 <div class="flow-root">
                     <!-- Floating Image -->
@@ -92,19 +95,6 @@ const renderedContent = computed(() =>
                     />
                 </div>
             </div>
-        </DialogContent>
-    </Dialog>
-
-    <!-- Image Preview -->
-    <Dialog v-model:open="previewOpen">
-        <DialogContent
-            class="flex h-[95vh] w-[95vw] max-w-[95vw] items-center justify-center border-gray-700 bg-[#111111] p-2"
-        >
-            <img
-                :src="imagePath ?? ''"
-                :alt="title"
-                class="h-full w-full object-contain"
-            />
         </DialogContent>
     </Dialog>
 </template>

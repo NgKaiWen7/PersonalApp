@@ -43,7 +43,6 @@ const {
     watch: [page, limit, search],
   },
   );
-console.log(cards.value)
 </script>
 
 <template>
@@ -68,7 +67,7 @@ console.log(cards.value)
             />
 
             <!-- Cards -->
-            <div class="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
+            <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-2">
                 <ReadingMemoryCard
                     v-for="card in cards?.data ?? []"
                     :key="card.uuid"

@@ -10,7 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@lucide/vue": "^1.59.0",
+    "@lucide/vue": "^1.67.0",
     "@vueuse/core": "^15.0.0",
     "argon2": "^0.45.1",
     "class-variance-authority": "^0.7.1",
