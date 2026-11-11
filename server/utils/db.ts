@@ -4,7 +4,7 @@ const { Pool } = pg;
 
 export const pool = new Pool({
   host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT ?? 5432),
+  port: Number(process.env.DB_PORT ?? 5433),
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
@@ -12,7 +12,7 @@ export const pool = new Pool({
 
 export const pool2 = new Pool({
   host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT ?? 5432),
+  port: Number(process.env.DB_PORT ?? 5433),
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: "knowledge_db",
