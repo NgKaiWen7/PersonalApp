@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ArrowLeft, Save, Trash2 } from "@lucide/vue";
+
 definePageMeta({
     middleware: "auth",
 });
@@ -27,24 +29,28 @@ async function getNote() {
 async function handleChange() {
     clearTimeout(saveTimer);
     saveTimer = setTimeout(async () => {
-        const response = await fetch(`/api/notes/${uuid}`, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                title: title.value,
-                description: description.value,
-                content: content.value,
-            }),
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        saved.value = true;
-        setTimeout(() => {
-            saved.value = false;
-        }, 1000);
+        await saveNote();
+    }, 1000);
+}
+async function saveNote() {
+    clearTimeout(saveTimer);
+    const response = await fetch(`/api/notes/${uuid}`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            title: title.value,
+            description: description.value,
+            content: content.value,
+        }),
+    });
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    saved.value = true;
+    setTimeout(() => {
+        saved.value = false;
     }, 1000);
 }
 function handleBack() {
@@ -103,19 +109,35 @@ onMounted(() => {
     <div v-if="note" class="w-full p-4 sm:p-6">
         <Saved :show="saved" />
         <!-- Actions -->
-        <div class="mb-6 flex w-full justify-between">
+        <div class="mb-8 flex w-full items-center justify-between border-b border-white/[0.06] pb-5">
             <Button
-                class="border border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800"
+                variant="ghost"
+                aria-label="Back to notes"
+                title="Back to notes"
+                class="flex size-10 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04] !p-0 text-neutral-400 hover:border-white/[0.14] hover:bg-white/[0.08] hover:text-white"
                 @click="handleBack"
             >
-                ← Back
+                <ArrowLeft class="size-4" />
             </Button>
-            <Button
-                class="border border-red-500/30 bg-red-950/40 text-red-400 hover:bg-red-950/70"
-                @click="handleDelete"
-            >
-                Delete
-            </Button>
+            <div class="flex items-center gap-2">
+                <Button
+                    aria-label="Save note"
+                    title="Save note"
+                    class="flex size-10 items-center justify-center rounded-lg bg-[radial-gradient(circle_at_center,#f3d77d_0%,#d8b65a_46%,#b78e32_100%)] !p-0 text-[#17140b] shadow-[0_4px_16px_rgba(197,162,74,0.18)] hover:brightness-110"
+                    @click="saveNote"
+                >
+                    <Save class="size-4" />
+                </Button>
+                <Button
+                    variant="ghost"
+                    aria-label="Delete note"
+                    title="Delete note"
+                    class="flex size-10 items-center justify-center rounded-lg border border-red-400/20 bg-red-400/[0.06] !p-0 text-red-300 hover:border-red-400/35 hover:bg-red-400/[0.12] hover:text-red-200"
+                    @click="handleDelete"
+                >
+                    <Trash2 class="size-4" />
+                </Button>
+            </div>
         </div>
         <!-- Header -->
         <div class="mb-6">

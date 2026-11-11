@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ArrowLeft } from "@lucide/vue";
 import { Input } from '@/components/ui/input'
 import {
     Pagination,
@@ -51,10 +52,11 @@ const {
         <div class="px-6 pt-6 md:px-8">
             <NuxtLink
                 to="/readings"
-                class="inline-flex items-center gap-2 text-sm text-stone-400 transition-colors hover:text-amber-300"
+                aria-label="Back to readings"
+                title="Back to readings"
+                class="inline-flex size-10 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04] text-stone-400 transition-colors hover:border-amber-400/30 hover:bg-amber-400/[0.08] hover:text-amber-300"
             >
-                <span class="text-amber-500">←</span>
-                <span>Back to Readings</span>
+                <ArrowLeft class="size-4" />
             </NuxtLink>
         </div>
 
