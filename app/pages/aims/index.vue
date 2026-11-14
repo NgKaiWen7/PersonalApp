@@ -20,7 +20,7 @@
             </span>
           </DialogTrigger>
         </Card>
-        <DialogContent class="border-stone-800 bg-stone-900 text-stone-100 sm:max-w-md">
+        <DialogContent class="max-h-[90dvh] overflow-y-auto border-stone-800 bg-stone-900 text-stone-100 sm:max-w-3xl sm:p-8">
           <DialogHeader>
             <DialogTitle>{{ selectedYear }} yearly aim</DialogTitle>
             <DialogDescription class="text-stone-400">
@@ -34,7 +34,7 @@
             </label>
             <Textarea :id="`edit-year-${selectedYear}`" v-model="yearlyAim.content" maxlength="200"
               :placeholder="`Aim for ${selectedYear}`"
-              class="min-h-32 resize-none border-stone-700 bg-stone-950 text-stone-100 placeholder:text-stone-600 focus-visible:ring-amber-400" />
+              class="min-h-48 resize-y border-stone-700 bg-stone-950 text-stone-100 placeholder:text-stone-600 focus-visible:ring-amber-400 sm:min-h-64" />
             <p class="text-right text-xs text-stone-500">{{ yearlyAim.content.length }}/200</p>
           </div>
 
@@ -93,7 +93,7 @@
                 <span :class="aim.aims.trim() ? 'text-amber-400' : ''">{{ aim.aims.trim() ? 'Set' : 'Not set' }}</span>
               </span>
             </DialogTrigger>
-            <DialogContent class="border-stone-800 bg-stone-900 text-stone-100 sm:max-w-md">
+            <DialogContent class="max-h-[90dvh] overflow-y-auto border-stone-800 bg-stone-900 text-stone-100 sm:max-w-3xl sm:p-8">
               <DialogHeader>
                 <DialogTitle>Week {{ aim.weeknum }} aim</DialogTitle>
                 <DialogDescription class="text-stone-400">
@@ -107,7 +107,7 @@
                 </label>
                 <Textarea :id="`edit-week-${aim.weeknum}`" v-model="aim.aims" maxlength="50"
                   :placeholder="`Aim for week ${aim.weeknum}`"
-                  class="min-h-32 resize-none border-stone-700 bg-stone-950 text-stone-100 placeholder:text-stone-600 focus-visible:ring-amber-400" />
+                  class="min-h-48 resize-y border-stone-700 bg-stone-950 text-stone-100 placeholder:text-stone-600 focus-visible:ring-amber-400 sm:min-h-64" />
                 <p class="text-right text-xs text-stone-500">{{ aim.aims.length }}/50</p>
               </div>
 
