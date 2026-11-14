@@ -51,7 +51,7 @@ const panelTitles = {
 }
 
 const currentPage = ref<ReaderPanel>('none')
-const isWideScreen = useMediaQuery('(min-width: 1024px)')
+const isWideScreen = useMediaQuery('(min-width: 1400px)')
 const isDrawerOpen = computed({
   get: () => !isWideScreen.value && currentPage.value !== 'none',
   set: (open: boolean) => {
