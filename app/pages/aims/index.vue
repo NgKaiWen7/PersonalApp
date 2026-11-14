@@ -1,10 +1,8 @@
 <template>
   <main class="min-h-screen bg-neutral-950 px-5 py-12 text-stone-100">
     <CardHeader class="mx-auto mb-8 max-w-6xl px-0">
-      <CardDescription class="font-bold uppercase tracking-widest text-amber-400">{{ selectedYear }} planning
-      </CardDescription>
-      <CardTitle class="text-4xl tracking-tight">Weekly aims</CardTitle>
-      <CardDescription class="text-stone-400">One meaningful intention for every week.</CardDescription>
+      <CardTitle class="text-4xl font-bold tracking-tight text-amber-400 sm:text-5xl">{{ selectedYear }} Planning</CardTitle>
+      <CardDescription class="text-stone-400">“Set your aim for the year. Plan the steps. Make each week count.”</CardDescription>
       <CardDescription class="mt-2 text-stone-500">
         {{ completedAimCount }} of {{ aimList.length }} weekly aims set for {{ selectedYear }}.
       </CardDescription>
