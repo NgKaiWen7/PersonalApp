@@ -9,21 +9,17 @@
     </CardHeader>
     <div class="sticky top-0 z-20 -mx-5 mb-6 bg-neutral-950 px-5 py-3">
       <Dialog>
-        <DialogTrigger as-child>
-          <Card class="mb-3 cursor-pointer border-amber-400/40 bg-stone-900 transition-colors hover:border-amber-400">
-            <CardHeader class="pb-3">
-              <div class="flex items-center justify-between gap-4">
-                <CardTitle class="text-lg">Yearly aim</CardTitle>
-                <span class="text-xs font-semibold text-stone-500">{{ selectedYear }}</span>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p class="whitespace-pre-wrap break-words text-left text-stone-200">
+        <Card class="mx-auto mb-3 w-full max-w-6xl gap-0 border-amber-400/40 bg-stone-900 py-0 transition-colors hover:border-amber-400">
+          <DialogTrigger class="grid w-full cursor-pointer grid-cols-[5rem_minmax(0,1fr)] items-start gap-4 rounded-xl p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 sm:grid-cols-[8rem_minmax(0,1fr)] sm:gap-6 sm:p-6">
+            <span class="flex flex-col items-start gap-2">
+              <span class="rounded bg-amber-400 px-3 py-2 text-sm font-bold text-neutral-950">{{ selectedYear }}</span>
+              <span class="text-xs font-semibold text-stone-400">Yearly aim</span>
+            </span>
+            <span class="min-w-0 whitespace-pre-wrap break-words text-stone-200">
                 {{ yearlyAim.content || 'No yearly aim set yet.' }}
-              </p>
-            </CardContent>
-          </Card>
-        </DialogTrigger>
+            </span>
+          </DialogTrigger>
+        </Card>
         <DialogContent class="border-stone-800 bg-stone-900 text-stone-100 sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{{ selectedYear }} yearly aim</DialogTitle>
@@ -54,48 +50,48 @@
         </DialogContent>
       </Dialog>
 
-      <Tabs v-model="selectedYear">
-        <TabsList>
-          <TabsTrigger :value="String(currentYear - 1)">
-            {{ currentYear - 1 }}
-          </TabsTrigger>
+      <div class="mx-auto max-w-6xl">
+        <Tabs v-model="selectedYear">
+          <TabsList class="w-full">
+            <TabsTrigger class="flex-1" :value="String(currentYear - 1)">
+              {{ currentYear - 1 }}
+            </TabsTrigger>
 
-          <TabsTrigger :value="String(currentYear)">
-            {{ currentYear }}
-          </TabsTrigger>
+            <TabsTrigger class="flex-1" :value="String(currentYear)">
+              {{ currentYear }}
+            </TabsTrigger>
 
-          <TabsTrigger :value="String(currentYear + 1)">
-            {{ currentYear + 1 }}
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
+            <TabsTrigger class="flex-1" :value="String(currentYear + 1)">
+              {{ currentYear + 1 }}
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
     </div>
 
     <p v-if="pending" class="mx-auto max-w-6xl rounded border border-stone-800 bg-stone-900 p-5 text-stone-400">Loading
       your aims…</p>
     <p v-else-if="error" class="mx-auto max-w-6xl rounded border border-red-900 bg-stone-900 p-5 text-red-300">Unable to
       load aims.</p>
-    <section v-else class="mx-auto grid max-w-3xl grid-cols-1 gap-4">
+    <section v-else class="mx-auto grid max-w-6xl grid-cols-1 gap-4">
       <div v-for="aim in aimList" :key="aim.weeknum"
         :ref="(aim.weeknum === currentWeek && aim.year == currentYear) ? 'currentWeekRef' : undefined">
-        <Card class="min-h-40 border-stone-800 bg-stone-900"
+        <Card class="gap-0 border-stone-800 bg-stone-900 py-0"
           :class="{ 'border-amber-400 ring-2 ring-amber-400': aim.weeknum === currentWeek }">
           <Dialog>
-            <DialogTrigger asChild>
-              <CardHeader class="flex-row items-center justify-between">
-                <CardTitle class="grid h-9 w-9 place-items-center rounded bg-amber-400 text-sm text-neutral-950">{{
-                  String(aim.weeknum).padStart(2, '0') }}</CardTitle>
+            <DialogTrigger class="grid min-h-40 w-full cursor-pointer grid-cols-[5rem_minmax(0,1fr)] items-start gap-x-4 gap-y-4 rounded-xl p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 sm:grid-cols-[8rem_minmax(0,1fr)] sm:gap-x-6 sm:p-6">
+              <span class="flex flex-col items-start gap-2">
+                <span class="grid h-9 w-9 place-items-center rounded bg-amber-400 text-sm font-semibold text-neutral-950">{{
+                  String(aim.weeknum).padStart(2, '0') }}</span>
                 <span class="text-xs font-semibold text-stone-400">Week {{ aim.weeknum }}</span>
-              </CardHeader>
-              <CardContent>
-                <p class="min-h-12 whitespace-pre-wrap break-words text-left text-stone-200">
+              </span>
+              <span class="min-w-0 whitespace-pre-wrap break-words text-stone-200">
                   {{ aim.aims || 'No aim set yet.' }}
-                </p>
-              </CardContent>
-              <CardFooter class="justify-between text-xs text-stone-600">
+              </span>
+              <span class="col-span-2 flex items-center justify-between self-end text-xs text-stone-500">
                 <span>{{ aim.aims.length }}/50</span>
                 <span :class="aim.aims.trim() ? 'text-amber-400' : ''">{{ aim.aims.trim() ? 'Set' : 'Not set' }}</span>
-              </CardFooter>
+              </span>
             </DialogTrigger>
             <DialogContent class="border-stone-800 bg-stone-900 text-stone-100 sm:max-w-md">
               <DialogHeader>
@@ -136,7 +132,7 @@
 import { nextTick, onMounted, useTemplateRef } from "vue";
 import getWeeksInYear from "~/utils/getWeeksInYear";
 import getWeekNumber from "~/utils/getWeekNumber";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Textarea } from "~/components/ui/textarea";
 import {
   Dialog,
