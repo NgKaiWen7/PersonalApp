@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
       description,
       source,
       created_at
-    FROM books
+    FROM study_source
     WHERE id = $1
     `,
     [id],

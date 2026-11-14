@@ -13,7 +13,7 @@ export default defineEventHandler(async () => {
       description,
       source,
       created_at
-    FROM books
+    FROM study_source
     ORDER BY created_at DESC NULLS LAST, title ASC
     `,
   );

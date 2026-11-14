@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
       : [];
   const result = await pool2.query(
     `
-    UPDATE books SET
+    UPDATE study_source SET
       title = $1,
       category = $2::text[],
       status = $3,

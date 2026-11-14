@@ -47,7 +47,7 @@ export default defineEventHandler(async (event) => {
   }
   const result = await pool2.query<{ id: string; source: string }>(
     `
-    INSERT INTO books (
+    INSERT INTO study_source (
       title,
       category,
       status,

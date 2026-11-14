@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const result = await pool2.query<{ source: string | null }>(
-    'SELECT source FROM books WHERE id = $1',
+    'SELECT source FROM study_source WHERE id = $1',
     [bookId],
   )
   const source = result.rows[0]?.source

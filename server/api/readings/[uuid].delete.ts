@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
 
     const result = await client.query<{ source: string | null }>(
       `
-      DELETE FROM books
+      DELETE FROM study_source
       WHERE id = $1
       RETURNING source
       `,
