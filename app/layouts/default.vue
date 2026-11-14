@@ -16,13 +16,13 @@ import {
     SidebarRail,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Home, Target, CheckSquare, BookOpen, FileText, LogOut } from "@lucide/vue";
+import { Home, Target, CheckSquare, BookOpen, FileText, LogOut, Layers3 } from "@lucide/vue";
 
 const navigation = [
     { title: "Home", url: "/", icon: Home },
     { title: "Aims", url: "/aims", icon: Target },
     { title: "TO DO", url: "/todo", icon: CheckSquare },
-    { title: "Memory Cards", url: "/memorycard", icon: BookOpen },
+    { title: "Memory Cards", url: "/memorycard", icon: Layers3 },
     { title: "Readings", url: "/readings", icon: BookOpen },
     { title: "Notes", url: "/notes", icon: FileText },
 ];

@@ -73,7 +73,7 @@ function formatDate(value: string) {
         </p>
 
         <div v-else-if="filteredDecks.length" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <NuxtLink v-for="deck in filteredDecks" :key="deck.id" :to="`/readings/${deck.id}`"
+            <NuxtLink v-for="deck in filteredDecks" :key="deck.id" :to="`/memorycard/${deck.id}`"
                 class="block rounded-xl border border-white/[0.08] bg-white/[0.025] p-5 transition-all hover:border-[#C5A24A]/40 hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A24A]">
                 <div class="mb-4 flex items-center gap-3">
                     <div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#C5A24A]/10">

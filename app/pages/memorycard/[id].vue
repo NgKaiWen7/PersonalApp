@@ -50,7 +50,7 @@ const {
     <div class="min-h-screen bg-[#0D0D0B] text-amber-50">
         <!-- Back navigation -->
         <div class="px-6 pt-6 md:px-8">
-            <NuxtLink to="/readings" aria-label="Back to readings" title="Back to readings"
+            <NuxtLink to="/memorycard" aria-label="Back to readings" title="Back to readings"
                 class="inline-flex size-10 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04] text-stone-400 transition-colors hover:border-amber-400/30 hover:bg-amber-400/[0.08] hover:text-amber-300">
                 <ArrowLeft class="size-4" />
             </NuxtLink>
