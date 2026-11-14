@@ -7,6 +7,10 @@ export default defineNuxtConfig({
 
   modules: ["shadcn-nuxt"],
 
+  devServer: {
+    host: "0.0.0.0",
+  },
+
   vite: {
     plugins: [tailwindcss()],
     server: {
