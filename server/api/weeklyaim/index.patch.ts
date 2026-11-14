@@ -1,8 +1,7 @@
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   const { id, aims } = body;
-
-  if (!Number.isInteger(id) || typeof aims !== "string") {
+  if (id == null || typeof aims !== "string") {
     throw createError({
       statusCode: 400,
       statusMessage: "id and aims are required",
@@ -18,6 +17,12 @@ export default defineEventHandler(async (event) => {
     `,
     [aims, id],
   );
+  if (result.rowCount === 0){
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Error Updating weeklyaim",
+    });
+  }
 
   return result.rows;
 });

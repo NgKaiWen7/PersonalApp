@@ -1,4 +1,4 @@
-export function getISOWeekNumber(date: Date = new Date(), offset: number = 0): number {
+export default function (date: Date = new Date(), offset: number = 0): number {
   // Create a copy in UTC to avoid Daylight Saving Time (DST) offset issues
   const target = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   target.setUTCDate(target.getUTCDate() + offset * 7);

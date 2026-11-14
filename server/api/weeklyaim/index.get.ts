@@ -1,7 +1,6 @@
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
   const year = Number(query.year);
-
   if (!Number.isInteger(year)) {
     throw createError({
       statusCode: 400,
@@ -18,5 +17,6 @@ export default defineEventHandler(async (event) => {
     `,
     [year],
   );
+  console.log(result.rows)
   return result.rows;
 });
