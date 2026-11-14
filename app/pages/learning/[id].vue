@@ -1,5 +1,18 @@
 <script setup lang="ts">
-import { nextTick, onMounted, ref, shallowRef } from 'vue'
+import { computed, nextTick, onMounted, ref, shallowRef } from 'vue'
+import { useMediaQuery } from '@vueuse/core'
+import BookDiaglog from '~/components/reading/BookDiaglog.vue'
+import ChatBotPage from '~/components/reading/ChatBotPage.vue'
+import MemoryCard from '~/components/reading/MemoryCard.vue'
+import Notes from '~/components/reading/Notes.vue'
+import Search from '~/components/reading/Search.vue'
+import Button from '~/components/ui/button/Button.vue'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '~/components/ui/sheet'
 
 const route = useRoute()
 const bookId = String(route.params.id)
@@ -13,48 +26,48 @@ const pageCount = ref(0)
 const scale = ref(1.4)
 const loading = ref(true)
 const loadError = ref<string | null>(null)
+type ReaderPanel =
+  | 'none'
+  | 'notes'
+  | 'memorycard'
+  | 'bookmarks'
+  | 'chats'
+  | 'search'
 
-const pageRefs = ref<HTMLElement[]>([])
-
-interface Annotation {
-  id: string
-  page: number
-  type: 'highlight' | 'note'
-  x: number
-  y: number
-  width: number
-  height: number
-  color?: string
-  text?: string
+const panelComponents = {
+  notes: Notes,
+  memorycard: MemoryCard,
+  bookmarks: BookDiaglog,
+  chats: ChatBotPage,
+  search: Search,
 }
 
-// Hard-coded for now.
-// Later replace this with:
-// const annotations = await $fetch(`/api/readings/${bookId}/annotations`)
-const annotations = ref<Annotation[]>([
-  {
-    id: 'annotation-1',
-    page: 1,
-    type: 'highlight',
-    x: 0.15,
-    y: 0.25,
-    width: 0.58,
-    height: 0.035,
-    color: '#fde047',
-    text: 'This is a highlighted sentence.',
+const panelTitles = {
+  notes: 'Notes',
+  memorycard: 'Memory Cards',
+  bookmarks: 'PDF Menu & Bookmarks',
+  chats: 'AI Chats',
+  search: 'Search',
+}
+
+const currentPage = ref<ReaderPanel>('none')
+const isWideScreen = useMediaQuery('(min-width: 1024px)')
+const isDrawerOpen = computed({
+  get: () => !isWideScreen.value && currentPage.value !== 'none',
+  set: (open: boolean) => {
+    if (!open) currentPage.value = 'none'
   },
-  {
-    id: 'annotation-2',
-    page: 1,
-    type: 'note',
-    x: 0.75,
-    y: 0.3,
-    width: 0.04,
-    height: 0.04,
-    color: '#f97316',
-    text: 'My note about this section',
-  },
-])
+})
+const currentComponent = computed(() =>
+  currentPage.value === 'none'
+    ? null
+    : panelComponents[currentPage.value],
+)
+const currentTitle = computed(() =>
+  currentPage.value === 'none' ? '' : panelTitles[currentPage.value],
+)
+
+const pageRefs = ref<HTMLElement[]>([])
 
 function setPageRef(element: HTMLElement | null, index: number) {
   if (element) {
@@ -136,53 +149,70 @@ async function renderPdf() {
 }
 
 onMounted(renderPdf)
+
+function handleClick(page: Exclude<ReaderPanel, 'none'>) {
+  currentPage.value = page
+}
 </script>
 
 <template>
-  <div >
-    <header >
-      <div>
-        <strong>PDF Reader</strong>
-        <span v-if="pageCount"> · {{ pageCount }} pages</span>
-      </div>
-    </header>
-
+  <div class="min-h-full bg-[#09090b] text-white">
     <div v-if="loading">
       Loading PDF…
     </div>
-
     <div v-else-if="loadError" role="alert">
       {{ loadError }}
     </div>
+    <main v-else class="p-4">
+      <div class="mb-6 flex flex-wrap gap-2">
+        <Button type="button" :aria-expanded="currentPage === 'notes'" aria-controls="reader-panel"
+          @click="handleClick('notes')">
+          Show notes
+        </Button>
+        <Button type="button" :aria-expanded="currentPage === 'memorycard'" aria-controls="reader-panel"
+          @click="handleClick('memorycard')">
+          Show memory cards
+        </Button>
+        <Button type="button" :aria-expanded="currentPage === 'bookmarks'" aria-controls="reader-panel"
+          @click="handleClick('bookmarks')">
+          PDF Menu & Bookmarks
+        </Button>
+        <Button type="button" :aria-expanded="currentPage === 'chats'" aria-controls="reader-panel"
+          @click="handleClick('chats')">
+          AI Chats
+        </Button>
+        <Button type="button" :aria-expanded="currentPage === 'search'" aria-controls="reader-panel"
+          @click="handleClick('search')">
+          Search
+        </Button>
+      </div>
 
-    <main v-else class="!justify-start">
-      <section class="flex flex-col items-start">
-        <div
-          v-for="pageNumber in pageCount"
-          :key="pageNumber"
-          :ref="(element) => setPageRef(element as HTMLElement, pageNumber - 1)"
+      <div class="lg:grid lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-6">
+        <section class="flex min-w-0 flex-col items-start gap-6">
+          <div v-for="pageNumber in pageCount" :key="pageNumber"
+            :ref="(element) => setPageRef(element as HTMLElement, pageNumber - 1)">
+            <canvas />
+          </div>
+        </section>
+
+        <aside
+          v-if="isWideScreen && currentComponent"
+          class="hidden min-w-0 border-l border-white/10 pl-6 lg:block"
         >
-          <canvas />
-        </div>
-      </section>
+          <h2 class="mb-4 text-lg font-semibold">{{ currentTitle }}</h2>
+          <component :is="currentComponent" />
+        </aside>
+      </div>
 
-      <aside>
-        <h2>Notes</h2>
+      <Sheet v-model:open="isDrawerOpen">
+        <SheetContent id="reader-panel" side="right" class="bg-[#18181b] text-white">
+          <SheetHeader>
+            <SheetTitle class="text-white">{{ currentTitle }}</SheetTitle>
+          </SheetHeader>
 
-        <article
-          v-for="annotation in annotations.filter(
-            (item) => item.type === 'note',
-          )"
-          :key="annotation.id"
-          class="note-card"
-        >
-          <small>Page {{ annotation.page }}</small>
-          <p>{{ annotation.text }}</p>
-        </article>
-      </aside>
+          <component :is="currentComponent" />
+        </SheetContent>
+      </Sheet>
     </main>
   </div>
 </template>
-
-<style scoped>
-</style>
