@@ -13,8 +13,16 @@ export default defineEventHandler(async (event) => {
 
   const result = await pool2.query<BookListItem>(
     `
-    SELECT *
-    FROM card_decks
+    SELECT
+      id,
+      title,
+      category,
+      status,
+      last_read,
+      description,
+      source,
+      created_at
+    FROM books
     WHERE id = $1
     `,
     [id],
@@ -31,6 +39,6 @@ export default defineEventHandler(async (event) => {
 
   return {
     ...book,
-    fileUrl: `/api/readings/file/${id}`,
+    fileUrl: `/api/readings/${id}/file`,
   };
 });

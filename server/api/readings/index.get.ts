@@ -4,9 +4,17 @@ import type { BookListItem } from "~~shared/types/book";
 export default defineEventHandler(async () => {
   const result = await pool2.query<BookListItem>(
     `
-    SELECT id, source_id, title
-    FROM card_decks
-    ORDER BY title ASC
+    SELECT
+      id,
+      title,
+      category,
+      status,
+      last_read,
+      description,
+      source,
+      created_at
+    FROM books
+    ORDER BY created_at DESC NULLS LAST, title ASC
     `,
   );
   return result.rows;

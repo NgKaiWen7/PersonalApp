@@ -8,8 +8,7 @@ import {
 } from 'h3'
 import { createReadStream, promises as fs } from 'node:fs'
 import path from 'node:path'
-
-const BOOK_ROOT = '/mnt/data/Books'
+import { pool2 } from '../../../utils/db'
 
 export default defineEventHandler(async (event) => {
   const bookId = getRouterParam(event, 'uuid')
@@ -21,9 +20,19 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // Replace this with your database lookup.
-  // Do not construct a path directly from untrusted user input.
-  const filePath = path.join(BOOK_ROOT, `${bookId}.pdf`)
+  const result = await pool2.query<{ source: string | null }>(
+    'SELECT source FROM books WHERE id = $1',
+    [bookId],
+  )
+  const source = result.rows[0]?.source
+  if (!source) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Book file not found',
+    })
+  }
+
+  const filePath = path.resolve("/mnt/data/Books/" + source)
 
   let stat
 

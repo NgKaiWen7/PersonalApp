@@ -1,4 +1,4 @@
-import { pool2 } from "../../../utils/db";
+import { pool2 } from "../../utils/db";
 import type { Card, CardsResponse } from "#shared/types/card";
 
 export default defineEventHandler(async (event) => {
@@ -7,17 +7,15 @@ export default defineEventHandler(async (event) => {
   if (!id) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Missing book or chapter UUID",
+      statusMessage: "Missing memory card deck ID",
     });
   }
 
   const query = getQuery(event);
-
   const search = String(query.search ?? "").trim();
   const page = Math.max(1, Number(query.page) || 1);
   const limit = Math.min(100, Math.max(1, Number(query.limit) || 20));
   const offset = (page - 1) * limit;
-
   const pattern = `%${search}%`;
 
   const result = await pool2.query<Card>(
@@ -56,7 +54,7 @@ export default defineEventHandler(async (event) => {
 
   const total = Number(countResult.rows[0].total);
 
-  return {
+  const response: CardsResponse = {
     data: result.rows,
     pagination: {
       page,
@@ -67,4 +65,6 @@ export default defineEventHandler(async (event) => {
       hasPreviousPage: page > 1,
     },
   };
+
+  return response;
 });

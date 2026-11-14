@@ -10,19 +10,35 @@ export default defineEventHandler(async (event) => {
       statusMessage: "Book UUID is required",
     });
   }
+  const categories = Array.isArray(body.category)
+    ? body.category
+    : body.category
+      ? [body.category]
+      : [];
   const result = await pool2.query(
     `
     UPDATE books SET
       title = $1,
-      category = $2,
+      category = $2::text[],
       status = $3,
-      description = $4
-    WHERE id = $5
+      last_read = $4,
+      description = $5
+    WHERE id = $6
+    RETURNING
+      id,
+      title,
+      category,
+      status,
+      last_read,
+      description,
+      source,
+      created_at
     `,
     [
       body.title,
-      body.category ? [body.category] : [],
+      categories,
       body.status,
+      body.last_read ?? null,
       body.description,
       id,
     ],
@@ -35,6 +51,5 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  setResponseStatus(event, 204);
-  return;
+  return result.rows[0];
 });

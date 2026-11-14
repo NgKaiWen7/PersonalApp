@@ -23,7 +23,7 @@ const {
     error,
     refresh,
 } = await useFetch<CardsResponse>(
-    () => `/api/readings/memorycard/${id.value}`,
+    () => `/api/memorycards/${id.value}`,
     {
         query: {
             page,
@@ -63,7 +63,7 @@ const {
             <!-- Cards -->
             <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-2">
                 <MemorycardsMemoryCard v-for="card in cards?.data ?? []" :key="card.uuid" :title="card.title"
-                    :content="card.content" :image-path="`/api/readings/memorycard/${card.uuid}/image`" />
+                    :content="card.content" :image-path="`/api/memorycards/${card.uuid}/image`" />
             </div>
 
             <!-- Pagination -->
