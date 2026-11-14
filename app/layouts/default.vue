@@ -23,6 +23,7 @@ const navigation = [
     { title: "Aims", url: "/aims", icon: Target },
     { title: "TO DO", url: "/todo", icon: CheckSquare },
     { title: "Memory Cards", url: "/memorycard", icon: BookOpen },
+    { title: "Readings", url: "/readings", icon: BookOpen },
     { title: "Notes", url: "/notes", icon: FileText },
 ];
 async function handleLogout() {
@@ -112,7 +113,7 @@ async function handleLogout() {
 
             <!-- Main content -->
             <SidebarInset class="min-w-0 bg-[#09090b] text-white">
-                <header class="flex h-16 items-center gap-3 border-b border-white/[0.06] px-4 md:px-6">
+                <header class="sticky top-0 z-50 flex h-16 items-center gap-3 border-b border-white/[0.06] bg-[#09090b] px-4 md:px-6">
                     <SidebarTrigger
                         class="shrink-0 text-neutral-400 hover:bg-white/[0.06] hover:text-[#D8B65A]"
                     />
