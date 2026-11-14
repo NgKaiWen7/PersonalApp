@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, shallowRef } from 'vue'
-import { useMediaQuery } from '@vueuse/core'
+import { computed, nextTick, onMounted, ref, shallowRef, watch } from 'vue'
+import { useWindowSize } from '@vueuse/core'
 import BookDiaglog from '~/components/reading/BookDiaglog.vue'
 import ChatBotPage from '~/components/reading/ChatBotPage.vue'
 import MemoryCard from '~/components/reading/MemoryCard.vue'
@@ -26,6 +26,12 @@ const pageCount = ref(0)
 const scale = ref(1.4)
 const loading = ref(true)
 const loadError = ref<string | null>(null)
+const largestPdfPageWidth = ref(0)
+const { width: viewportWidth } = useWindowSize()
+
+const READER_HORIZONTAL_PADDING = 32
+const READER_COLUMN_GAP = 24
+const MIN_PANEL_WIDTH = 320
 type ReaderPanel =
   | 'none'
   | 'notes'
@@ -51,7 +57,14 @@ const panelTitles = {
 }
 
 const currentPage = ref<ReaderPanel>('none')
-const isWideScreen = useMediaQuery('(min-width: 1400px)')
+const isWideScreen = computed(() =>
+  viewportWidth.value - largestPdfPageWidth.value - READER_HORIZONTAL_PADDING - READER_COLUMN_GAP >= MIN_PANEL_WIDTH,
+)
+watch(isWideScreen, (wide) => {
+  if (wide && currentPage.value === 'none') {
+    currentPage.value = 'notes'
+  }
+}, { immediate: true })
 const isDrawerOpen = computed({
   get: () => !isWideScreen.value && currentPage.value !== 'none',
   set: (open: boolean) => {
@@ -59,9 +72,7 @@ const isDrawerOpen = computed({
   },
 })
 const currentComponent = computed(() =>
-  currentPage.value === 'none'
-    ? null
-    : panelComponents[currentPage.value],
+  currentPage.value === 'none' ? null : panelComponents[currentPage.value],
 )
 const currentTitle = computed(() =>
   currentPage.value === 'none' ? '' : panelTitles[currentPage.value],
@@ -105,6 +116,7 @@ async function renderPdf() {
 
     pdfDocument.value = await pdfjsLib.getDocument({ data }).promise
     pageCount.value = pdfDocument.value.numPages
+    largestPdfPageWidth.value = 0
 
     // The canvases are rendered by the v-else branch, so reveal it before
     // taking their references.
@@ -114,6 +126,7 @@ async function renderPdf() {
     for (let pageNumber = 1; pageNumber <= pageCount.value; pageNumber++) {
       const page = await pdfDocument.value.getPage(pageNumber)
       const viewport = page.getViewport({ scale: scale.value })
+      largestPdfPageWidth.value = Math.max(largestPdfPageWidth.value, viewport.width)
 
       const pageElement = pageRefs.value[pageNumber - 1]
 
@@ -187,25 +200,29 @@ function handleClick(page: Exclude<ReaderPanel, 'none'>) {
         </Button>
       </div>
 
-      <div class="lg:grid lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-6">
-        <section class="flex min-w-0 flex-col items-start gap-6">
+      <div :class="{ 'grid grid-cols-[auto_minmax(0,1fr)] gap-6': isWideScreen && currentComponent }">
+        <section
+          class="flex flex-col gap-6"
+          :class="isWideScreen ? 'items-start' : 'items-center'"
+        >
           <div v-for="pageNumber in pageCount" :key="pageNumber"
             :ref="(element) => setPageRef(element as HTMLElement, pageNumber - 1)">
             <canvas />
           </div>
         </section>
 
-        <aside
-          v-if="isWideScreen && currentComponent"
-          class="hidden min-w-0 border-l border-white/10 pl-6 lg:block"
-        >
+        <aside v-if="isWideScreen && currentComponent" class="min-w-0 border-l border-white/10 pl-6">
           <h2 class="mb-4 text-lg font-semibold">{{ currentTitle }}</h2>
           <component :is="currentComponent" />
         </aside>
       </div>
 
       <Sheet v-model:open="isDrawerOpen">
-        <SheetContent id="reader-panel" side="right" class="bg-[#18181b] text-white">
+        <SheetContent
+          id="reader-panel"
+          side="bottom"
+          class="!left-1/2 !right-auto !h-[60dvh] !max-h-[60dvh] !w-[80vw] !max-w-[80vw] !-translate-x-1/2 rounded-t-xl bg-[#18181b] text-white"
+        >
           <SheetHeader>
             <SheetTitle class="text-white">{{ currentTitle }}</SheetTitle>
           </SheetHeader>
