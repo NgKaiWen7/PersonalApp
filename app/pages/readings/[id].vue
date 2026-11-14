@@ -31,7 +31,7 @@ const { width: viewportWidth } = useWindowSize()
 
 const READER_HORIZONTAL_PADDING = 32
 const READER_COLUMN_GAP = 24
-const MIN_PANEL_WIDTH = 320
+const MIN_PANEL_WIDTH = 800
 type ReaderPanel =
   | 'none'
   | 'notes'
@@ -39,14 +39,6 @@ type ReaderPanel =
   | 'bookmarks'
   | 'chats'
   | 'search'
-
-const panelComponents = {
-  notes: Notes,
-  memorycard: MemoryCard,
-  bookmarks: BookDiaglog,
-  chats: ChatBotPage,
-  search: Search,
-}
 
 const panelTitles = {
   notes: 'Notes',
@@ -61,6 +53,7 @@ const isWideScreen = computed(() =>
   viewportWidth.value - largestPdfPageWidth.value - READER_HORIZONTAL_PADDING - READER_COLUMN_GAP >= MIN_PANEL_WIDTH,
 )
 watch(isWideScreen, (wide) => {
+  console.log(currentPage.value)
   if (wide && currentPage.value === 'none') {
     currentPage.value = 'notes'
   }
@@ -71,9 +64,6 @@ const isDrawerOpen = computed({
     if (!open) currentPage.value = 'none'
   },
 })
-const currentComponent = computed(() =>
-  currentPage.value === 'none' ? null : panelComponents[currentPage.value],
-)
 const currentTitle = computed(() =>
   currentPage.value === 'none' ? '' : panelTitles[currentPage.value],
 )
@@ -94,10 +84,8 @@ async function renderPdf() {
     // Dynamic import avoids importing PDF.js during SSR.
     const pdfjsLib = await import('pdfjs-dist')
 
-    pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-      'pdfjs-dist/build/pdf.worker.mjs',
-      import.meta.url,
-    ).toString()
+    const pdfWorker = await import('pdfjs-dist/build/pdf.worker.mjs?url')
+    pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker.default
 
     // Fetch the file ourselves and pass its bytes to PDF.js. This keeps the
     // reader independent of PDF.js URL/range loading and guarantees `data`
@@ -200,7 +188,7 @@ function handleClick(page: Exclude<ReaderPanel, 'none'>) {
         </Button>
       </div>
 
-      <div :class="{ 'grid grid-cols-[auto_minmax(0,1fr)] gap-6': isWideScreen && currentComponent }">
+      <div :class="{ 'grid grid-cols-[auto_minmax(0,1fr)] gap-6': isWideScreen && currentPage !== 'none' }">
         <section
           class="flex flex-col gap-6"
           :class="isWideScreen ? 'items-start' : 'items-center'"
@@ -211,9 +199,12 @@ function handleClick(page: Exclude<ReaderPanel, 'none'>) {
           </div>
         </section>
 
-        <aside v-if="isWideScreen && currentComponent" class="min-w-0 border-l border-white/10 pl-6">
-          <h2 class="mb-4 text-lg font-semibold">{{ currentTitle }}</h2>
-          <component :is="currentComponent" />
+        <aside v-if="isWideScreen && currentPage !== 'none'" class="min-w-0 border-l border-white/10 pl-6">
+          <Notes v-if="currentPage === 'notes'" :book-id="bookId" />
+          <MemoryCard v-else-if="currentPage === 'memorycard'" />
+          <BookDiaglog v-else-if="currentPage === 'bookmarks'" />
+          <ChatBotPage v-else-if="currentPage === 'chats'" />
+          <Search v-else-if="currentPage === 'search'" />
         </aside>
       </div>
 
@@ -221,13 +212,17 @@ function handleClick(page: Exclude<ReaderPanel, 'none'>) {
         <SheetContent
           id="reader-panel"
           side="bottom"
-          class="!left-1/2 !right-auto !h-[60dvh] !max-h-[60dvh] !w-[80vw] !max-w-[80vw] !-translate-x-1/2 rounded-t-xl bg-[#18181b] text-white"
+          class="!left-1/2 !right-auto !h-[80dvh] !w-[90vw] !-translate-x-1/2 rounded-t-xl bg-[#18181b] text-white"
         >
           <SheetHeader>
             <SheetTitle class="text-white">{{ currentTitle }}</SheetTitle>
           </SheetHeader>
 
-          <component :is="currentComponent" />
+          <Notes v-if="currentPage === 'notes'" :book-id="bookId" />
+          <MemoryCard v-else-if="currentPage === 'memorycard'" />
+          <BookDiaglog v-else-if="currentPage === 'bookmarks'" />
+          <ChatBotPage v-else-if="currentPage === 'chats'" />
+          <Search v-else-if="currentPage === 'search'" />
         </SheetContent>
       </Sheet>
     </main>
