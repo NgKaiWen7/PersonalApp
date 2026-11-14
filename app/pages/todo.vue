@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import WeeklyAims from '~/components/todo/WeeklyAims.vue';
 
 definePageMeta({ middleware: "auth" });
 const today = new Date();
@@ -23,7 +22,6 @@ const { data: todos } = await useFetch("/api/todo", {
 </script>
 <template>
     <div class="flex h-screen flex-col">
-        <WeeklyAims/>
         <todoDateScroller @date-change="handleDateChange" />
 
         <div class="min-h-0 flex-1">
