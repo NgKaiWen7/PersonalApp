@@ -62,7 +62,7 @@ const {
 
             <!-- Cards -->
             <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-2">
-                <ReadingMemoryCard v-for="card in cards?.data ?? []" :key="card.uuid" :title="card.title"
+                <MemorycardsMemoryCard v-for="card in cards?.data ?? []" :key="card.uuid" :title="card.title"
                     :content="card.content" :image-path="`/api/readings/memorycard/${card.uuid}/image`" />
             </div>
 
