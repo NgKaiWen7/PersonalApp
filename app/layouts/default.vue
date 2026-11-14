@@ -22,7 +22,7 @@ const navigation = [
     { title: "Home", url: "/", icon: Home },
     { title: "Aims", url: "/aims", icon: Target },
     { title: "TO DO", url: "/todo", icon: CheckSquare },
-    { title: "Readings", url: "/readings", icon: BookOpen },
+    { title: "Memory Cards", url: "/memorycard", icon: BookOpen },
     { title: "Notes", url: "/notes", icon: FileText },
 ];
 async function handleLogout() {
