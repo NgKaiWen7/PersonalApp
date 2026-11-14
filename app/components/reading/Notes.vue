@@ -1,6 +1,9 @@
 <script setup lang="ts">
+defineProps<{
+    bookId?: string;
+}>();
 </script>
 
 <template>
-    <p>note</p>
+    <NoteList :book-id="bookId" />
 </template>

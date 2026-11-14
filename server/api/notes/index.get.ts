@@ -6,7 +6,13 @@ export default defineEventHandler(async (event) => {
     const page = Math.max(1, Number(query.page) || 1);
     const limit = Math.min(100, Math.max(1, Number(query.limit) || 10));
     const search = String(query.search ?? "").trim();
+    const bookId = String(query.book_id ?? "").trim();
     const offset = (page - 1) * limit;
+    const bookFilter = bookId ? "AND book_id = $2" : "";
+    const paginationStart = bookId ? 3 : 2;
+    const params = bookId
+        ? [search, bookId, limit, offset]
+        : [search, limit, offset];
 
     const result = await pool.query(
         `
@@ -16,10 +22,11 @@ export default defineEventHandler(async (event) => {
                 $1 = ''
                 OR title ILIKE '%' || $1 || '%'
             )
+            ${bookFilter}
             ORDER BY last_edited_date DESC
-            LIMIT $2 OFFSET $3
+            LIMIT $${paginationStart} OFFSET $${paginationStart + 1}
         `,
-        [search, limit, offset],
+        params,
     );
 
     const count = await pool.query(
@@ -30,8 +37,9 @@ export default defineEventHandler(async (event) => {
                 $1 = ''
                 OR title ILIKE '%' || $1 || '%'
             )
+            ${bookFilter}
         `,
-        [search],
+        bookId ? [search, bookId] : [search],
     );
 
     const total = count.rows[0].total;
