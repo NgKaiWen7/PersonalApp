@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, shallowRef, watch } from 'vue'
 import { useWindowSize } from '@vueuse/core'
+
 import BookDiaglog from '~/components/reading/BookDiaglog.vue'
 import ChatBotPage from '~/components/reading/ChatBotPage.vue'
 import MemoryCard from '~/components/reading/MemoryCard.vue'
 import Notes from '~/components/reading/Notes.vue'
 import Search from '~/components/reading/Search.vue'
-import Button from '~/components/ui/button/Button.vue'
+import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
 import {
   Sheet,
   SheetContent,
@@ -23,6 +25,7 @@ const pdfUrl = `/api/readings/${bookId}/file`
 // make those fields inaccessible.
 const pdfDocument = shallowRef<any>(null)
 const pageCount = ref(0)
+const pdfCurrentPage = ref(0)
 const scale = ref(1.4)
 const loading = ref(true)
 const loadError = ref<string | null>(null)
@@ -130,10 +133,6 @@ const isWideScreen = computed(() => {
 )
 watch(isWideScreen, (wide) => {
   if (largestPdfPageWidth.value <= 0) return
-
-  console.log('current page: ', currentPage.value)
-  console.log('widescreen: ', isWideScreen.value)
-
   if (wide && currentPage.value === 'none') {
     currentPage.value = 'notes'
   }
@@ -144,6 +143,18 @@ const currentTitle = computed(() =>
 
 const pageRefs = ref<HTMLElement[]>([])
 
+function goToPage() {
+  const pageNumber = Math.min(
+    Math.max(pdfCurrentPage.value, 1),
+    pageCount.value,
+  )
+  pdfCurrentPage.value = pageNumber
+  const pageElement = pageRefs.value[pageNumber - 1]
+  pageElement?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start',
+  })
+}
 function setPageRef(element: HTMLElement | null, index: number) {
   if (element) {
     pageRefs.value[index] = element
@@ -164,63 +175,66 @@ function handleClick(page: Exclude<ReaderPanel, 'none'>) {
     <div v-else-if="loadError" role="alert">
       {{ loadError }}
     </div>
-    <main v-else class="p-4">
-      <div class="mb-6 flex flex-wrap gap-2">
-        <Button type="button" :aria-expanded="currentPage === 'notes'" aria-controls="reader-panel"
-          @click="handleClick('notes')">
-          Show notes
-        </Button>
-        <Button type="button" :aria-expanded="currentPage === 'memorycard'" aria-controls="reader-panel"
-          @click="handleClick('memorycard')">
-          Show memory cards
-        </Button>
-        <Button type="button" :aria-expanded="currentPage === 'bookmarks'" aria-controls="reader-panel"
-          @click="handleClick('bookmarks')">
-          PDF Menu & Bookmarks
-        </Button>
-        <Button type="button" :aria-expanded="currentPage === 'chats'" aria-controls="reader-panel"
-          @click="handleClick('chats')">
-          AI Chats
-        </Button>
-        <Button type="button" :aria-expanded="currentPage === 'search'" aria-controls="reader-panel"
-          @click="handleClick('search')">
-          Search
-        </Button>
-      </div>
+    <div v-else class="sticky top-16 z-40 mb-6 flex flex-wrap gap-2 border-b border-white/10 bg-[#09090b] py-3"> <Button
+        type="button" :aria-expanded="currentPage === 'notes'" aria-controls="reader-panel"
+        @click="handleClick('notes')">
+        Show notes
+      </Button>
+      <Button type="button" :aria-expanded="currentPage === 'memorycard'" aria-controls="reader-panel"
+        @click="handleClick('memorycard')">
+        Show memory cards
+      </Button>
+      <Button type="button" :aria-expanded="currentPage === 'bookmarks'" aria-controls="reader-panel"
+        @click="handleClick('bookmarks')">
+        PDF Menu & Bookmarks
+      </Button>
+      <Button type="button" :aria-expanded="currentPage === 'chats'" aria-controls="reader-panel"
+        @click="handleClick('chats')">
+        AI Chats
+      </Button>
+      <Button type="button" :aria-expanded="currentPage === 'search'" aria-controls="reader-panel"
+        @click="handleClick('search')">
+        Search
+      </Button>
+      <Input v-model.number="pdfCurrentPage" type="number" min="1" :max="pageCount"
+        class="w-20 rounded border px-2 py-1 text-white" @keydown.enter="goToPage" />
+      <span>/ {{ pageCount }}</span>
+      <Button type="button" class="rounded bg-blue-600 px-3 py-1 text-white" @click="goToPage">
+        Go
+      </Button>
+    </div>
+    <div :class="{ 'grid grid-cols-[auto_minmax(0,1fr)] gap-6': isWideScreen && currentPage !== 'none' }">
+      <section class="flex flex-col gap-6" :class="isWideScreen ? 'items-start' : 'items-center'">
+        <div v-for="pageNumber in pageCount" :key="pageNumber"
+          :ref="(element) => setPageRef(element as HTMLElement, pageNumber - 1)">
+          <canvas />
+        </div>
+      </section>
 
-      <div :class="{ 'grid grid-cols-[auto_minmax(0,1fr)] gap-6': isWideScreen && currentPage !== 'none' }">
-        <section class="flex flex-col gap-6" :class="isWideScreen ? 'items-start' : 'items-center'">
-          <div v-for="pageNumber in pageCount" :key="pageNumber"
-            :ref="(element) => setPageRef(element as HTMLElement, pageNumber - 1)">
-            <canvas />
-          </div>
-        </section>
+      <aside v-if="isWideScreen && currentPage !== 'none'" class="min-w-0 border-l border-white/10 pl-6">
+        <Notes v-if="currentPage === 'notes'" :book-id="bookId" />
+        <MemoryCard v-else-if="currentPage === 'memorycard'" />
+        <BookDiaglog v-else-if="currentPage === 'bookmarks'" />
+        <ChatBotPage v-else-if="currentPage === 'chats'" />
+        <Search v-else-if="currentPage === 'search'" />
+      </aside>
+    </div>
 
-        <aside v-if="isWideScreen && currentPage !== 'none'" class="min-w-0 border-l border-white/10 pl-6">
-          <Notes v-if="currentPage === 'notes'" :book-id="bookId" />
-          <MemoryCard v-else-if="currentPage === 'memorycard'" />
-          <BookDiaglog v-else-if="currentPage === 'bookmarks'" />
-          <ChatBotPage v-else-if="currentPage === 'chats'" />
-          <Search v-else-if="currentPage === 'search'" />
-        </aside>
-      </div>
+    <Sheet :open="currentPage !== 'none' && !isWideScreen" @update:open="open => {
+      if (!open) currentPage = 'none'
+    }">
+      <SheetContent id="reader-panel" side="bottom"
+        class="!left-1/2 !right-auto !h-[80dvh] !w-[90vw] !-translate-x-1/2 rounded-t-xl bg-[#18181b] text-white">
+        <SheetHeader>
+          <SheetTitle class="text-white">{{ currentTitle }}</SheetTitle>
+        </SheetHeader>
 
-      <Sheet :open="currentPage !== 'none' && !isWideScreen" @update:open="open => {
-        if (!open) currentPage = 'none'
-      }">
-        <SheetContent id="reader-panel" side="bottom"
-          class="!left-1/2 !right-auto !h-[80dvh] !w-[90vw] !-translate-x-1/2 rounded-t-xl bg-[#18181b] text-white">
-          <SheetHeader>
-            <SheetTitle class="text-white">{{ currentTitle }}</SheetTitle>
-          </SheetHeader>
-
-          <Notes v-if="currentPage === 'notes'" :book-id="bookId" />
-          <MemoryCard v-else-if="currentPage === 'memorycard'" />
-          <BookDiaglog v-else-if="currentPage === 'bookmarks'" />
-          <ChatBotPage v-else-if="currentPage === 'chats'" />
-          <Search v-else-if="currentPage === 'search'" />
-        </SheetContent>
-      </Sheet>
-    </main>
+        <Notes v-if="currentPage === 'notes'" :book-id="bookId" />
+        <MemoryCard v-else-if="currentPage === 'memorycard'" />
+        <BookDiaglog v-else-if="currentPage === 'bookmarks'" />
+        <ChatBotPage v-else-if="currentPage === 'chats'" />
+        <Search v-else-if="currentPage === 'search'" />
+      </SheetContent>
+    </Sheet>
   </div>
 </template>
