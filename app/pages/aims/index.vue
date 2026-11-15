@@ -1,26 +1,31 @@
 <template>
   <main class="min-h-screen bg-neutral-950 px-5 py-12 text-stone-100">
     <CardHeader class="mx-auto mb-8 max-w-6xl px-0">
-      <CardTitle class="text-4xl font-bold tracking-tight text-amber-400 sm:text-5xl">{{ selectedYear }} Planning</CardTitle>
-      <CardDescription class="text-stone-400">“Set your aim for the year. Plan the steps. Make each week count.”</CardDescription>
+      <CardTitle class="text-4xl font-bold tracking-tight text-amber-400 sm:text-5xl">{{ selectedYear }} Planning
+      </CardTitle>
+      <CardDescription class="text-stone-400">“Set your aim for the year. Plan the steps. Make each week count.”
+      </CardDescription>
       <CardDescription class="mt-2 text-stone-500">
         {{ completedAimCount }} of {{ aimList.length }} weekly aims set for {{ selectedYear }}.
       </CardDescription>
     </CardHeader>
     <div class="sticky top-0 z-20 -mx-5 mb-6 bg-neutral-950 px-5 py-3">
       <Dialog>
-        <Card class="mx-auto mb-3 w-full max-w-6xl gap-0 border-amber-400/40 bg-stone-900 py-0 transition-colors hover:border-amber-400">
-          <DialogTrigger class="grid w-full cursor-pointer grid-cols-[5rem_minmax(0,1fr)] items-start gap-4 rounded-xl p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 sm:grid-cols-[8rem_minmax(0,1fr)] sm:gap-6 sm:p-6">
+        <Card
+          class="mx-auto mb-3 w-full max-w-6xl gap-0 border-amber-400/40 bg-stone-900 py-0 transition-colors hover:border-amber-400">
+          <DialogTrigger
+            class="grid w-full cursor-pointer grid-cols-[5rem_minmax(0,1fr)] items-start gap-4 rounded-xl p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 sm:grid-cols-[8rem_minmax(0,1fr)] sm:gap-6 sm:p-6">
             <span class="flex flex-col items-start gap-2">
               <span class="rounded bg-amber-400 px-3 py-2 text-sm font-bold text-neutral-950">{{ selectedYear }}</span>
               <span class="text-xs font-semibold text-stone-400">Yearly aim</span>
             </span>
             <span class="min-w-0 whitespace-pre-wrap break-words text-stone-200">
-                {{ yearlyAim.content || 'No yearly aim set yet.' }}
+              {{ yearlyAim.content || 'No yearly aim set yet.' }}
             </span>
           </DialogTrigger>
         </Card>
-        <DialogContent class="max-h-[90dvh] overflow-y-auto border-stone-800 bg-stone-900 text-stone-100 sm:max-w-3xl sm:p-8">
+        <DialogContent
+          class="max-h-[90dvh] overflow-y-auto border-stone-800 bg-stone-900 text-stone-100 sm:max-w-3xl sm:p-8">
           <DialogHeader>
             <DialogTitle>{{ selectedYear }} yearly aim</DialogTitle>
             <DialogDescription class="text-stone-400">
@@ -40,8 +45,7 @@
 
           <DialogFooter>
             <DialogClose as-child>
-              <Button type="button"
-                class="bg-amber-400 px-5 text-sm font-semibold text-neutral-950 hover:bg-amber-300"
+              <Button type="button" class="bg-amber-400 px-5 text-sm font-semibold text-neutral-950 hover:bg-amber-300"
                 @click="saveYearlyAim(yearlyAim)">
                 Done
               </Button>
@@ -79,36 +83,32 @@
         <Card class="gap-0 border-stone-800 bg-stone-900 py-0"
           :class="{ 'border-amber-400 ring-2 ring-amber-400': aim.weeknum === currentWeek }">
           <Dialog>
-            <DialogTrigger class="grid min-h-40 w-full cursor-pointer grid-cols-[5rem_minmax(0,1fr)] items-start gap-x-4 gap-y-4 rounded-xl p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 sm:grid-cols-[8rem_minmax(0,1fr)] sm:gap-x-6 sm:p-6">
+            <DialogTrigger
+              class="grid min-h-40 w-full cursor-pointer grid-cols-[5rem_minmax(0,1fr)] items-start gap-x-4 gap-y-4 rounded-xl p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 sm:grid-cols-[8rem_minmax(0,1fr)] sm:gap-x-6 sm:p-6">
               <span class="flex flex-col items-start gap-2">
-                <span class="grid h-9 w-9 place-items-center rounded bg-amber-400 text-sm font-semibold text-neutral-950">{{
-                  String(aim.weeknum).padStart(2, '0') }}</span>
+                <span
+                  class="grid h-9 w-9 place-items-center rounded bg-amber-400 text-sm font-semibold text-neutral-950">{{
+                    String(aim.weeknum).padStart(2, '0') }}</span>
                 <span class="text-xs font-semibold text-stone-400">Week {{ aim.weeknum }}</span>
               </span>
               <span class="min-w-0 whitespace-pre-wrap break-words text-stone-200">
-                  {{ aim.aims || 'No aim set yet.' }}
+                {{ aim.aims || 'No aim set yet.' }}
               </span>
               <span class="col-span-2 flex items-center justify-between self-end text-xs text-stone-500">
                 <span>{{ aim.aims.length }}/50</span>
                 <span :class="aim.aims.trim() ? 'text-amber-400' : ''">{{ aim.aims.trim() ? 'Set' : 'Not set' }}</span>
               </span>
             </DialogTrigger>
-            <DialogContent class="max-h-[90dvh] overflow-y-auto border-stone-800 bg-stone-900 text-stone-100 sm:max-w-3xl sm:p-8">
+            <DialogContent
+              class="max-h-[90dvh] overflow-y-auto border-stone-800 bg-stone-900 text-stone-100 sm:max-w-3xl sm:p-8">
               <DialogHeader>
                 <DialogTitle>Week {{ aim.weeknum }} aim</DialogTitle>
-                <DialogDescription class="text-stone-400">
-                  Choose one clear intention for this week. Keep it under 50 characters.
-                </DialogDescription>
               </DialogHeader>
 
               <div class="space-y-2">
-                <label :for="`edit-week-${aim.weeknum}`" class="text-sm font-medium text-stone-300">
-                  Your aim
-                </label>
-                <Textarea :id="`edit-week-${aim.weeknum}`" v-model="aim.aims" maxlength="50"
+                <Textarea :id="`edit-week-${aim.weeknum}`" v-model="aim.aims"
                   :placeholder="`Aim for week ${aim.weeknum}`"
                   class="min-h-48 resize-y border-stone-700 bg-stone-950 text-stone-100 placeholder:text-stone-600 focus-visible:ring-amber-400 sm:min-h-64" />
-                <p class="text-right text-xs text-stone-500">{{ aim.aims.length }}/50</p>
               </div>
 
               <DialogFooter>
@@ -171,7 +171,7 @@ const currentWeekRef = useTemplateRef<HTMLElement[]>('currentWeekRef');
 onMounted(async () => {
   await nextTick();
   const element = currentWeekRef.value?.[0];
-  element?.scrollIntoView({behavior: "smooth",block: "center",});
+  element?.scrollIntoView({ behavior: "smooth", block: "center", });
 });
 
 
