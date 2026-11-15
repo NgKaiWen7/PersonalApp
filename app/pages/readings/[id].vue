@@ -48,34 +48,6 @@ const panelTitles = {
   search: 'Search',
 }
 
-const currentPage = ref<ReaderPanel>('none')
-const isWideScreen = computed(() =>
-  viewportWidth.value - largestPdfPageWidth.value - READER_HORIZONTAL_PADDING - READER_COLUMN_GAP >= MIN_PANEL_WIDTH,
-)
-watch(isWideScreen, (wide) => {
-  console.log(currentPage.value)
-  if (wide && currentPage.value === 'none') {
-    currentPage.value = 'notes'
-  }
-}, { immediate: true })
-const isDrawerOpen = computed({
-  get: () => !isWideScreen.value && currentPage.value !== 'none',
-  set: (open: boolean) => {
-    if (!open) currentPage.value = 'none'
-  },
-})
-const currentTitle = computed(() =>
-  currentPage.value === 'none' ? '' : panelTitles[currentPage.value],
-)
-
-const pageRefs = ref<HTMLElement[]>([])
-
-function setPageRef(element: HTMLElement | null, index: number) {
-  if (element) {
-    pageRefs.value[index] = element
-  }
-}
-
 async function renderPdf() {
   loading.value = true
   loadError.value = null
@@ -151,9 +123,37 @@ async function renderPdf() {
 
 onMounted(renderPdf)
 
+const currentPage = ref<ReaderPanel>('none')
+const isWideScreen = computed(() => {
+  return viewportWidth.value - largestPdfPageWidth.value - READER_HORIZONTAL_PADDING - READER_COLUMN_GAP >= MIN_PANEL_WIDTH
+}
+)
+watch(isWideScreen, (wide) => {
+  if (largestPdfPageWidth.value <= 0) return
+
+  console.log('current page: ', currentPage.value)
+  console.log('widescreen: ', isWideScreen.value)
+
+  if (wide && currentPage.value === 'none') {
+    currentPage.value = 'notes'
+  }
+}, { immediate: true })
+const currentTitle = computed(() =>
+  currentPage.value === 'none' ? '' : panelTitles[currentPage.value],
+)
+
+const pageRefs = ref<HTMLElement[]>([])
+
+function setPageRef(element: HTMLElement | null, index: number) {
+  if (element) {
+    pageRefs.value[index] = element
+  }
+}
+
 function handleClick(page: Exclude<ReaderPanel, 'none'>) {
   currentPage.value = page
 }
+
 </script>
 
 <template>
@@ -189,10 +189,7 @@ function handleClick(page: Exclude<ReaderPanel, 'none'>) {
       </div>
 
       <div :class="{ 'grid grid-cols-[auto_minmax(0,1fr)] gap-6': isWideScreen && currentPage !== 'none' }">
-        <section
-          class="flex flex-col gap-6"
-          :class="isWideScreen ? 'items-start' : 'items-center'"
-        >
+        <section class="flex flex-col gap-6" :class="isWideScreen ? 'items-start' : 'items-center'">
           <div v-for="pageNumber in pageCount" :key="pageNumber"
             :ref="(element) => setPageRef(element as HTMLElement, pageNumber - 1)">
             <canvas />
@@ -208,12 +205,11 @@ function handleClick(page: Exclude<ReaderPanel, 'none'>) {
         </aside>
       </div>
 
-      <Sheet v-model:open="isDrawerOpen">
-        <SheetContent
-          id="reader-panel"
-          side="bottom"
-          class="!left-1/2 !right-auto !h-[80dvh] !w-[90vw] !-translate-x-1/2 rounded-t-xl bg-[#18181b] text-white"
-        >
+      <Sheet :open="currentPage !== 'none'" @update:open="open => {
+        if (!open) currentPage = 'none'
+      }">
+        <SheetContent id="reader-panel" side="bottom"
+          class="!left-1/2 !right-auto !h-[80dvh] !w-[90vw] !-translate-x-1/2 rounded-t-xl bg-[#18181b] text-white">
           <SheetHeader>
             <SheetTitle class="text-white">{{ currentTitle }}</SheetTitle>
           </SheetHeader>
