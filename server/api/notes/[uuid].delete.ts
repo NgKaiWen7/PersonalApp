@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
             statusMessage: "Missing note UUID",
         });
     }
-    const result = await pool.query(
+    const result = await pool2.query(
         `
         DELETE FROM notes
         WHERE id = $1

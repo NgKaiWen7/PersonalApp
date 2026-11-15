@@ -8,13 +8,13 @@ export default defineEventHandler(async (event) => {
     const search = String(query.search ?? "").trim();
     const bookId = String(query.book_id ?? "").trim();
     const offset = (page - 1) * limit;
-    const bookFilter = bookId ? "AND book_id = $2" : "";
+    const bookFilter = bookId ? "AND study_source_id = $2" : "";
     const paginationStart = bookId ? 3 : 2;
     const params = bookId
         ? [search, bookId, limit, offset]
         : [search, limit, offset];
 
-    const result = await pool.query(
+    const result = await pool2.query(
         `
             SELECT *
             FROM notes
@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
         params,
     );
 
-    const count = await pool.query(
+    const count = await pool2.query(
         `
             SELECT COUNT(*)::INTEGER AS total
             FROM notes
