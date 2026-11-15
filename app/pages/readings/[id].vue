@@ -31,7 +31,7 @@ const { width: viewportWidth } = useWindowSize()
 
 const READER_HORIZONTAL_PADDING = 32
 const READER_COLUMN_GAP = 24
-const MIN_PANEL_WIDTH = 800
+const MIN_PANEL_WIDTH = 400
 type ReaderPanel =
   | 'none'
   | 'notes'
@@ -205,7 +205,7 @@ function handleClick(page: Exclude<ReaderPanel, 'none'>) {
         </aside>
       </div>
 
-      <Sheet :open="currentPage !== 'none'" @update:open="open => {
+      <Sheet :open="currentPage !== 'none' && !isWideScreen" @update:open="open => {
         if (!open) currentPage = 'none'
       }">
         <SheetContent id="reader-panel" side="bottom"

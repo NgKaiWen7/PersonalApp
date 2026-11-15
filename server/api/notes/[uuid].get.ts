@@ -21,5 +21,12 @@ export default defineEventHandler(async (event) => {
         `,
         [uuid],
     );
-  return result.rows[0];
+    if (result.rows.length === 0) {
+        throw createError({
+            statusCode: 404,
+            statusMessage: 'Note Not Found',
+            fatal: true
+        })
+    }
+    return result.rows[0];
 });

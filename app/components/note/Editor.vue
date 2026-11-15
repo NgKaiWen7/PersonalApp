@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import { ArrowLeft, Save, Trash2 } from "@lucide/vue";
+import { Save, Trash2 } from "@lucide/vue";
+import Textarea from "../ui/textarea/Textarea.vue";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+
 
 const props = defineProps<{
     noteId: string;
 }>();
+const emit = defineEmits(['deleteNote'])
 
 interface Note {
     id: string;
@@ -25,7 +30,6 @@ async function getNote() {
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
-
     note.value = await response.json();
     title.value = note.value.title;
     description.value = note.value.description;
@@ -59,18 +63,8 @@ async function saveNote() {
     }, 1000);
 }
 
-function handleBack() {
-    navigateTo("/notes");
-}
-
 async function handleDelete() {
-    const response = await fetch(`/api/notes/${props.noteId}`, {
-        method: "DELETE",
-    });
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    await navigateTo("/notes");
+    await emit('deleteNote')
 }
 
 function handlePaste(event: ClipboardEvent) {
@@ -117,27 +111,29 @@ onUnmounted(() => clearTimeout(saveTimer));
 <template>
     <div v-if="note" class="w-full p-4 sm:p-6">
         <Saved :show="saved" />
-        <div class="mb-8 flex w-full items-center justify-between border-b border-white/[0.06] pb-5">
-            <Button variant="ghost" aria-label="Back to notes" title="Back to notes" class="flex size-10 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04] !p-0 text-neutral-400 hover:border-white/[0.14] hover:bg-white/[0.08] hover:text-white" @click="handleBack">
-                <ArrowLeft class="size-4" />
+        <div class="flex items-center gap-2">
+            <Input v-model="title" type="text" class="w-full bg-transparent text-2xl font-bold text-white outline-none"
+                placeholder="Note title" @blur="handleChange" />
+            <Button aria-label="Save note" title="Save note"
+                class="flex size-10 items-center justify-center rounded-lg bg-[radial-gradient(circle_at_center,#f3d77d_0%,#d8b65a_46%,#b78e32_100%)] !p-0 text-[#17140b] shadow-[0_4px_16px_rgba(197,162,74,0.18)] hover:brightness-110"
+                @click="saveNote">
+                <Save class="size-4" />
             </Button>
-            <div class="flex items-center gap-2">
-                <Button aria-label="Save note" title="Save note" class="flex size-10 items-center justify-center rounded-lg bg-[radial-gradient(circle_at_center,#f3d77d_0%,#d8b65a_46%,#b78e32_100%)] !p-0 text-[#17140b] shadow-[0_4px_16px_rgba(197,162,74,0.18)] hover:brightness-110" @click="saveNote">
-                    <Save class="size-4" />
-                </Button>
-                <Button variant="ghost" aria-label="Delete note" title="Delete note" class="flex size-10 items-center justify-center rounded-lg border border-red-400/20 bg-red-400/[0.06] !p-0 text-red-300 hover:border-red-400/35 hover:bg-red-400/[0.12] hover:text-red-200" @click="handleDelete">
-                    <Trash2 class="size-4" />
-                </Button>
-            </div>
+            <Button variant="ghost" aria-label="Delete note" title="Delete note"
+                class="flex size-10 items-center justify-center rounded-lg border border-red-400/20 bg-red-400/[0.06] !p-0 text-red-300 hover:border-red-400/35 hover:bg-red-400/[0.12] hover:text-red-200"
+                @click="handleDelete">
+                <Trash2 class="size-4" />
+            </Button>
         </div>
+        <Textarea v-model="description" rows="2"
+            class="mt-1 w-full resize-none bg-transparent text-sm text-slate-400 outline-none" placeholder="Description"
+            @blur="handleChange" />
 
-        <div class="mb-6">
-            <input v-model="title" type="text" class="w-full bg-transparent text-2xl font-bold text-white outline-none" placeholder="Note title" @blur="handleChange" />
-            <textarea v-model="description" rows="2" class="mt-1 w-full resize-none bg-transparent text-sm text-slate-400 outline-none" placeholder="Description" @blur="handleChange" />
-        </div>
-
-        <ImageImportCard v-if="pendingImage" :file="pendingImage" @cancel="pendingImage = null" @insert="handleImageInsert" />
-        <textarea v-model="content" class="min-h-[60vh] w-full resize-none rounded-md bg-slate-950 p-4 text-sm leading-relaxed text-white outline-none" placeholder="Start writing..." @paste="handlePaste" @blur="handleChange" />
+        <ImageImportCard v-if="pendingImage" :file="pendingImage" @cancel="pendingImage = null"
+            @insert="handleImageInsert" />
+        <Textarea v-model="content"
+            class="min-h-[60vh] w-full resize-none rounded-md bg-slate-950 p-4 text-sm leading-relaxed text-white outline-none"
+            placeholder="Start writing..." @paste="handlePaste" @blur="handleChange" />
     </div>
     <div v-else class="p-6 text-sm text-slate-500">Loading...</div>
 </template>

@@ -1,12 +1,10 @@
-import { pool } from "../../utils/db";
-
 export default defineEventHandler(async (event) => {
     const query = getQuery(event);
 
     const page = Math.max(1, Number(query.page) || 1);
     const limit = Math.min(100, Math.max(1, Number(query.limit) || 10));
     const search = String(query.search ?? "").trim();
-    const bookId = String(query.book_id ?? "").trim();
+    const bookId = String(query.bookId ?? "").trim();
     const offset = (page - 1) * limit;
     const bookFilter = bookId ? "AND study_source_id = $2" : "";
     const paginationStart = bookId ? 3 : 2;
