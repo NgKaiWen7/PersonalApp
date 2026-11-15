@@ -17,6 +17,7 @@ import {
 } from '~/components/ui/sheet'
 
 const route = useRoute()
+const router = useRouter()
 const bookId = String(route.params.id)
 
 const pdfUrl = `/api/readings/${bookId}/file`
@@ -25,7 +26,7 @@ const pdfUrl = `/api/readings/${bookId}/file`
 // make those fields inaccessible.
 const pdfDocument = shallowRef<any>(null)
 const pageCount = ref(0)
-const pdfCurrentPage = ref(0)
+const pdfCurrentPage = ref(getInitialPdfPage())
 const scale = ref(1.4)
 const loading = ref(true)
 const loadError = ref<string | null>(null)
@@ -49,6 +50,15 @@ const panelTitles = {
   bookmarks: 'PDF Menu & Bookmarks',
   chats: 'AI Chats',
   search: 'Search',
+}
+
+function getInitialPdfPage() {
+  const value = Array.isArray(route.query.page)
+    ? route.query.page[0]
+    : route.query.page
+  const page = Number(value)
+
+  return Number.isInteger(page) && page > 0 ? page : 1
 }
 
 async function renderPdf() {
@@ -79,7 +89,6 @@ async function renderPdf() {
 
     pdfDocument.value = await pdfjsLib.getDocument({ data }).promise
     pageCount.value = pdfDocument.value.numPages
-    largestPdfPageWidth.value = 0
 
     // The canvases are rendered by the v-else branch, so reveal it before
     // taking their references.
@@ -116,6 +125,9 @@ async function renderPdf() {
         viewport,
       }).promise
     }
+
+    // Restore the page encoded in the URL after its canvas is available.
+    goToPage(false)
   } catch (error) {
     console.error('Unable to load PDF', error)
     loadError.value = 'Unable to load this PDF. Please try again.'
@@ -131,7 +143,7 @@ const isWideScreen = computed(() => {
   return viewportWidth.value - largestPdfPageWidth.value - READER_HORIZONTAL_PADDING - READER_COLUMN_GAP >= MIN_PANEL_WIDTH
 }
 )
-watch(isWideScreen, (wide) => {
+watch([isWideScreen, largestPdfPageWidth], (wide) => {
   if (largestPdfPageWidth.value <= 0) return
   if (wide && currentPage.value === 'none') {
     currentPage.value = 'notes'
@@ -143,15 +155,18 @@ const currentTitle = computed(() =>
 
 const pageRefs = ref<HTMLElement[]>([])
 
-function goToPage() {
+function goToPage(smooth = true) {
   const pageNumber = Math.min(
     Math.max(pdfCurrentPage.value, 1),
     pageCount.value,
   )
   pdfCurrentPage.value = pageNumber
+  router.replace({
+    query: { ...route.query, page: String(pageNumber) },
+  })
   const pageElement = pageRefs.value[pageNumber - 1]
   pageElement?.scrollIntoView({
-    behavior: 'smooth',
+    behavior: smooth ? 'smooth' : 'auto',
     block: 'start',
   })
 }
@@ -203,15 +218,20 @@ function handleClick(page: Exclude<ReaderPanel, 'none'>) {
         Go
       </Button>
     </div>
-    <div :class="{ 'grid grid-cols-[auto_minmax(0,1fr)] gap-6': isWideScreen && currentPage !== 'none' }">
-      <section class="flex flex-col gap-6" :class="isWideScreen ? 'items-start' : 'items-center'">
+    <div :class="{
+      'grid h-screen max-h-screen min-h-0 grid-cols-[auto_minmax(0,1fr)] gap-6 overflow-hidden':
+        isWideScreen && currentPage !== 'none',
+    }">
+      <section class="h-full min-h-0 overflow-y-auto overscroll-contain"
+        :class="isWideScreen ? 'items-start' : 'items-center'">
         <div v-for="pageNumber in pageCount" :key="pageNumber"
           :ref="(element) => setPageRef(element as HTMLElement, pageNumber - 1)">
           <canvas />
         </div>
       </section>
 
-      <aside v-if="isWideScreen && currentPage !== 'none'" class="min-w-0 border-l border-white/10 pl-6">
+      <aside v-if="isWideScreen && currentPage !== 'none'"
+        class="min-h-0 min-w-0 overflow-y-auto border-l border-white/10 pl-6">
         <Notes v-if="currentPage === 'notes'" :book-id="bookId" />
         <MemoryCard v-else-if="currentPage === 'memorycard'" />
         <BookDiaglog v-else-if="currentPage === 'bookmarks'" />
