@@ -1,11 +1,11 @@
-type Card = {
+interface Card {
   uuid: string;
   title: string;
   content: string;
   image_path: string | null;
-};
+}
 
-export interface CardsResponse {
+interface CardsResponse {
   data: Card[];
   pagination: {
     page: number;
@@ -15,3 +15,6 @@ export interface CardsResponse {
     hasNextPage: boolean;
     hasPreviousPage: boolean;
   };
+}
+
+export type { Card, CardsResponse };

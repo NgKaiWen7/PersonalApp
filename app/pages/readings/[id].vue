@@ -4,7 +4,6 @@ import { useWindowSize } from '@vueuse/core'
 
 import BookDiaglog from '~/components/reading/BookDiaglog.vue'
 import ChatBotPage from '~/components/reading/ChatBotPage.vue'
-import MemoryCard from '~/components/reading/MemoryCard.vue'
 import Notes from '~/components/reading/Notes.vue'
 import Search from '~/components/reading/Search.vue'
 import { Button } from '~/components/ui/button'
@@ -27,7 +26,11 @@ const pdfUrl = `/api/readings/${bookId}/file`
 const pdfDocument = shallowRef<any>(null)
 const pageCount = ref(0)
 const pdfCurrentPage = ref(getInitialPdfPage())
-const scale = ref(1.4)
+const DEFAULT_SCALE = 2
+const scale = ref(DEFAULT_SCALE)
+const MIN_SCALE = 0.25
+const MAX_SCALE = 2.5
+
 const loading = ref(true)
 const loadError = ref<string | null>(null)
 const largestPdfPageWidth = ref(0)
@@ -90,6 +93,8 @@ async function renderPdf() {
     pdfDocument.value = await pdfjsLib.getDocument({ data }).promise
     pageCount.value = pdfDocument.value.numPages
 
+    largestPdfPageWidth.value = 0
+
     // The canvases are rendered by the v-else branch, so reveal it before
     // taking their references.
     loading.value = false
@@ -98,6 +103,7 @@ async function renderPdf() {
     for (let pageNumber = 1; pageNumber <= pageCount.value; pageNumber++) {
       const page = await pdfDocument.value.getPage(pageNumber)
       const viewport = page.getViewport({ scale: scale.value })
+
       largestPdfPageWidth.value = Math.max(largestPdfPageWidth.value, viewport.width)
 
       const pageElement = pageRefs.value[pageNumber - 1]
@@ -107,7 +113,6 @@ async function renderPdf() {
       }
 
       const canvas = pageElement.querySelector('canvas')
-
       if (!(canvas instanceof HTMLCanvasElement)) {
         throw new Error(`Missing canvas for PDF page ${pageNumber}`)
       }
@@ -117,13 +122,18 @@ async function renderPdf() {
       canvas.width = viewport.width
       canvas.height = viewport.height
 
-      pageElement.style.width = `${viewport.width}px`
-      pageElement.style.height = `${viewport.height}px`
+      pageElement.style.width = `min(100%, ${viewport.width}px)`
 
       await page.render({
         canvasContext: context,
         viewport,
       }).promise
+
+      // Keep the high-resolution canvas while fitting its displayed width to
+      // the available reader column on small screens.
+      canvas.style.width = '100%'
+      canvas.style.height = 'auto'
+      canvas.style.display = 'block'
     }
 
     // Restore the page encoded in the URL after its canvas is available.
@@ -143,8 +153,8 @@ const isWideScreen = computed(() => {
   return viewportWidth.value - largestPdfPageWidth.value - READER_HORIZONTAL_PADDING - READER_COLUMN_GAP >= MIN_PANEL_WIDTH
 }
 )
-watch([isWideScreen, largestPdfPageWidth], (wide) => {
-  if (largestPdfPageWidth.value <= 0) return
+watch([isWideScreen, largestPdfPageWidth], ([wide, width]) => {
+  if (width <= 0) return
   if (wide && currentPage.value === 'none') {
     currentPage.value = 'notes'
   }
@@ -219,7 +229,7 @@ function handleClick(page: Exclude<ReaderPanel, 'none'>) {
       </Button>
     </div>
     <div :class="{
-      'grid h-screen max-h-screen min-h-0 grid-cols-[auto_minmax(0,1fr)] gap-6 overflow-hidden':
+      'h-dvh grid h-screen max-h-screen min-h-0 grid-cols-[auto_minmax(0,1fr)] gap-6 overflow-hidden':
         isWideScreen && currentPage !== 'none',
     }">
       <section class="h-full min-h-0 overflow-y-auto overscroll-contain"
@@ -233,7 +243,7 @@ function handleClick(page: Exclude<ReaderPanel, 'none'>) {
       <aside v-if="isWideScreen && currentPage !== 'none'"
         class="min-h-0 min-w-0 overflow-y-auto border-l border-white/10 pl-6">
         <Notes v-if="currentPage === 'notes'" :book-id="bookId" />
-        <MemoryCard v-else-if="currentPage === 'memorycard'" />
+        <ReadingMemoryCardList v-else-if="currentPage === 'memorycard'" />
         <BookDiaglog v-else-if="currentPage === 'bookmarks'" />
         <ChatBotPage v-else-if="currentPage === 'chats'" />
         <Search v-else-if="currentPage === 'search'" />
@@ -244,13 +254,14 @@ function handleClick(page: Exclude<ReaderPanel, 'none'>) {
       if (!open) currentPage = 'none'
     }">
       <SheetContent id="reader-panel" side="bottom"
-        class="!left-1/2 !right-auto !h-[80dvh] !w-[90vw] !-translate-x-1/2 rounded-t-xl bg-[#18181b] text-white">
+        class="!left-1/2 !right-auto !h-[80dvh] !w-[90vw] !-translate-x-1/2 rounded-t-xl bg-[#18181b] text-white"
+        :aria-describedby="undefined">
         <SheetHeader>
           <SheetTitle class="text-white">{{ currentTitle }}</SheetTitle>
         </SheetHeader>
 
         <Notes v-if="currentPage === 'notes'" :book-id="bookId" />
-        <MemoryCard v-else-if="currentPage === 'memorycard'" />
+        <ReadingMemoryCardList v-else-if="currentPage === 'memorycard'" />
         <BookDiaglog v-else-if="currentPage === 'bookmarks'" />
         <ChatBotPage v-else-if="currentPage === 'chats'" />
         <Search v-else-if="currentPage === 'search'" />

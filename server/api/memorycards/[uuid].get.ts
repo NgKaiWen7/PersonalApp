@@ -1,5 +1,5 @@
 import { pool2 } from "../../utils/db";
-import type { Card, CardsResponse } from "#shared/types/card";
+import type { Card, CardsResponse } from "~/shared/types/card";
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, "uuid");
