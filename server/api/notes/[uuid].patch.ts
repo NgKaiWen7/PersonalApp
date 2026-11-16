@@ -7,7 +7,6 @@ export default defineEventHandler(async (event) => {
     });
   }
   const body = await readBody(event);
-  console.log(body);
   const result = await pool2.query(
     `
         UPDATE notes

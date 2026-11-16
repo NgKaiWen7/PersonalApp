@@ -17,6 +17,5 @@ export default defineEventHandler(async (event) => {
     `,
     [year],
   );
-  console.log(result.rows)
   return result.rows;
 });

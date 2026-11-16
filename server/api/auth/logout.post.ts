@@ -1,7 +1,6 @@
 import { deleteCookie, getCookie, defineEventHandler } from "h3";
 
 export default defineEventHandler(async (event) => {
-  console.log("logging out");
   const token = getCookie(event, "session");
 
   if (token) {
