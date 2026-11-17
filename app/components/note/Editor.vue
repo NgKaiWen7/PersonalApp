@@ -64,6 +64,15 @@ async function saveNote() {
 }
 
 async function handleDelete() {
+    try {
+        await $fetch(`/api/notes/${props.noteId}`, {
+            method: 'DELETE',
+        })
+
+        console.log('Note deleted')
+    } catch (error) {
+        console.error('Failed to delete note:', error)
+    }
     await emit('deleteNote')
 }
 
